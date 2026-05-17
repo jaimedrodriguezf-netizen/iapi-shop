@@ -4,6 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import { SampleSalesChart } from "@/components/dashboard/sample-chart";
 import { ShopSummaryTable, ShopSummary } from "@/components/dashboard/shop-summary-table";
 
+interface SubscriptionResult {
+  plans: {
+    name: string;
+  } | null;
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   
@@ -13,7 +19,7 @@ export default async function DashboardPage() {
   const platformRole = getBootstrapPlatformRole(email);
 
   // 2. Fetch real de sucursales (tenants)
-  const { data: tenants, error } = await supabase
+  const { data: tenants } = await supabase
     .from("tenants")
     .select("id, name, status, created_at")
     .order("created_at", { ascending: false });
@@ -25,12 +31,13 @@ export default async function DashboardPage() {
     created_at: t.created_at
   }));
 
-  // 3. Obtener el plan (simplificado por ahora desde la primera sucursal o default)
+  // 3. Obtener el plan
   const { data: subscription } = sucursales.length > 0 
     ? await supabase.from("tenant_subscriptions").select("plans(name)").eq("tenant_id", sucursales[0].id).single()
     : { data: null };
   
-  const planName = (subscription as any)?.plans?.name || "N/A";
+  const typedSubscription = subscription as unknown as SubscriptionResult | null;
+  const planName = typedSubscription?.plans?.name || "N/A";
 
   return (
     <section className="space-y-6 py-6">
@@ -52,6 +59,12 @@ export default async function DashboardPage() {
           <p className="text-3xl font-black mt-1 text-orange-600 uppercase text-lg">{planName}</p>
         </div>
       </div>
+
+      {platformRole === "admin" && (
+        <div className="bg-orange-50 border border-orange-200 p-4 rounded-2xl">
+          <p className="text-xs font-bold text-orange-800 uppercase tracking-tight">Acceso Administrador de Plataforma</p>
+        </div>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
         <div className="lg:col-span-4">

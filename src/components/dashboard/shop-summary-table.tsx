@@ -20,7 +20,7 @@ const columns: ColumnDef<ShopSummary>[] = [
     header: "Estado",
     cell: ({ row }) => (
       <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
-        {row.getValue("status")}
+        {String(row.getValue("status"))}
       </span>
     ),
   },
@@ -28,7 +28,8 @@ const columns: ColumnDef<ShopSummary>[] = [
     accessorKey: "created_at",
     header: "Fecha de Creación",
     cell: ({ row }) => {
-      const date = new Date(row.getValue("created_at"))
+      const dateValue = row.getValue("created_at")
+      const date = typeof dateValue === 'string' ? new Date(dateValue) : new Date()
       return <span className="text-muted-foreground text-xs">{date.toLocaleDateString()}</span>
     },
   },

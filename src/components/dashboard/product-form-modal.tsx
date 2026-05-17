@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { createProduct, updateProduct, getCategories, createCategory } from "@/lib/products/actions"
+import Image from "next/image"
 
 const productSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres."),
@@ -46,16 +47,28 @@ const productSchema = z.object({
   image_urls: z.array(z.string().url("URL de imagen inválida")).max(3, "Máximo 3 fotos"),
 })
 
+interface Category {
+  id: string;
+  name: string;
+}
+
 interface ProductFormModalProps {
   tenantId: string
-  product: any | null // null significa crear
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    category_id?: string;
+    description?: string;
+    image_urls?: string[];
+  } | null // null significa crear
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
 }
 
 export function ProductFormModal({ tenantId, product, open, onOpenChange, onSuccess }: ProductFormModalProps) {
-  const [categories, setCategories] = React.useState<any[]>([])
+  const [categories, setCategories] = React.useState<Category[]>([])
   const [newCategoryName, setNewCategoryName] = React.useState("")
 
   const isEditing = !!product
@@ -73,7 +86,9 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
 
   const loadCategories = React.useCallback(async () => {
     const res = await getCategories(tenantId)
-    if (res.success) setCategories(res.categories)
+    if (res.success && res.categories) {
+      setCategories(res.categories as Category[])
+    }
   }, [tenantId])
 
   React.useEffect(() => {
@@ -123,7 +138,7 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
         image_urls: values.image_urls,
       }
 
-      const result = isEditing 
+      const result = isEditing && product
         ? await updateProduct(product.id, payload)
         : await createProduct(payload)
 
@@ -220,16 +235,17 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
                 <TabsContent value="media" className="space-y-4 mt-0">
                   <div className="grid grid-cols-3 gap-4">
                     {[0, 1, 2].map((i) => {
-                      const url = form.watch("image_urls")?.[i]
+                      const urls = form.watch("image_urls")
+                      const url = urls ? urls[i] : null
                       return (
                         <div key={i} className="aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center relative group bg-muted/30">
                           {url ? (
                             <>
-                              <img src={url} alt="Producto" className="w-full h-full object-cover rounded-2xl" />
+                              <Image src={url} alt="Producto" fill className="object-cover rounded-2xl" />
                               <button 
                                 type="button"
-                                onClick={() => form.setValue("image_urls", form.getValues("image_urls").filter((_, idx) => idx !== i))}
-                                className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => form.setValue("image_urls", (form.getValues("image_urls") || []).filter((_, idx) => idx !== i))}
+                                className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
                               >
                                 <Trash2 className="h-3 w-3" />
                               </button>

@@ -29,6 +29,7 @@ import {
 import { ProductFormModal } from "./product-form-modal"
 import { getProducts, deleteProduct } from "@/lib/products/actions"
 import { toast } from "sonner"
+import Image from "next/image"
 
 export type Product = {
   id: string
@@ -41,8 +42,14 @@ export type Product = {
   image_urls?: string[]
 }
 
+interface ProductWithCategory extends Product {
+  categories?: {
+    name: string;
+  } | null;
+}
+
 export function ProductListClient({ tenantId }: { tenantId: string }) {
-  const [products, setProducts] = React.useState<Product[]>([])
+  const [products, setProducts] = React.useState<ProductWithCategory[]>([])
   const [loading, setLoading] = React.useState(true)
   
   // Estado Unificado para el Modal de Formulario (Crear/Editar)
@@ -56,14 +63,17 @@ export function ProductListClient({ tenantId }: { tenantId: string }) {
   const fetchProducts = React.useCallback(async () => {
     setLoading(true)
     const result = await getProducts(tenantId)
-    if (result.success) {
-      setProducts(result.products as Product[])
+    if (result.success && result.products) {
+      setProducts(result.products as ProductWithCategory[])
     }
     setLoading(false)
   }, [tenantId])
 
   React.useEffect(() => {
-    fetchProducts()
+    const init = async () => {
+      await fetchProducts()
+    }
+    init()
   }, [fetchProducts])
 
   async function handleDelete() {
@@ -79,29 +89,32 @@ export function ProductListClient({ tenantId }: { tenantId: string }) {
     }
   }
 
-  const columns: ColumnDef<Product>[] = [
+  const columns: ColumnDef<ProductWithCategory>[] = [
     {
       accessorKey: "name",
       header: "Producto",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 overflow-hidden rounded-lg bg-muted text-muted-foreground border">
-            {row.original.image_urls?.[0] ? (
-              <img src={row.original.image_urls[0]} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <Package className="h-5 w-5" />
-              </div>
-            )}
+      cell: ({ row }) => {
+        const product = row.original
+        return (
+          <div className="flex items-center gap-3">
+            <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-muted text-muted-foreground border">
+              {product.image_urls?.[0] ? (
+                <Image src={product.image_urls[0]} alt="" fill className="object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Package className="h-5 w-5" />
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold">{String(row.getValue("name"))}</span>
+              {product.categories?.name && (
+                <span className="text-[10px] uppercase font-black text-orange-600">{product.categories.name}</span>
+              )}
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="font-bold">{row.getValue("name")}</span>
-            {(row.original as any).categories?.name && (
-              <span className="text-[10px] uppercase font-black text-orange-600">{(row.original as any).categories.name}</span>
-            )}
-          </div>
-        </div>
-      ),
+        )
+      },
     },
     {
       accessorKey: "price",
@@ -137,18 +150,22 @@ export function ProductListClient({ tenantId }: { tenantId: string }) {
                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
-                  onClick={() => {
-                    setSelectedProduct(product)
-                    setIsModalOpen(true)
+                  onSelect={() => {
+                    setTimeout(() => {
+                      setSelectedProduct(product)
+                      setIsModalOpen(true)
+                    }, 100)
                   }} 
                   className="cursor-pointer font-medium"
                 >
                   <Edit2 className="mr-2 h-4 w-4" /> Editar
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => {
-                    setDeletingProduct(product)
-                    setIsDeleteDialogOpen(true)
+                  onSelect={() => {
+                    setTimeout(() => {
+                      setDeletingProduct(product)
+                      setIsDeleteDialogOpen(true)
+                    }, 100)
                   }} 
                   className="text-destructive cursor-pointer font-medium"
                 >
@@ -197,7 +214,7 @@ export function ProductListClient({ tenantId }: { tenantId: string }) {
           <AlertDialogHeader>
             <AlertDialogTitle className="font-black text-2xl">¿Estás seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. El producto <span className="font-bold text-foreground">"{deletingProduct?.name}"</span> será eliminado permanentemente.
+              Esta acción no se puede deshacer. El producto <span className="font-bold text-foreground">&quot;{deletingProduct?.name}&quot;</span> será eliminado permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-3">
