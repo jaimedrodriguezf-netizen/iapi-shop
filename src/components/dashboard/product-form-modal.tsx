@@ -1,0 +1,320 @@
+"use client"
+
+import * as React from "react"
+import { ImagePlus, Trash2 } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { toast } from "sonner"
+
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { createProduct, updateProduct, getCategories, createCategory } from "@/lib/products/actions"
+
+const productSchema = z.object({
+  name: z.string().min(2, "El nombre debe tener al menos 2 caracteres."),
+  price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+    message: "Ingresa un precio válido.",
+  }),
+  category_id: z.string().optional(),
+  description: z.string().optional(),
+  image_urls: z.array(z.string().url("URL de imagen inválida")).max(3, "Máximo 3 fotos"),
+})
+
+interface ProductFormModalProps {
+  tenantId: string
+  product: any | null // null significa crear
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSuccess: () => void
+}
+
+export function ProductFormModal({ tenantId, product, open, onOpenChange, onSuccess }: ProductFormModalProps) {
+  const [categories, setCategories] = React.useState<any[]>([])
+  const [newCategoryName, setNewCategoryName] = React.useState("")
+
+  const isEditing = !!product
+
+  const form = useForm<z.infer<typeof productSchema>>({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      name: "",
+      price: "0",
+      category_id: "",
+      description: "",
+      image_urls: [],
+    },
+  })
+
+  const loadCategories = React.useCallback(async () => {
+    const res = await getCategories(tenantId)
+    if (res.success) setCategories(res.categories)
+  }, [tenantId])
+
+  React.useEffect(() => {
+    if (open) {
+      loadCategories()
+      if (product) {
+        form.reset({
+          name: product.name,
+          price: product.price.toString(),
+          category_id: product.category_id || "",
+          description: product.description || "",
+          image_urls: product.image_urls || [],
+        })
+      } else {
+        form.reset({
+          name: "",
+          price: "0",
+          category_id: "",
+          description: "",
+          image_urls: [],
+        })
+      }
+    }
+  }, [open, loadCategories, product, form])
+
+  async function handleCreateCategory() {
+    if (!newCategoryName) return
+    const res = await createCategory(tenantId, newCategoryName)
+    if (res.success) {
+      toast.success("Categoría creada")
+      setNewCategoryName("")
+      loadCategories()
+    }
+  }
+
+  async function onSubmit(values: z.infer<typeof productSchema>) {
+    try {
+      const slug = values.name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "")
+      
+      const payload = {
+        tenant_id: tenantId,
+        category_id: values.category_id,
+        name: values.name,
+        slug,
+        description: values.description,
+        price: Number(values.price),
+        image_urls: values.image_urls,
+      }
+
+      const result = isEditing 
+        ? await updateProduct(product.id, payload)
+        : await createProduct(payload)
+
+      if (result.success) {
+        toast.success(isEditing ? "Producto actualizado" : "¡Producto agregado!")
+        onOpenChange(false)
+        onSuccess()
+      } else {
+        toast.error(result.error || "Error en la operación")
+      }
+    } catch (error) {
+      toast.error("Error inesperado")
+    }
+  }
+
+  const addImageUrl = (url: string) => {
+    const current = form.getValues("image_urls") || []
+    if (current.length < 3) {
+      form.setValue("image_urls", [...current, url])
+    } else {
+      toast.error("Máximo 3 fotos permitidas")
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[600px] rounded-3xl overflow-hidden p-0 gap-0">
+        <DialogHeader className="p-6 pb-0">
+          <DialogTitle className="text-2xl font-black text-orange-600">
+            {isEditing ? "Editar Producto" : "Nuevo Producto"}
+          </DialogTitle>
+          <DialogDescription>
+            {isEditing ? "Modifica los detalles de tu producto." : "Configura el catálogo, categorías e imágenes de tu sucursal."}
+          </DialogDescription>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <Tabs defaultValue="general" className="w-full">
+              <TabsList className="w-full justify-start rounded-none border-b bg-transparent px-6 h-12">
+                <TabsTrigger value="general" className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none h-full">General</TabsTrigger>
+                <TabsTrigger value="media" className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none h-full">
+                  Fotos ({form.watch("image_urls")?.length || 0}/3)
+                </TabsTrigger>
+                <TabsTrigger value="category" className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none h-full">Categoría</TabsTrigger>
+              </TabsList>
+              
+              <div className="p-6 pt-4 max-h-[50vh] overflow-y-auto">
+                <TabsContent value="general" className="space-y-4 mt-0">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold">Nombre del producto</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ej: Hamburguesa de la Casa" {...field} className="rounded-xl" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold">Precio (USD)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} className="rounded-xl" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold">Descripción</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Describe tu producto..." {...field} className="rounded-xl" />
+                        </FormControl>
+                        <FormDescription className="flex items-center gap-1">
+                          Pronto botón de IA 🤖
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TabsContent>
+
+                <TabsContent value="media" className="space-y-4 mt-0">
+                  <div className="grid grid-cols-3 gap-4">
+                    {[0, 1, 2].map((i) => {
+                      const url = form.watch("image_urls")?.[i]
+                      return (
+                        <div key={i} className="aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center relative group bg-muted/30">
+                          {url ? (
+                            <>
+                              <img src={url} alt="Producto" className="w-full h-full object-cover rounded-2xl" />
+                              <button 
+                                type="button"
+                                onClick={() => form.setValue("image_urls", form.getValues("image_urls").filter((_, idx) => idx !== i))}
+                                className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
+                            </>
+                          ) : (
+                            <div className="flex flex-col items-center gap-2">
+                              <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                              <span className="text-[10px] text-muted-foreground font-bold uppercase">Foto {i+1}</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="space-y-2">
+                    <FormLabel className="text-xs font-black uppercase text-muted-foreground">URL de Imagen (Simulado)</FormLabel>
+                    <div className="flex gap-2">
+                      <Input id="img-url-input" placeholder="https://..." className="rounded-xl flex-1" />
+                      <Button 
+                        type="button" 
+                        variant="secondary" 
+                        className="rounded-xl"
+                        onClick={() => {
+                          const input = document.getElementById("img-url-input") as HTMLInputElement
+                          if (input.value) {
+                            addImageUrl(input.value)
+                            input.value = ""
+                          }
+                        }}
+                      >
+                        Subir
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="category" className="space-y-4 mt-0">
+                  <FormField
+                    control={form.control}
+                    name="category_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold">Seleccionar Categoría</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="rounded-xl">
+                              <SelectValue placeholder="Elige una categoría" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="rounded-xl">
+                            {categories.map((c) => (
+                              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="rounded-2xl border bg-muted/20 p-4 space-y-3">
+                    <p className="text-xs font-black uppercase text-muted-foreground">O crear una nueva</p>
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Nueva categoría..." 
+                        className="rounded-xl flex-1" 
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                      />
+                      <Button type="button" variant="outline" className="rounded-xl" onClick={handleCreateCategory}>
+                        Crear
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+              </div>
+            </Tabs>
+
+            <DialogFooter className="p-6 pt-0">
+              <Button type="submit" className="w-full rounded-2xl font-bold py-6 bg-orange-600 hover:bg-orange-700 shadow-md" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Guardando..." : isEditing ? "Actualizar Producto" : "Finalizar Producto"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  )
+}

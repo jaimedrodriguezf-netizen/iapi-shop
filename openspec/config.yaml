@@ -1,0 +1,20 @@
+schema: spec-driven
+project: iapi-shop
+strict_tdd: true
+context: |
+  Stack: Next.js 16 App Router, TypeScript, Tailwind CSS, Supabase Auth/Postgres/RLS, PayPal Ecuador, Hostinger media, OpenAI SDK, Cloudflare Turnstile, Upstash Rate Limit.
+  Testing: Vitest + React Testing Library for unit/component tests; Playwright for E2E.
+  Security rule: anonymous users only access the public landing and must not read product database data.
+rules:
+  proposal:
+    - Include rollback plan for risky changes.
+    - Identify affected modules/packages.
+  specs:
+    - Use Given/When/Then scenarios.
+    - Use MUST/SHALL/SHOULD/MAY requirement language.
+  apply:
+    - Follow Next.js 16 App Router conventions.
+    - Use proxy.ts, not middleware.ts.
+    - Follow RED -> GREEN -> REFACTOR for implementation tasks.
+  verify:
+    - Run npm test, npm run typecheck, npm run lint, and npm run build when relevant.
