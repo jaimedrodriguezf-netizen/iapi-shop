@@ -21,6 +21,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { logout } from "@/lib/auth/actions"
 
@@ -56,6 +57,14 @@ const footerItems = [
 ]
 
 export function AppSidebar({ email }: { email: string }) {
+  const { setOpenMobile, isMobile } = useSidebar()
+
+  const handleNavItemClick = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b px-6 py-4">
@@ -72,8 +81,7 @@ export function AppSidebar({ email }: { email: string }) {
         <SidebarMenu className="px-2 py-4">
           {navItems.map((item) => (
             <SidebarMenuItem key={item.title}>
-              {/* Quitamos asChild y pasamos Link directamente a render o usamos el componente Link fuera si no necesitamos el tooltip automático de SidebarMenuButton de esta forma */}
-              <SidebarMenuButton tooltip={item.title} render={<Link href={item.url} />}>
+              <SidebarMenuButton tooltip={item.title} render={<Link href={item.url} onClick={handleNavItemClick} />}>
                 <item.icon className="h-5 w-5" />
                 <span className="font-bold">{item.title}</span>
               </SidebarMenuButton>
@@ -85,7 +93,7 @@ export function AppSidebar({ email }: { email: string }) {
         <SidebarMenu>
           {footerItems.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} render={<Link href={item.url} />}>
+              <SidebarMenuButton tooltip={item.title} render={<Link href={item.url} onClick={handleNavItemClick} />}>
                 <item.icon className="h-5 w-5" />
                 <span className="font-bold">{item.title}</span>
               </SidebarMenuButton>
