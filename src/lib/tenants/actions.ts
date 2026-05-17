@@ -2,13 +2,31 @@
 
 import { createClient } from "@/lib/supabase/server";
 
-export type CreateTenantInput = {
+export interface Tenant {
+  id: string;
   name: string;
   slug: string;
+  brand_color?: string;
+  secondary_color?: string;
+  address?: string;
+  social_links?: {
+    instagram?: string;
+    facebook?: string;
+    tiktok?: string;
+  };
   whatsapp_phone?: string;
-};
+  logo_url?: string;
+  status: string;
+  created_at: string;
+}
 
-export async function getMyTenant() {
+export interface ActionResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+export async function getMyTenant(): Promise<ActionResult<Tenant>> {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -23,13 +41,60 @@ export async function getMyTenant() {
 
     if (error || !tenant) return { success: false, error: "Sucursal no encontrada" };
 
-    return { success: true, tenant };
-  } catch (error) {
+    return { success: true, data: tenant as unknown as Tenant };
+  } catch (err) {
+    console.error(err);
     return { success: false, error: "Error al obtener la sucursal" };
   }
 }
 
-export async function createTenant(input: CreateTenantInput) {
+export type UpdateTenantBrandingInput = {
+  brand_color?: string;
+  secondary_color?: string;
+  address?: string;
+  social_links?: {
+    instagram?: string;
+    facebook?: string;
+    tiktok?: string;
+  };
+};
+
+export async function updateTenantBranding(id: string, input: UpdateTenantBrandingInput): Promise<ActionResult<Tenant>> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "No autorizado" };
+
+    // Explicit Tenant Isolation: Filter by ID AND creator to ensure ownership before RLS
+    const { data: tenant, error } = await supabase
+      .from("tenants")
+      .update({
+        brand_color: input.brand_color,
+        secondary_color: input.secondary_color,
+        address: input.address,
+        social_links: input.social_links,
+      })
+      .eq("id", id)
+      .eq("created_by", user.id) 
+      .select()
+      .single();
+
+    if (error) return { success: false, error: error.message };
+
+    return { success: true, data: tenant as unknown as Tenant };
+  } catch (err) {
+    console.error(err);
+    return { success: false, error: "Error al actualizar la personalización" };
+  }
+}
+
+export type CreateTenantInput = {
+  name: string;
+  slug: string;
+  whatsapp_phone?: string;
+};
+
+export async function createTenant(input: CreateTenantInput): Promise<ActionResult<Tenant>> {
   try {
     const supabase = await createClient();
 
@@ -91,7 +156,7 @@ export async function createTenant(input: CreateTenantInput) {
       return { success: false, error: `Error al activar la suscripción gratuita: ${subError.message}` };
     }
 
-    return { success: true, tenant };
+    return { success: true, data: tenant as unknown as Tenant };
   } catch (error) {
     console.error("Create Tenant Error:", error);
     return { success: false, error: "Error inesperado al crear la sucursal" };

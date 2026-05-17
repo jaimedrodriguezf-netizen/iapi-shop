@@ -8,11 +8,11 @@ export default async function QRPage() {
   // 1. Obtener la sucursal delegando a la capa de lógica (Server Action)
   const result = await getMyTenant();
 
-  if (!result.success || !result.tenant) {
+  if (!result.success || !result.data) {
     redirect("/onboarding");
   }
 
-  const { tenant } = result;
+  const tenant = result.data;
 
   // 2. Construir la URL pública (usando el host actual)
   const host = (await headers()).get("host");

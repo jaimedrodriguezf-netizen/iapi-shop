@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createTenant } from "./actions";
 
-// Mock del cliente de Supabase con encadenamiento funcional
+// Mock del cliente de Supabase
 const mockSupabase = {
   auth: {
     getUser: vi.fn(),
@@ -13,14 +13,11 @@ const mockSupabase = {
   single: vi.fn(),
 };
 
-// Configuración de mocks encadenados
-mockSupabase.from.mockReturnValue(mockSupabase);
-mockSupabase.insert.mockReturnValue(mockSupabase);
+// Asegurar que select() devuelva el mismo objeto mock para permitir encadenar .single()
 mockSupabase.select.mockReturnValue(mockSupabase);
-mockSupabase.eq.mockReturnValue(mockSupabase);
 
 vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn(() => Promise.resolve(mockSupabase)),
+  createClient: () => Promise.resolve(mockSupabase),
 }));
 
 describe("Merchant Onboarding: createTenant", () => {
@@ -31,14 +28,11 @@ describe("Merchant Onboarding: createTenant", () => {
   it("should create a tenant and assign the creator as owner", async () => {
     // Setup mocks
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
-    
-    // Configuramos respuestas secuenciales para .single()
     mockSupabase.single
       .mockResolvedValueOnce({ data: { id: "tenant-456", slug: "tienda-test" }, error: null }) // insert tenant
       .mockResolvedValueOnce({ data: { id: "plan-free" }, error: null }); // select plan
 
-    // Mock para inserts intermedios que no usan single
-    mockSupabase.insert.mockReturnValue(mockSupabase);
+    mockSupabase.insert.mockResolvedValue({ error: null });
 
     const result = await createTenant({
       name: "Mi Tienda TDD",
@@ -47,7 +41,8 @@ describe("Merchant Onboarding: createTenant", () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.tenant?.slug).toBe("tienda-test");
+    expect(result.data).toBeDefined();
+    expect(result.data?.slug).toBe("tienda-test");
     expect(mockSupabase.from).toHaveBeenCalledWith("tenants");
     expect(mockSupabase.from).toHaveBeenCalledWith("tenant_members");
   });
