@@ -7,8 +7,9 @@ To ensure the highest technical integrity, the following step is **MANDATORY** a
 1.  **Proactive MCP Check**: ALWAYS call `mcp_next-devtools_nextjs_call(toolName="get_errors")` before informing the user that a task is complete.
 2.  **TypeScript Verification**: ALWAYS run `npx tsc --noEmit` to ensure type safety and catch potential build-breaking errors.
 3.  **Lint Auto-fix**: ALWAYS run `npm run lint -- --fix` to maintain code style and resolve minor issues automatically.
-4.  **Fix Regressions**: If any of the above steps report errors that couldn't be fixed automatically, they must be fixed immediately before handing the task back to the user.
-5.  **Clean Console Mandate**: Warnings (like `asChild` mismatch or `controlled/uncontrolled` inputs) should be treated as high-priority fixes to maintain a professional development environment.
+4.  **Architectural Governance (GGA)**: ALWAYS run `gga run` to ensure compliance with the rules defined in `AGENTS.md`.
+5.  **Fix Regressions**: If any of the above steps report errors, they must be fixed immediately before handing the task back to the user.
+6.  **Clean Console Mandate**: Warnings (like `asChild` mismatch or `controlled/uncontrolled` inputs) should be treated as high-priority fixes to maintain a professional development environment.
 
 ## Design Patterns
 
