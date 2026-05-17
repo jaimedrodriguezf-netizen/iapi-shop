@@ -5,8 +5,9 @@
 To ensure the highest technical integrity, the following step is **MANDATORY** after every code modification:
 
 1.  **Proactive MCP Check**: ALWAYS call `mcp_next-devtools_nextjs_call(toolName="get_errors")` before informing the user that a task is complete.
-2.  **Fix Regressions**: If the MCP reports errors (syntax, hydration, or runtime), they must be fixed immediately before handing the task back to the user.
-3.  **Clean Console Mandate**: Warnings (like `asChild` mismatch or `controlled/uncontrolled` inputs) should be treated as high-priority fixes to maintain a professional development environment.
+2.  **TypeScript Verification**: ALWAYS run `npx tsc --noEmit` to ensure type safety and catch potential build-breaking errors.
+3.  **Fix Regressions**: If the MCP or TypeScript check reports errors, they must be fixed immediately before handing the task back to the user.
+4.  **Clean Console Mandate**: Warnings (like `asChild` mismatch or `controlled/uncontrolled` inputs) should be treated as high-priority fixes to maintain a professional development environment.
 
 ## Design Patterns
 
