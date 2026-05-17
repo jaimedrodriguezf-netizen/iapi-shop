@@ -1,9 +1,11 @@
 import { getStorefrontData } from "@/lib/storefront/actions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { MessageCircle, MapPin, Phone, Plus, Package } from "lucide-react";
+import { MessageCircle, MapPin, Phone, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
+import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
+import { CartDrawer } from "@/components/storefront/cart-drawer";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -33,7 +35,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
     : "#";
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-black">
+    <main className="min-h-screen bg-zinc-50 dark:bg-black pb-24">
       {/* Header / Hero */}
       <header className="bg-white dark:bg-zinc-900 border-b pb-8">
         <div className="h-32 bg-gradient-to-r from-orange-500 to-orange-600 w-full" />
@@ -78,7 +80,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
                 {products
                   ?.filter((p) => p.category_id === category.id)
                   .map((product) => (
-                    <ProductCard key={product.id} product={product} whatsapp={tenant.whatsapp_phone} />
+                    <ProductCard key={product.id} product={product} tenantId={tenant.id} />
                   ))}
               </div>
             </section>
@@ -86,7 +88,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
         ) : (
           <div className="grid gap-6 sm:grid-cols-2">
             {products?.map((product) => (
-              <ProductCard key={product.id} product={product} whatsapp={tenant.whatsapp_phone} />
+              <ProductCard key={product.id} product={product} tenantId={tenant.id} />
             ))}
           </div>
         )}
@@ -97,6 +99,9 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
           </div>
         )}
       </div>
+
+      {/* Floating Cart Drawer */}
+      <CartDrawer whatsapp={tenant.whatsapp_phone} tenantName={tenant.name} tenantId={tenant.id} />
 
       {/* Footer */}
       <footer className="py-12 border-t text-center text-xs text-muted-foreground">
@@ -115,11 +120,7 @@ interface Product {
   category_id?: string;
 }
 
-function ProductCard({ product, whatsapp }: { product: Product, whatsapp?: string }) {
-  const whatsappUrl = whatsapp 
-    ? `https://wa.me/${whatsapp.replace(/\+/g, "")}?text=Hola! Me interesa el producto: ${product.name}`
-    : "#";
-
+function ProductCard({ product, tenantId }: { product: Product, tenantId: string }) {
   return (
     <article className="flex gap-4 p-4 bg-white dark:bg-zinc-900 rounded-3xl border shadow-sm hover:shadow-md transition-shadow group">
       <div className="h-24 w-24 rounded-xl bg-muted overflow-hidden relative shrink-0 border">
@@ -140,14 +141,13 @@ function ProductCard({ product, whatsapp }: { product: Product, whatsapp?: strin
         </div>
         <div className="flex items-center justify-between mt-2">
           <span className="font-black text-orange-600">${Number(product.price).toFixed(2)}</span>
-          <a 
-            href={whatsappUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="p-2 rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-          </a>
+          <AddToCartButton product={{
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image_url: product.image_urls?.[0],
+            tenant_id: tenantId
+          }} />
         </div>
       </div>
     </article>
