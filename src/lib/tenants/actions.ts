@@ -162,3 +162,60 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResu
     return { success: false, error: "Error inesperado al crear la sucursal" };
   }
 }
+
+export interface TenantSubscription {
+  id: string;
+  tenant_id: string;
+  plans: {
+    name: string;
+  } | null;
+}
+
+export async function getMyTenants(): Promise<ActionResult<Tenant[]>> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "No autorizado" };
+
+    const { data, error } = await supabase
+      .from("tenants")
+      .select("*")
+      .eq("created_by", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data as Tenant[] };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Error al obtener sucursales" };
+  }
+}
+
+export async function getTenantSubscription(tenantId: string): Promise<ActionResult<TenantSubscription>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("tenant_subscriptions")
+      .select("id, tenant_id, plans(name)")
+      .eq("tenant_id", tenantId)
+      .limit(1)
+      .single();
+
+    if (error) return { success: false, error: error.message };
+    
+    // Transformación segura del resultado de Supabase
+    const rawPlans = data.plans as unknown as { name: string } | null;
+    const planName = rawPlans ? String(rawPlans.name) : "N/A";
+
+    const subscription: TenantSubscription = {
+      id: data.id,
+      tenant_id: data.tenant_id,
+      plans: { name: planName }
+    };
+
+    return { success: true, data: subscription };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Error al obtener suscripción" };
+  }
+}

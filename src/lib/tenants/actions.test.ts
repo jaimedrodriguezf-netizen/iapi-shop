@@ -32,8 +32,6 @@ describe("Merchant Onboarding: createTenant", () => {
       .mockResolvedValueOnce({ data: { id: "tenant-456", slug: "tienda-test" }, error: null }) // insert tenant
       .mockResolvedValueOnce({ data: { id: "plan-free" }, error: null }); // select plan
 
-    mockSupabase.insert.mockResolvedValue({ error: null });
-
     const result = await createTenant({
       name: "Mi Tienda TDD",
       slug: "tienda-test",

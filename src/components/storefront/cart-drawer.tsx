@@ -17,30 +17,67 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import Image from "next/image"
 import { toast } from "sonner"
+import { createOrder } from "@/lib/orders/actions"
 
 export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: string, tenantName: string, tenantId: string }) {
-  const { removeItem, updateQuantity, getTenantItems, getTenantTotal } = useCart()
+  const { updateQuantity, getTenantItems, getTenantTotal, removeItem, clearCart } = useCart()
+  const [isProcessing, setIsProcessing] = React.useState(false)
   
-  // v4 - Absolute Isolation via namespaced store
   const filteredItems: CartItem[] = getTenantItems(tenantId)
   const total = getTenantTotal(tenantId)
   const itemCount = filteredItems.length
 
-  const sendOrder = () => {
+  const handleCheckout = async () => {
     if (filteredItems.length === 0) return
+    setIsProcessing(true)
 
-    let message = `*Nuevo Pedido - ${tenantName}*\n\n`
-    filteredItems.forEach((item) => {
-      message += `• ${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}\n`
-    })
-    message += `\n*Total: $${total.toFixed(2)}*\n\n`
-    message += `Muchas gracias!`
+    try {
+      // 1. Guardar la orden en nuestra base de datos (Persistence for Analytics)
+      const orderResult = await createOrder({
+        tenant_id: tenantId,
+        total_amount: total,
+        items: filteredItems.map(item => ({
+          product_id: item.id,
+          product_name: item.name,
+          unit_price: item.price,
+          quantity: item.quantity
+        })),
+        notes: `Pedido desde catálogo digital ${tenantName}`
+      })
 
-    const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/${whatsapp?.replace(/\+/g, "")}?text=${encodedMessage}`
-    
-    toast.info("Redirigiendo a WhatsApp...")
-    window.open(whatsappUrl, "_blank")
+      if (!orderResult.success) {
+        toast.error("Error al procesar el pedido internamente. Intentando por WhatsApp...")
+      }
+
+      // 2. Generar el mensaje de WhatsApp
+      let message = `*Nuevo Pedido - ${tenantName}*\n`
+      if (orderResult.success && orderResult.data) {
+        message += `_Orden #${orderResult.data.slice(-6).toUpperCase()}_\n\n`
+      } else {
+        message += `\n`
+      }
+
+      filteredItems.forEach((item) => {
+        message += `• ${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}\n`
+      })
+      message += `\n*Total: $${total.toFixed(2)}*\n\n`
+      message += `Muchas gracias!`
+
+      const encodedMessage = encodeURIComponent(message)
+      const whatsappUrl = `https://wa.me/${whatsapp?.replace(/\+/g, "")}?text=${encodedMessage}`
+      
+      toast.success("¡Pedido generado! Abriendo WhatsApp...")
+      
+      // 3. Limpiar carrito de esta sucursal
+      clearCart(tenantId)
+      
+      // 4. Redirigir
+      window.open(whatsappUrl, "_blank")
+    } catch (error) {
+      toast.error("Ocurrió un error al procesar tu compra.")
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   return (
@@ -63,7 +100,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
         <div className="mx-auto w-full max-w-lg">
           <DrawerHeader className="border-b pb-4">
             <DrawerTitle className="text-2xl font-black flex items-center gap-2 text-orange-600">
-              Tu Carrito <ShoppingBag className="h-5 w-5 text-orange-500" />
+              Tu Carrito <ShoppingBag className="h-5 w-5" />
             </DrawerTitle>
             <DrawerDescription>
               Revisa tus productos antes de enviar el pedido.
@@ -74,7 +111,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
             {filteredItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full space-y-4 opacity-50 py-12">
                 <ShoppingBag className="h-12 w-12 text-muted-foreground" />
-                <p className="font-bold text-foreground text-center">Tu carrito está vacío</p>
+                <p className="font-bold text-foreground text-center text-xl">Tu carrito está vacío</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -133,10 +170,14 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
             </div>
             <Button 
               className="w-full rounded-xl font-black py-8 bg-green-500 hover:bg-green-600 text-white shadow-lg text-lg"
-              disabled={filteredItems.length === 0}
-              onClick={sendOrder}
+              disabled={filteredItems.length === 0 || isProcessing}
+              onClick={handleCheckout}
             >
-              <MessageCircle className="mr-2 h-6 w-6" /> Pedir por WhatsApp
+              {isProcessing ? "Procesando..." : (
+                <>
+                  <MessageCircle className="mr-2 h-6 w-6" /> Pedir por WhatsApp
+                </>
+              )}
             </Button>
             <DrawerClose render={<Button variant="ghost" className="rounded-xl font-bold mt-2 w-full text-muted-foreground" />}>
               Continuar comprando

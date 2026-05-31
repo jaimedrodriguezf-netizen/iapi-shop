@@ -74,3 +74,33 @@ function validationError(fieldErrors: Record<string, string[] | undefined>): Aut
     fieldErrors: Object.fromEntries(Object.entries(fieldErrors).filter(([, value]) => value?.length)) as Record<string, string[]>,
   };
 }
+
+export interface UserRoleInfo {
+  email: string;
+  platformRole: string;
+}
+
+export interface ActionResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+export async function getUserRoleInfo(): Promise<ActionResult<UserRoleInfo>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getClaims();
+    if (error) return { success: false, error: error.message };
+
+    const email = typeof data?.claims?.email === "string" ? data.claims.email : "Usuario registrado";
+    const platformRole = (data?.claims?.email as string)?.endsWith("@iapi.shop") ? "admin" : "merchant";
+
+    return {
+      success: true,
+      data: { email, platformRole }
+    };
+  } catch (error) {
+    console.error("getUserRoleInfo Error:", error);
+    return { success: false, error: "Error al obtener rol del usuario" };
+  }
+}
