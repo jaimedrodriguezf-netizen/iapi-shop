@@ -121,6 +121,8 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
       toast.success("Categoría creada")
       setNewCategoryName("")
       loadCategories()
+    } else {
+      toast.error(res.error || "No se pudo crear la categoría")
     }
   }
 
@@ -221,7 +223,7 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
                       <FormItem>
                         <FormLabel className="font-bold">Descripción</FormLabel>
                         <FormControl>
-                          <Input placeholder="Describe tu producto..." {...field} className="rounded-xl" />
+                          <Input placeholder="Describe tu producto…" {...field} className="rounded-xl" />
                         </FormControl>
                         <FormDescription className="flex items-center gap-1">
                           Pronto botón de IA 🤖
@@ -238,12 +240,13 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
                       const urls = form.watch("image_urls")
                       const url = urls ? urls[i] : null
                       return (
-                        <div key={i} className="aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center relative group bg-muted/30">
+                        <div key={i} className="aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center relative group bg-muted/30">
                           {url ? (
                             <>
-                              <Image src={url} alt="Producto" fill className="object-cover rounded-2xl" />
+                              <Image src={url} alt="Producto" fill className="object-cover rounded-xl" />
                               <button 
                                 type="button"
+                                aria-label="Eliminar foto"
                                 onClick={() => form.setValue("image_urls", (form.getValues("image_urls") || []).filter((_, idx) => idx !== i))}
                                 className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
                               >
@@ -261,9 +264,9 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
                     })}
                   </div>
                   <div className="space-y-2">
-                    <FormLabel className="text-xs font-black uppercase text-muted-foreground">URL de Imagen (Simulado)</FormLabel>
+                    <label htmlFor="img-url-input" className="text-xs font-bold text-muted-foreground block">URL de Imagen (Simulado)</label>
                     <div className="flex gap-2">
-                      <Input id="img-url-input" placeholder="https://..." className="rounded-xl flex-1" />
+                      <Input id="img-url-input" placeholder="https://…" className="rounded-xl flex-1" />
                       <Button 
                         type="button" 
                         variant="secondary" 
@@ -305,11 +308,13 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
                     )}
                   />
                   
-                  <div className="rounded-2xl border bg-muted/20 p-4 space-y-3">
-                    <p className="text-xs font-black uppercase text-muted-foreground">O crear una nueva</p>
+                  <div className="rounded-xl border bg-muted/20 p-4 space-y-3">
+                    <label htmlFor="new-category-input" className="text-xs font-black uppercase text-muted-foreground block">O crear una nueva</label>
                     <div className="flex gap-2">
                       <Input 
-                        placeholder="Nueva categoría..." 
+                        id="new-category-input"
+                        aria-label="Nombre de la nueva categoría"
+                        placeholder="Nueva categoría…" 
                         className="rounded-xl flex-1" 
                         value={newCategoryName}
                         onChange={(e) => setNewCategoryName(e.target.value)}
@@ -324,8 +329,8 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
             </Tabs>
 
             <DialogFooter className="p-6 pt-0">
-              <Button type="submit" className="w-full rounded-2xl font-bold py-6 bg-orange-600 hover:bg-orange-700 shadow-md" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Guardando..." : isEditing ? "Actualizar Producto" : "Finalizar Producto"}
+              <Button type="submit" className="w-full rounded-xl font-bold py-6 bg-orange-600 hover:bg-orange-700 shadow-md" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Guardando…" : isEditing ? "Actualizar Producto" : "Finalizar Producto"}
               </Button>
             </DialogFooter>
           </form>

@@ -57,7 +57,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
               )}
             </div>
             <div className="text-center sm:text-left flex-1">
-              <h1 className="text-3xl font-black tracking-tight">{tenant.name}</h1>
+              <h1 className="text-3xl font-black tracking-tight text-balance">{tenant.name}</h1>
               <div className="flex flex-wrap justify-center sm:justify-start gap-4 mt-2 text-sm text-muted-foreground font-medium">
                 {tenant.city && (
                   <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {tenant.city}</span>
@@ -80,7 +80,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
           categories.map((category) => (
             <section key={category.id} className="mb-12">
               <h2 
-                className="text-xl font-black uppercase tracking-widest mb-6 border-l-4 pl-4"
+                className="text-xl font-black uppercase tracking-widest mb-6 border-l-4 pl-4 text-pretty"
                 style={{ color: brandColor, borderColor: brandColor }}
               >
                 {category.name}

@@ -46,7 +46,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
       })
 
       if (!orderResult.success) {
-        toast.error("Error al procesar el pedido internamente. Intentando por WhatsApp...")
+        toast.error("Error al procesar el pedido internamente. Intentando por WhatsApp…")
       }
 
       // 2. Generar el mensaje de WhatsApp
@@ -66,7 +66,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
       const encodedMessage = encodeURIComponent(message)
       const whatsappUrl = `https://wa.me/${whatsapp?.replace(/\+/g, "")}?text=${encodedMessage}`
       
-      toast.success("¡Pedido generado! Abriendo WhatsApp...")
+      toast.success("¡Pedido generado! Abriendo WhatsApp…")
       
       // 3. Limpiar carrito de esta sucursal
       clearCart(tenantId)
@@ -84,6 +84,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
     <Drawer>
       <DrawerTrigger render={
         <Button 
+          aria-label="Abrir carrito"
           className="fixed bottom-6 right-6 h-16 w-16 rounded-xl bg-orange-600 hover:bg-orange-700 shadow-2xl text-white z-50 transition-all active:scale-95"
         >
           <div className="relative">
@@ -128,21 +129,23 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-sm truncate">{item.name}</h4>
-                      <p className="text-orange-600 font-black text-sm">${item.price.toFixed(2)}</p>
+                      <p className="text-orange-600 font-black text-sm tabular-nums">${item.price.toFixed(2)}</p>
                     </div>
                     <div className="flex items-center gap-2 bg-muted/50 rounded-xl p-1">
                       <Button 
                         variant="ghost" 
                         size="icon" 
+                        aria-label="Disminuir cantidad"
                         className="h-8 w-8 rounded-xl" 
                         onClick={() => updateQuantity(tenantId, item.id, item.quantity - 1)}
                       >
                         <Minus className="h-3 w-3" />
                       </Button>
-                      <span className="w-4 text-center text-xs font-black">{item.quantity}</span>
+                      <span className="w-4 text-center text-xs font-black tabular-nums">{item.quantity}</span>
                       <Button 
                         variant="ghost" 
                         size="icon" 
+                        aria-label="Incrementar cantidad"
                         className="h-8 w-8 rounded-xl" 
                         onClick={() => updateQuantity(tenantId, item.id, item.quantity + 1)}
                       >
@@ -152,6 +155,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
                     <Button 
                       variant="ghost" 
                       size="icon" 
+                      aria-label="Eliminar producto"
                       className="text-destructive h-8 w-8 rounded-xl" 
                       onClick={() => removeItem(tenantId, item.id)}
                     >
@@ -166,14 +170,14 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
           <DrawerFooter className="border-t p-6 bg-muted/20">
             <div className="flex items-center justify-between mb-4">
               <span className="text-muted-foreground font-medium uppercase text-xs tracking-widest">Total Estimado</span>
-              <span className="text-3xl font-black text-orange-600">${total.toFixed(2)}</span>
+              <span className="text-3xl font-black text-orange-600 tabular-nums">${total.toFixed(2)}</span>
             </div>
             <Button 
               className="w-full rounded-xl font-black py-8 bg-green-500 hover:bg-green-600 text-white shadow-lg text-lg"
               disabled={filteredItems.length === 0 || isProcessing}
               onClick={handleCheckout}
             >
-              {isProcessing ? "Procesando..." : (
+              {isProcessing ? "Procesando…" : (
                 <>
                   <MessageCircle className="mr-2 h-6 w-6" /> Pedir por WhatsApp
                 </>
