@@ -6,7 +6,7 @@ export async function generateQRCodeDataURL(url: string): Promise<string> {
       margin: 2,
       width: 512,
       color: {
-        dark: '#7c3aed', // Orange-600 (nuestro color primario)
+        dark: '#7c3aed', // Violet-600 (nuestro color primario)
         light: '#ffffff',
       },
     });

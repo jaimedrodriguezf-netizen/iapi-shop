@@ -9,7 +9,7 @@ const benefits = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#fff7ed,transparent_34%),linear-gradient(135deg,#fff,#f8fafc)] text-slate-950">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#f5f3ff,transparent_34%),linear-gradient(135deg,#fff,#f8fafc)] text-slate-950">
       <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8">
         <header className="flex items-center justify-between">
           <p className="text-lg font-black tracking-tight">Mercado QR</p>
