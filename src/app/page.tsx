@@ -1,53 +1,69 @@
 import Link from "next/link";
-import { AiStudioCanvas } from "@/components/landing/ai-studio-canvas";
+import { StorefrontMotionCanvas } from "@/components/landing/storefront-motion-canvas";
 import { PricingSection } from "@/components/landing/pricing-section";
+import { Sparkles, Shield, QrCode } from "lucide-react";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#f5f3ff,transparent_34%),linear-gradient(135deg,#fff,#f8fafc)] text-slate-950">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#f5f3ff,transparent_34%),linear-gradient(135deg,#fff,#f8fafc)] text-slate-950 dark:bg-[radial-gradient(circle_at_top_left,#1e1b4b,transparent_34%),linear-gradient(135deg,#09090b,#030712)] dark:text-zinc-50">
       <section className="mx-auto flex w-full max-w-6xl flex-col px-6 py-8">
+        
+        {/* Navigation Header */}
         <header className="flex items-center justify-between">
-          <p className="text-lg font-black tracking-tight">Mercado QR</p>
+          <p className="text-lg font-black tracking-tight flex items-center gap-1.5 text-violet-600 dark:text-violet-400">
+            <QrCode className="h-5 w-5" /> Mercado QR
+          </p>
           <nav aria-label="Navegación pública" className="flex items-center gap-3 text-sm font-semibold">
-            <Link className="rounded-xl px-4 py-2 text-slate-700 hover:bg-white" href="/vendedores">
+            <Link className="rounded-xl px-4 py-2 text-slate-750 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900" href="/vendedores">
               Vendedores
             </Link>
-            <Link className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900 shadow-sm" href="/login">
+            <Link className="rounded-xl border border-zinc-200 bg-white px-4 py-2 text-slate-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-white" href="/login">
               Iniciar sesión
             </Link>
           </nav>
         </header>
 
-        <div className="grid items-center gap-12 py-12 px-8 lg:grid-cols-[1.05fr_0.95fr] rounded-3xl border border-zinc-200/80 bg-white/40 shadow-xl dark:border-zinc-800/80 dark:bg-zinc-950/40 backdrop-blur my-8">
-          <div className="space-y-8">
-            <div className="inline-flex rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-bold text-violet-700">
-              Plataforma segura para tiendas ecuatorianas
+        {/* Hero Container Section - rounded-3xl following guidelines */}
+        <div className="rounded-3xl border border-zinc-200/80 bg-white/40 shadow-xl dark:border-zinc-800/80 dark:bg-zinc-950/40 backdrop-blur-xl p-8 md:p-12 my-8 space-y-12">
+          
+          {/* Centered Hero Content */}
+          <div className="text-center max-w-3xl mx-auto space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50/50 px-4 py-2 text-xs font-bold text-violet-750 dark:border-violet-900/50 dark:bg-violet-950/30 dark:text-violet-400">
+              <Shield className="h-3.5 w-3.5" /> Plataforma segura para tiendas ecuatorianas
             </div>
-            <div className="space-y-5">
-              <h1 className="max-w-3xl text-5xl font-black leading-[0.95] tracking-tight sm:text-6xl text-balance">
-                Vende con QR, WhatsApp e IA sin exponer tus datos.
-              </h1>
-              <p className="max-w-2xl text-lg leading-8 text-slate-600 font-medium">
-                Crea una tienda privada con roles, suscripciones, pagos locales e imágenes profesionales para tus productos. Los visitantes anónimos solo ven esta landing pública.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link className="rounded-xl bg-slate-950 px-6 py-3 text-center text-sm font-bold text-white shadow-lg shadow-slate-950/15 hover:bg-slate-800" href="/register">
-                Crear mi tienda
+            
+            <h1 className="text-5xl font-black leading-[0.95] tracking-tighter sm:text-6xl text-balance text-slate-900 dark:text-white">
+              Vende con QR y WhatsApp sin exponer tus datos.
+            </h1>
+            
+            <p className="text-lg leading-8 text-slate-650 dark:text-zinc-400 font-medium max-w-2xl mx-auto">
+              Crea catálogos privados interactivos con roles, suscripciones en línea y pasarelas locales seguras. Tus clientes compran y te llega el pedido estructurado al instante.
+            </p>
+            
+            <div className="flex flex-col gap-3 sm:flex-row justify-center pt-2">
+              <Link className="rounded-xl bg-violet-650 hover:bg-violet-700 text-center text-sm font-black text-white px-8 py-4 shadow-lg shadow-violet-550/20 active:scale-95 transition-all" href="/register">
+                Crear mi tienda gratis
               </Link>
-              <Link className="rounded-xl border border-slate-200 bg-white px-6 py-3 text-center text-sm font-bold text-slate-900 hover:bg-slate-50" href="/login">
-                Iniciar sesión
+              <Link className="rounded-xl border border-zinc-200 bg-white px-8 py-4 text-center text-sm font-black text-slate-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-950" href="/login">
+                Explorar Demo
               </Link>
             </div>
           </div>
 
-          <div className="flex items-center justify-center">
-            <AiStudioCanvas />
+          {/* Interactive Motion Canvas Block */}
+          <div className="pt-6">
+            <div className="inline-flex items-center gap-1.5 text-violet-600 dark:text-violet-400 mb-4 px-4">
+              <Sparkles className="h-4 w-4 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Actividad Comercial en Tiempo Real</span>
+            </div>
+            <StorefrontMotionCanvas />
           </div>
+
         </div>
 
-        {/* Pricing plans section */}
+        {/* E-commerce Pricing Section */}
         <PricingSection />
+
       </section>
     </main>
   );

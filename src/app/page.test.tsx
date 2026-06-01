@@ -6,7 +6,7 @@ describe("public landing page", () => {
   it("shows a public marketing landing without product database content", () => {
     render(<Home />);
 
-    const heading = screen.getByRole("heading", { name: /vende con qr, whatsapp e ia/i });
+    const heading = screen.getByRole("heading", { name: /vende con qr/i });
     expect(heading).toBeInTheDocument();
     expect(heading).toHaveClass("text-balance");
     expect(screen.getByRole("link", { name: /crear mi tienda/i })).toHaveAttribute("href", "/register");
