@@ -24,6 +24,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { logout } from "@/lib/auth/actions"
+import pkg from "../../../package.json"
+import { toast } from "sonner"
 
 const navItems = [
   {
@@ -69,7 +71,7 @@ export function AppSidebar({ email }: { email: string }) {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b px-6 py-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-600 text-white">
             <Store className="h-5 w-5" />
           </div>
           <span className="font-black tracking-tight text-xl group-data-[collapsible=icon]:hidden">
@@ -111,12 +113,21 @@ export function AppSidebar({ email }: { email: string }) {
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <form action={logout}>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              toast.loading("Cerrando sesión...");
+              await logout();
+            }}>
               <SidebarMenuButton type="submit" className="w-full text-destructive hover:text-destructive" tooltip="Cerrar Sesión">
                 <LogOut className="h-5 w-5" />
                 <span className="font-bold">Cerrar Sesión</span>
               </SidebarMenuButton>
             </form>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest text-center mt-4 group-data-[collapsible=icon]:hidden opacity-50 tabular-nums">
+              v{pkg.version}
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

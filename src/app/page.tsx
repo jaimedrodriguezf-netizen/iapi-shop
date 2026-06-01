@@ -2,6 +2,7 @@ import Link from "next/link";
 import { StorefrontMotionCanvas } from "@/components/landing/storefront-motion-canvas";
 import { PricingSection } from "@/components/landing/pricing-section";
 import { Sparkles, Shield, QrCode } from "lucide-react";
+import pkg from "../../package.json";
 
 export default function Home() {
   return (
@@ -36,7 +37,7 @@ export default function Home() {
               Vende con QR y WhatsApp sin exponer tus datos.
             </h1>
             
-            <p className="text-lg leading-8 text-slate-650 dark:text-zinc-400 font-medium max-w-2xl mx-auto">
+            <p className="text-lg leading-8 text-slate-655 dark:text-zinc-400 font-medium max-w-2xl mx-auto">
               Crea catálogos privados interactivos con roles, suscripciones en línea y pasarelas locales seguras. Tus clientes compran y te llega el pedido estructurado al instante.
             </p>
             
@@ -63,6 +64,18 @@ export default function Home() {
 
         {/* E-commerce Pricing Section */}
         <PricingSection />
+
+        {/* Footer with copyright and version */}
+        <footer className="mt-16 border-t pt-8 pb-12 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-muted-foreground dark:border-zinc-800/80">
+          <p>© 2026 Mercado QR. Todos los derechos reservados.</p>
+          <div className="flex items-center gap-6">
+            <Link className="hover:text-slate-900 dark:hover:text-white" href="/terminos">Términos y condiciones</Link>
+            <Link className="hover:text-slate-900 dark:hover:text-white" href="/privacidad">Privacidad</Link>
+            <span className="bg-zinc-150 text-slate-800 dark:bg-zinc-800 dark:text-zinc-200 px-3 py-1 rounded-xl font-bold tabular-nums">
+              v{pkg.version}
+            </span>
+          </div>
+        </footer>
 
       </section>
     </main>
