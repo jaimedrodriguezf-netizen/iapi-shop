@@ -79,7 +79,7 @@ export function PricingSection() {
       <div className="mx-auto max-w-6xl px-6">
         {/* Section Header */}
         <div className="text-center space-y-4 mb-16">
-          <h2 id="pricing-title" className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+          <h2 id="pricing-title" className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white text-balance">
             Planes a la medida de tu comercio
           </h2>
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
@@ -118,9 +118,9 @@ export function PricingSection() {
               <div
                 key={plan.name}
                 className={cn(
-                  "rounded-3xl border p-8 flex flex-col justify-between relative transition-all duration-300 hover:shadow-xl",
+                  "rounded-3xl border p-6 sm:p-8 flex flex-col justify-between relative transition-all duration-300 hover:shadow-xl",
                   plan.popular
-                    ? "border-violet-500 bg-gradient-to-b from-violet-50/30 to-white dark:from-violet-950/10 dark:to-zinc-900 shadow-lg scale-105 z-10"
+                    ? "border-violet-500 bg-gradient-to-b from-violet-50/30 to-white dark:from-violet-950/10 dark:to-zinc-900 shadow-lg md:scale-105 z-10"
                     : "border-zinc-200 bg-white dark:border-zinc-850 dark:bg-zinc-900"
                 )}
               >

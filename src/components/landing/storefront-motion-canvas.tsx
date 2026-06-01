@@ -67,7 +67,7 @@ export function StorefrontMotionCanvas() {
           {DOUBLE_PRODUCTS.map((prod, index) => (
             <div
               key={`${prod.id}-${index}`}
-              className="flex items-center gap-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-3 shrink-0 shadow-sm w-72"
+              className="flex items-center gap-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-3 shrink-0 shadow-sm w-72"
             >
               <div className="relative h-16 w-16 bg-zinc-50 dark:bg-zinc-950 rounded-xl overflow-hidden shrink-0 border dark:border-zinc-800 flex items-center justify-center">
                 <Image
@@ -96,13 +96,13 @@ export function StorefrontMotionCanvas() {
       </div>
 
       {/* 2. Interactive Storefront Mockup Canvas */}
-      <div className="mx-auto max-w-lg rounded-3xl border border-white bg-white/60 p-6 shadow-2xl shadow-violet-950/5 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/60 relative">
+      <div className="mx-auto max-w-lg rounded-3xl border border-white bg-white/60 p-4 sm:p-6 shadow-2xl shadow-violet-950/5 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/60 relative">
         
         {/* Glow backdrop */}
-        <div className="absolute -inset-4 bg-gradient-to-tr from-violet-500/10 via-transparent to-transparent rounded-[40px] blur-2xl -z-10" />
+        <div className="absolute -inset-4 bg-gradient-to-tr from-violet-500/10 via-transparent to-transparent rounded-3xl blur-2xl -z-10" />
 
         {/* Mobile Phone Mockup */}
-        <div className="rounded-[40px] border-8 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black aspect-[9/18] shadow-2xl overflow-hidden relative flex flex-col justify-between">
+        <div className="rounded-3xl border-8 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black aspect-[9/18] shadow-2xl overflow-hidden relative flex flex-col justify-between">
           
           {/* Top Notch bar */}
           <div className="h-6 w-full bg-white dark:bg-zinc-900 border-b flex items-center justify-between px-6 text-[10px] font-bold text-muted-foreground">
@@ -117,7 +117,7 @@ export function StorefrontMotionCanvas() {
               <span className="text-[9px] font-black uppercase tracking-widest text-violet-600 dark:text-violet-400">
                 Catálogo Digital
               </span>
-              <h3 className="font-black text-sm text-slate-900 dark:text-white">UrbanStreet S.A.</h3>
+              <h3 className="font-black text-sm text-slate-900 dark:text-white truncate max-w-[120px] sm:max-w-none">UrbanStreet S.A.</h3>
             </div>
             
             {/* Storefront Cart Icon */}
@@ -145,7 +145,7 @@ export function StorefrontMotionCanvas() {
 
           {/* Main Shop catalog mock */}
           <div className="flex-1 p-4 overflow-y-auto space-y-4 relative">
-            <div className="rounded-2xl border bg-white dark:bg-zinc-900 dark:border-zinc-800 p-4 space-y-4 shadow-sm">
+            <div className="rounded-3xl border bg-white dark:bg-zinc-900 dark:border-zinc-800 p-4 space-y-4 shadow-sm">
               <div className="aspect-square w-full rounded-xl bg-zinc-50 dark:bg-zinc-950 border dark:border-zinc-800 relative overflow-hidden flex items-center justify-center p-4">
                 <Image
                   src="/sneaker.png"
@@ -199,9 +199,9 @@ export function StorefrontMotionCanvas() {
         </div>
 
         {/* Instructions Caption below the Phone */}
-        <div className="text-center mt-4">
-          <p className="text-xs text-muted-foreground font-semibold flex items-center justify-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+        <div className="text-center mt-4 px-2">
+          <p className="text-xs text-muted-foreground font-semibold">
+            <Sparkles className="h-3.5 w-3.5 text-violet-500 inline-block mr-1.5 align-text-bottom" />
             Hacé clic en <span className="text-violet-600 dark:text-violet-400 font-extrabold">Comprar</span> para ver la simulación del flujo de pedido.
           </p>
         </div>
