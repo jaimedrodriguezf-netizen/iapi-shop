@@ -1,14 +1,11 @@
-import { createClient } from "@/lib/supabase/server"
+import { getMyTenant } from "@/lib/tenants/actions"
 import { ProductListClient } from "@/components/dashboard/product-list-client"
 import { redirect } from "next/navigation"
 
 export default async function ProductsPage() {
-  const supabase = await createClient()
+  const result = await getMyTenant()
 
-  // 1. Obtener la sucursal del usuario
-  const { data: tenants } = await supabase.from("tenants").select("id").limit(1).single()
-
-  if (!tenants) {
+  if (!result.success || !result.data) {
     redirect("/onboarding")
   }
 
@@ -19,7 +16,7 @@ export default async function ProductsPage() {
         <p className="text-muted-foreground italic">Gestiona los productos de tu sucursal.</p>
       </header>
       
-      <ProductListClient tenantId={tenants.id} />
+      <ProductListClient tenantId={result.data.id} />
     </section>
   )
 }
