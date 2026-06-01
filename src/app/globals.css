@@ -6,6 +6,8 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-violet-accent: oklch(0.602 0.218 275.52);
+  --color-violet-accent-hover: oklch(0.55 0.218 275.52);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;

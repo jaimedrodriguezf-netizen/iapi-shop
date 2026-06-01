@@ -33,7 +33,7 @@ describe("auth server actions", () => {
 
     const result = await login(new FormDataBuilder().email("bad-email").password("123").build());
 
-    expect(result.ok).toBe(false);
+    expect(result.success).toBe(false);
     expect(signInWithPassword).not.toHaveBeenCalled();
   });
 
@@ -41,7 +41,13 @@ describe("auth server actions", () => {
     signUp.mockResolvedValueOnce({ error: null });
     const { register } = await import("./actions");
 
-    await expect(register(new FormDataBuilder().email("owner@shop.com").password("secret123").build())).rejects.toThrow(
+    const formData = new FormDataBuilder()
+      .email("owner@shop.com")
+      .password("secret123")
+      .confirmPassword("secret123")
+      .build();
+
+    await expect(register(formData)).rejects.toThrow(
       "NEXT_REDIRECT:/dashboard",
     );
 
@@ -59,6 +65,11 @@ class FormDataBuilder {
 
   password(value: string) {
     this.formData.set("password", value);
+    return this;
+  }
+
+  confirmPassword(value: string) {
+    this.formData.set("confirmPassword", value);
     return this;
   }
 

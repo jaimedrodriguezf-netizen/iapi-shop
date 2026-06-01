@@ -8,8 +8,9 @@ export default function RegisterPage() {
       description="Registra tu acceso para empezar a configurar tu tienda privada en IAPI Shop."
       submitLabel="Crear mi cuenta"
       switchHref="/login"
-      switchLabel="Ya tengo cuenta"
+      switchLabel="¿Ya tienes cuenta? Inicia sesión"
       action={register}
+      isRegister
     />
   );
 }

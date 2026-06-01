@@ -113,8 +113,7 @@ export function AppSidebar({ email }: { email: string }) {
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <form onSubmit={async (e) => {
-              e.preventDefault();
+            <form action={async () => {
               toast.loading("Cerrando sesión...");
               await logout();
             }}>

@@ -8,7 +8,7 @@ export default function LoginPage() {
       description="Accede con tu cuenta registrada para gestionar tu tienda, productos, QR e IA."
       submitLabel="Iniciar sesión"
       switchHref="/register"
-      switchLabel="Crear una cuenta de tienda"
+      switchLabel="¿No tienes cuenta? Regístrate"
       action={login}
     />
   );
