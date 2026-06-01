@@ -52,7 +52,7 @@ describe("ProductFormModal Accessibility and Typography", () => {
     // 4. Testear fallo de creación de categoría y feedback visual con toast.error
     const toastErrorSpy = vi.spyOn(toast, "error");
     const createCategoryMock = vi.mocked(createCategory);
-    createCategoryMock.mockResolvedValue({ success: false, error: "Error al crear categoría" });
+    createCategoryMock.mockResolvedValue({ success: false, category: null, error: "Error al crear categoría" });
 
     await user.type(newCatInput, "Postres Exclusivos");
     const createBtn = screen.getByRole("button", { name: /crear/i });

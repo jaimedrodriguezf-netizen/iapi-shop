@@ -169,7 +169,7 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] rounded-3xl overflow-hidden p-0 gap-0">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-2xl font-black text-orange-600">
+          <DialogTitle className="text-2xl font-black text-violet-600">
             {isEditing ? "Editar Producto" : "Nuevo Producto"}
           </DialogTitle>
           <DialogDescription>
@@ -181,11 +181,11 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Tabs defaultValue="general" className="w-full">
               <TabsList className="w-full justify-start rounded-none border-b bg-transparent px-6 h-12">
-                <TabsTrigger value="general" className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none h-full">General</TabsTrigger>
-                <TabsTrigger value="media" className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none h-full">
+                <TabsTrigger value="general" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-500 rounded-none h-full">General</TabsTrigger>
+                <TabsTrigger value="media" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-500 rounded-none h-full">
                   Fotos ({form.watch("image_urls")?.length || 0}/3)
                 </TabsTrigger>
-                <TabsTrigger value="category" className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none h-full">Categoría</TabsTrigger>
+                <TabsTrigger value="category" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-500 rounded-none h-full">Categoría</TabsTrigger>
               </TabsList>
               
               <div className="p-6 pt-4 max-h-[50vh] overflow-y-auto">
@@ -329,7 +329,7 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
             </Tabs>
 
             <DialogFooter className="p-6 pt-0">
-              <Button type="submit" className="w-full rounded-xl font-bold py-6 bg-orange-600 hover:bg-orange-700 shadow-md" disabled={form.formState.isSubmitting}>
+              <Button type="submit" className="w-full rounded-xl font-bold py-6 bg-violet-600 hover:bg-violet-700 shadow-md" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? "Guardando…" : isEditing ? "Actualizar Producto" : "Finalizar Producto"}
               </Button>
             </DialogFooter>

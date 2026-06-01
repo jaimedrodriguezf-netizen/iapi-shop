@@ -16,7 +16,7 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
     <main className="flex min-h-screen items-center justify-center bg-muted px-6 py-12">
       <section className="w-full max-w-md rounded-3xl border bg-background p-8 shadow-xl shadow-slate-950/5">
         <div className="mb-8 space-y-2 text-center">
-          <p className="text-sm font-bold text-orange-600">IAPI Shop</p>
+          <p className="text-sm font-bold text-violet-600">IAPI Shop</p>
           <h1 className="text-3xl font-black tracking-tight">{title}</h1>
           <p className="text-sm leading-6 text-muted-foreground">{description}</p>
         </div>

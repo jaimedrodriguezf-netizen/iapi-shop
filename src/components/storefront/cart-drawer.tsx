@@ -85,12 +85,12 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
       <DrawerTrigger render={
         <Button 
           aria-label="Abrir carrito"
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-xl bg-orange-600 hover:bg-orange-700 shadow-2xl text-white z-50 transition-all active:scale-95"
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-xl bg-violet-600 hover:bg-violet-700 shadow-2xl text-white z-50 transition-all active:scale-95"
         >
           <div className="relative">
             <ShoppingBag className="h-7 w-7" />
             {itemCount > 0 && (
-              <span className="absolute -top-3 -right-3 bg-white text-orange-600 text-[10px] font-black h-5 w-5 rounded-xl flex items-center justify-center border-2 border-orange-600 animate-in zoom-in">
+              <span className="absolute -top-3 -right-3 bg-white text-violet-600 text-[10px] font-black h-5 w-5 rounded-xl flex items-center justify-center border-2 border-violet-600 animate-in zoom-in">
                 {itemCount}
               </span>
             )}
@@ -100,7 +100,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
       <DrawerContent className="rounded-t-3xl max-h-[85vh]">
         <div className="mx-auto w-full max-w-lg">
           <DrawerHeader className="border-b pb-4">
-            <DrawerTitle className="text-2xl font-black flex items-center gap-2 text-orange-600">
+            <DrawerTitle className="text-2xl font-black flex items-center gap-2 text-violet-600">
               Tu Carrito <ShoppingBag className="h-5 w-5" />
             </DrawerTitle>
             <DrawerDescription>
@@ -122,14 +122,14 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
                       {item.image_url ? (
                         <Image src={item.image_url} alt={item.name} fill className="object-cover" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-muted-foreground bg-orange-50">
+                        <div className="flex h-full w-full items-center justify-center text-muted-foreground bg-violet-50">
                           <ShoppingBag className="h-4 w-4" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-sm truncate">{item.name}</h4>
-                      <p className="text-orange-600 font-black text-sm tabular-nums">${item.price.toFixed(2)}</p>
+                      <p className="text-violet-600 font-black text-sm tabular-nums">${item.price.toFixed(2)}</p>
                     </div>
                     <div className="flex items-center gap-2 bg-muted/50 rounded-xl p-1">
                       <Button 
@@ -170,7 +170,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
           <DrawerFooter className="border-t p-6 bg-muted/20">
             <div className="flex items-center justify-between mb-4">
               <span className="text-muted-foreground font-medium uppercase text-xs tracking-widest">Total Estimado</span>
-              <span className="text-3xl font-black text-orange-600 tabular-nums">${total.toFixed(2)}</span>
+              <span className="text-3xl font-black text-violet-600 tabular-nums">${total.toFixed(2)}</span>
             </div>
             <Button 
               className="w-full rounded-xl font-black py-8 bg-green-500 hover:bg-green-600 text-white shadow-lg text-lg"

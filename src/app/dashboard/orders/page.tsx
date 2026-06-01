@@ -17,7 +17,7 @@ export default async function OrdersPage() {
   return (
     <section className="space-y-6 py-6">
       <header className="space-y-1">
-        <h1 className="text-3xl font-black tracking-tight text-orange-600">Gestión de Órdenes</h1>
+        <h1 className="text-3xl font-black tracking-tight text-violet-600">Gestión de Órdenes</h1>
         <p className="text-muted-foreground italic">Historial de pedidos recibidos desde tu catálogo digital.</p>
       </header>
       

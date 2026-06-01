@@ -109,7 +109,7 @@ export function ProductListClient({ tenantId }: { tenantId: string }) {
             <div className="flex flex-col">
               <span className="font-bold">{String(row.getValue("name"))}</span>
               {product.categories?.name && (
-                <span className="text-[10px] uppercase font-black text-orange-600">{product.categories.name}</span>
+                <span className="text-[10px] uppercase font-black text-violet-600">{product.categories.name}</span>
               )}
             </div>
           </div>
@@ -120,7 +120,7 @@ export function ProductListClient({ tenantId }: { tenantId: string }) {
       accessorKey: "price",
       header: "Precio",
       cell: ({ row }) => (
-        <span className="font-mono font-bold text-orange-600">
+        <span className="font-mono font-bold text-violet-600">
           ${Number(row.getValue("price")).toFixed(2)}
         </span>
       ),
@@ -193,7 +193,7 @@ export function ProductListClient({ tenantId }: { tenantId: string }) {
             setSelectedProduct(null)
             setIsModalOpen(true)
           }}
-          className="rounded-xl font-bold bg-orange-600 hover:bg-orange-700 text-white"
+          className="rounded-xl font-bold bg-violet-600 hover:bg-violet-700 text-white"
         >
           <Plus className="mr-2 h-4 w-4" /> Agregar Producto
         </Button>
@@ -233,7 +233,7 @@ export function ProductListClient({ tenantId }: { tenantId: string }) {
 
       {loading ? (
         <div className="flex h-64 items-center justify-center rounded-3xl border border-dashed">
-          <p className="text-sm text-muted-foreground animate-pulse font-medium text-orange-600">Actualizando catálogo...</p>
+          <p className="text-sm text-muted-foreground animate-pulse font-medium text-violet-600">Actualizando catálogo...</p>
         </div>
       ) : (
         <DataTable columns={columns} data={products} />

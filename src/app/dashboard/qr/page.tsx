@@ -25,7 +25,7 @@ export default async function QRPage() {
   return (
     <section className="space-y-6 py-6 max-w-2xl mx-auto">
       <header className="space-y-1">
-        <h1 className="text-3xl font-black tracking-tight text-orange-600">Tu Código QR</h1>
+        <h1 className="text-3xl font-black tracking-tight text-violet-600">Tu Código QR</h1>
         <p className="text-muted-foreground italic">Tus clientes pueden escanear esto para ver tu menú digital.</p>
       </header>
       

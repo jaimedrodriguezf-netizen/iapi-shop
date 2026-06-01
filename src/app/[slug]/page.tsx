@@ -35,7 +35,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
     : "#";
 
   // Inyección de color de marca dinámico
-  const brandColor = tenant.brand_color || "#ea580c";
+  const brandColor = tenant.brand_color || "#7c3aed";
 
   return (
     <main 

@@ -25,7 +25,7 @@ export default function Home() {
 
         <div className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-8">
-            <div className="inline-flex rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700">
+            <div className="inline-flex rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-bold text-violet-700">
               Plataforma segura para tiendas ecuatorianas
             </div>
             <div className="space-y-5">
@@ -46,10 +46,10 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white bg-white/80 p-5 shadow-2xl shadow-orange-950/10 backdrop-blur">
+          <div className="rounded-3xl border border-white bg-white/80 p-5 shadow-2xl shadow-violet-950/10 backdrop-blur">
             <div className="rounded-3xl bg-slate-950 p-5 text-white">
               <div className="mb-5 flex items-center justify-between">
-                <span className="rounded-xl bg-orange-400 px-3 py-1 text-xs font-black text-slate-950">MVP</span>
+                <span className="rounded-xl bg-violet-400 px-3 py-1 text-xs font-black text-slate-950">MVP</span>
                 <span className="text-xs text-slate-300">Dashboard privado</span>
               </div>
               <div className="grid gap-3">

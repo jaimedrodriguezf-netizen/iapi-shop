@@ -69,7 +69,7 @@ export function AppSidebar({ email }: { email: string }) {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b px-6 py-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-600 text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white">
             <Store className="h-5 w-5" />
           </div>
           <span className="font-black tracking-tight text-xl group-data-[collapsible=icon]:hidden">

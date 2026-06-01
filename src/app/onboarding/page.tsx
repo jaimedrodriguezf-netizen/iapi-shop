@@ -134,7 +134,7 @@ export default function OnboardingPage() {
                     <FormLabel className="font-bold">URL de la sucursal (Slug)</FormLabel>
                     <FormControl>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-orange-600 bg-orange-50 px-3 py-2 rounded-lg">iapi.shop/</span>
+                        <span className="text-sm font-bold text-violet-600 bg-violet-50 px-3 py-2 rounded-lg">iapi.shop/</span>
                         <Input placeholder="mi-sucursal" {...field} className="rounded-xl font-medium" />
                       </div>
                     </FormControl>
@@ -187,7 +187,7 @@ export default function OnboardingPage() {
                   Donde recibirás los pedidos por WhatsApp.
                 </FormDescription>
               </div>
-              <Button type="submit" className="w-full rounded-xl font-bold py-6 bg-orange-500 hover:bg-orange-600 shadow-sm" disabled={form.formState.isSubmitting}>
+              <Button type="submit" className="w-full rounded-xl font-bold py-6 bg-violet-500 hover:bg-violet-600 shadow-sm" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? "Creando..." : "Finalizar y empezar"}
               </Button>
             </form>

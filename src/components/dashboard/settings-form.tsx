@@ -36,10 +36,10 @@ const brandingSchema = z.object({
 })
 
 const PRESET_COLORS = [
-  { name: "IAPI Orange", value: "#ea580c" },
+  { name: "IAPI Violet", value: "#7c3aed" },
   { name: "Ocean Blue", value: "#0284c7" },
   { name: "Emerald", value: "#059669" },
-  { name: "Royal Purple", value: "#7c3aed" },
+  { name: "Royal Purple", value: "#6d28d9" },
   { name: "Rose", value: "#e11d48" },
   { name: "Slate", value: "#475569" },
 ]
@@ -50,7 +50,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
   const form = useForm<z.infer<typeof brandingSchema>>({
     resolver: zodResolver(brandingSchema),
     defaultValues: {
-      brand_color: tenant.brand_color || "#ea580c",
+      brand_color: tenant.brand_color || "#7c3aed",
       address: tenant.address || "",
       instagram: tenant.social_links?.instagram || "",
       facebook: tenant.social_links?.facebook || "",
@@ -93,7 +93,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <Card className="rounded-3xl border-none shadow-sm bg-background">
               <CardHeader>
-                <div className="flex items-center gap-2 text-orange-600 mb-2">
+                <div className="flex items-center gap-2 text-violet-600 mb-2">
                   <Palette className="h-5 w-5" />
                   <span className="text-xs font-black uppercase tracking-widest">Identidad Visual</span>
                 </div>
@@ -144,7 +144,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
 
             <Card className="rounded-3xl border-none shadow-sm bg-background">
               <CardHeader>
-                <div className="flex items-center gap-2 text-orange-600 mb-2">
+                <div className="flex items-center gap-2 text-violet-600 mb-2">
                   <Share2 className="h-5 w-5" />
                   <span className="text-xs font-black uppercase tracking-widest">Contacto y Redes</span>
                 </div>
@@ -226,7 +226,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
 
             <Button 
               type="submit" 
-              className="w-full lg:w-fit rounded-xl font-black px-12 py-7 bg-orange-600 hover:bg-orange-700 text-lg shadow-xl"
+              className="w-full lg:w-fit rounded-xl font-black px-12 py-7 bg-violet-600 hover:bg-violet-700 text-lg shadow-xl"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Guardando..." : "Guardar Cambios"}
@@ -239,7 +239,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
         <div className="sticky top-4">
           <div className="flex items-center gap-2 text-muted-foreground mb-4">
             <Check className="h-4 w-4" />
-            <span className="text-xs font-bold uppercase tracking-widest text-orange-600">Vista Previa en Vivo</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-violet-600">Vista Previa en Vivo</span>
           </div>
           <div className="rounded-[40px] border-8 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black p-4 aspect-[9/19] shadow-2xl overflow-hidden pointer-events-none select-none relative">
             <div className="h-20 w-full rounded-b-2xl bg-white dark:bg-zinc-900 border-b flex flex-col items-center justify-center p-4">

@@ -39,8 +39,8 @@ export default async function DashboardPage() {
   return (
     <section className="space-y-6 py-6">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Link href="/onboarding" className="group flex flex-col justify-center rounded-3xl border bg-background p-6 shadow-sm hover:border-orange-500 transition-all">
-          <span className="text-sm font-bold text-orange-600">Primeros pasos</span>
+        <Link href="/onboarding" className="group flex flex-col justify-center rounded-3xl border bg-background p-6 shadow-sm hover:border-violet-500 transition-all">
+          <span className="text-sm font-bold text-violet-600">Primeros pasos</span>
           <h2 className="text-xl font-black mt-1 group-hover:translate-x-1 transition-transform">Crear sucursal →</h2>
         </Link>
         <div className="rounded-3xl border bg-background p-6 shadow-sm">
@@ -53,13 +53,13 @@ export default async function DashboardPage() {
         </div>
         <div className="rounded-3xl border bg-background p-6 shadow-sm">
           <span className="text-sm font-bold text-muted-foreground">Plan Actual</span>
-          <p className="text-3xl font-black mt-1 text-orange-600 uppercase text-lg">{planName}</p>
+          <p className="text-3xl font-black mt-1 text-violet-600 uppercase text-lg">{planName}</p>
         </div>
       </div>
 
       {platformRole === "admin" && (
-        <div className="bg-orange-50 border border-orange-200 p-4 rounded-3xl">
-          <p className="text-xs font-bold text-orange-800 uppercase tracking-tight">Acceso Administrador de Plataforma</p>
+        <div className="bg-violet-50 border border-violet-200 p-4 rounded-3xl">
+          <p className="text-xs font-bold text-violet-800 uppercase tracking-tight">Acceso Administrador de Plataforma</p>
         </div>
       )}
 

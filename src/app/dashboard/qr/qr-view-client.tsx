@@ -35,13 +35,13 @@ export function QRViewClient({ qrDataUrl, publicUrl, tenantName }: QRViewClientP
 
   return (
     <Card className="rounded-3xl border shadow-lg overflow-hidden">
-      <CardHeader className="bg-orange-50 dark:bg-orange-950/20 text-center py-8">
-        <CardTitle className="text-xl font-black text-orange-600 uppercase tracking-widest flex items-center justify-center gap-2">
+      <CardHeader className="bg-violet-50 dark:bg-violet-950/20 text-center py-8">
+        <CardTitle className="text-xl font-black text-violet-600 uppercase tracking-widest flex items-center justify-center gap-2">
           <QrCode className="h-6 w-6" /> Escanea & Pide
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center p-8 bg-white dark:bg-zinc-900">
-        <div className="relative h-64 w-64 p-4 rounded-3xl border-4 border-orange-100 bg-white shadow-inner">
+        <div className="relative h-64 w-64 p-4 rounded-3xl border-4 border-violet-100 bg-white shadow-inner">
           <Image 
             src={qrDataUrl} 
             alt="Código QR de la sucursal" 
@@ -60,13 +60,13 @@ export function QRViewClient({ qrDataUrl, publicUrl, tenantName }: QRViewClientP
       <CardFooter className="flex flex-col sm:flex-row gap-3 p-6 bg-muted/50 border-t">
         <Button 
           variant="outline" 
-          className="w-full rounded-xl font-bold border-orange-200 hover:bg-orange-50 transition-colors"
+          className="w-full rounded-xl font-bold border-violet-200 hover:bg-violet-50 transition-colors"
           onClick={openPublicView}
         >
           <ExternalLink className="mr-2 h-4 w-4" /> Probar Vista Pública
         </Button>
         <Button 
-          className="w-full rounded-xl font-bold bg-orange-600 hover:bg-orange-700 shadow-md"
+          className="w-full rounded-xl font-bold bg-violet-600 hover:bg-violet-700 shadow-md"
           onClick={downloadQR}
         >
           <Download className="mr-2 h-4 w-4" /> Descargar PNG

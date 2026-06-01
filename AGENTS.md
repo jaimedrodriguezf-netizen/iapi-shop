@@ -24,6 +24,6 @@ You are the Guardian Angel of IAPI Shop. Your mission is to ensure the codebase 
 - **Toasts**: Always provide visual feedback for async operations using `sonner`.
 
 ## 🎨 Visual Identity
-- **Primary Color**: Orange (`oklch(0.614 0.154 28.75)` / `hsl(20, 100%, 50%)`).
+- **Primary Color**: Violet (`oklch(0.602 0.218 275.52)` / `hsl(263, 83%, 58%)`).
 - **Radius**: Use `rounded-3xl` for main containers and `rounded-xl` for small elements.
 - **Theme**: Support both Light and Dark mode using CSS variables.
