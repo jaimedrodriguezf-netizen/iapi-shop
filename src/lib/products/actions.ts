@@ -53,12 +53,14 @@ export async function createProduct(input: CreateProductInput): Promise<{ succes
 
     const slug = input.slug || input.name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
 
+    const category_id = input.category_id || null;
+
     // 1. Insertar Producto
     const { data: product, error } = await supabase
       .from("products")
       .insert({
         tenant_id: input.tenant_id,
-        category_id: input.category_id,
+        category_id,
         name: input.name,
         slug,
         description: input.description,
@@ -132,10 +134,12 @@ export async function updateProduct(id: string, tenant_id: string, input: Partia
 
     const slug = input.name ? (input.slug || input.name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "")) : undefined;
 
+    const category_id = input.category_id === "" ? null : input.category_id;
+
     const { data: product, error } = await supabase
       .from("products")
       .update({
-        category_id: input.category_id,
+        category_id,
         name: input.name,
         slug,
         description: input.description,

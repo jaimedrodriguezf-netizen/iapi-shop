@@ -67,6 +67,23 @@ describe("Product Catalog Actions", () => {
         slug: "producto-test-auto-slug"
       }));
     });
+
+    it("should handle empty category_id string by converting it to null", async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
+      mockSupabase.single.mockResolvedValue({ data: { id: "prod-1", name: "Producto Cat Test" }, error: null });
+
+      const result = await createProduct({
+        tenant_id: "tenant-123",
+        name: "Producto Cat Test",
+        price: 10.50,
+        category_id: "",
+      });
+
+      expect(result.success).toBe(true);
+      expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({
+        category_id: null
+      }));
+    });
   });
 
   describe("updateProduct", () => {
@@ -95,6 +112,19 @@ describe("Product Catalog Actions", () => {
       expect(result.success).toBe(true);
       expect(mockSupabase.update).toHaveBeenCalledWith(expect.objectContaining({
         slug: "producto-actualizado-auto-slug"
+      }));
+    });
+
+    it("should handle empty category_id string by converting it to null on update", async () => {
+      mockSupabase.single.mockResolvedValue({ data: { id: "prod-1", name: "Updated" }, error: null });
+
+      const result = await updateProduct("prod-1", "tenant-123", {
+        category_id: "",
+      });
+
+      expect(result.success).toBe(true);
+      expect(mockSupabase.update).toHaveBeenCalledWith(expect.objectContaining({
+        category_id: null
       }));
     });
   });
