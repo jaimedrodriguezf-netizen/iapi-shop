@@ -101,6 +101,7 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResu
     // 1. Obtener el usuario actual
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
+      console.error("createTenant authError:", authError, "user:", user);
       return { success: false, error: "No autorizado" };
     }
 
