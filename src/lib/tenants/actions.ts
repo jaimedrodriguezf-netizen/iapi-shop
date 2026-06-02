@@ -98,14 +98,49 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResu
   try {
     const supabase = await createClient();
 
-    // 1. Obtener el usuario actual
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       console.error("createTenant authError:", authError, "user:", user);
       return { success: false, error: "No autorizado" };
     }
 
-    // 2. Insertar el Tenant
+    // 2. Validar límite de sucursales: solo el plan 'business' permite múltiples sucursales
+    const { data: existingTenants, error: countError } = await supabase
+      .from("tenants")
+      .select("id")
+      .eq("created_by", user.id);
+
+    if (countError) {
+      return { success: false, error: "Error al validar límite de sucursales" };
+    }
+
+    if (existingTenants && existingTenants.length >= 1) {
+      const tenantIds = existingTenants.map(t => t.id);
+      
+      const { data: subs, error: subsError } = await supabase
+        .from("tenant_subscriptions")
+        .select("id, status, plans(code)")
+        .in("tenant_id", tenantIds)
+        .eq("status", "active");
+
+      if (subsError) {
+        return { success: false, error: "Error al verificar planes de suscripción" };
+      }
+
+      const hasBusiness = subs?.some(sub => {
+        const rawPlan = sub.plans as unknown as { code: string } | null;
+        return rawPlan?.code === "business";
+      });
+
+      if (!hasBusiness) {
+        return { 
+          success: false, 
+          error: "El plan actual solo permite tener una sucursal individual. Para agregar más sucursales, por favor adquiere el Plan Business." 
+        };
+      }
+    }
+
+    // 3. Insertar el Tenant
     const { data: tenant, error: tenantError } = await supabase
       .from("tenants")
       .insert({
