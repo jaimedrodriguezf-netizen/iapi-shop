@@ -37,9 +37,9 @@ describe("ProductFormModal Accessibility and Typography", () => {
     const mediaTab = screen.getByRole("tab", { name: /fotos/i });
     await user.click(mediaTab);
 
-    // 2. Verificar que el input de URL de imagen tenga una etiqueta accesible asociada
-    const imgUrlInput = screen.getByLabelText(/url de imagen/i);
-    expect(imgUrlInput).toBeInTheDocument();
+    // 2. Verificar que exista la opción de subir fotos desde el dispositivo
+    const uploadInput = screen.getByText(/subir foto 1/i);
+    expect(uploadInput).toBeInTheDocument();
 
     // Cambiar a la pestaña de categoría
     const catTab = screen.getByRole("tab", { name: /categoría/i });
@@ -52,7 +52,7 @@ describe("ProductFormModal Accessibility and Typography", () => {
     // 4. Testear fallo de creación de categoría y feedback visual con toast.error
     const toastErrorSpy = vi.spyOn(toast, "error");
     const createCategoryMock = vi.mocked(createCategory);
-    createCategoryMock.mockResolvedValue({ success: false, category: null, error: "Error al crear categoría" });
+    createCategoryMock.mockResolvedValue({ success: false, category: undefined, error: "Error al crear categoría" });
 
     await user.type(newCatInput, "Postres Exclusivos");
     const createBtn = screen.getByRole("button", { name: /crear/i });

@@ -34,7 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { createProduct, updateProduct, getCategories, createCategory } from "@/lib/products/actions"
+import { createProduct, updateProduct, getCategories, createCategory, uploadProductImage } from "@/lib/products/actions"
 import Image from "next/image"
 
 const productSchema = z.object({
@@ -44,7 +44,7 @@ const productSchema = z.object({
   }),
   category_id: z.string().optional(),
   description: z.string().optional(),
-  image_urls: z.array(z.string().url("URL de imagen inválida")).max(3, "Máximo 3 fotos"),
+  image_urls: z.array(z.string()).max(3, "Máximo 3 fotos"),
 })
 
 interface Category {
@@ -128,20 +128,17 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
 
   async function onSubmit(values: z.infer<typeof productSchema>) {
     try {
-      const slug = values.name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "")
-      
       const payload = {
         tenant_id: tenantId,
         category_id: values.category_id,
         name: values.name,
-        slug,
         description: values.description,
         price: Number(values.price),
         image_urls: values.image_urls,
       }
 
       const result = isEditing && product
-        ? await updateProduct(product.id, payload)
+        ? await updateProduct(product.id, tenantId, payload)
         : await createProduct(payload)
 
       if (result.success) {
@@ -151,18 +148,50 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
       } else {
         toast.error(result.error || "Error en la operación")
       }
-    } catch (error) {
+    } catch {
       toast.error("Error inesperado")
     }
   }
 
-  const addImageUrl = (url: string) => {
-    const current = form.getValues("image_urls") || []
-    if (current.length < 3) {
-      form.setValue("image_urls", [...current, url])
-    } else {
-      toast.error("Máximo 3 fotos permitidas")
+  const [uploadingIndex, setUploadingIndex] = React.useState<number | null>(null)
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("La imagen no debe superar los 2MB")
+      return
     }
+
+    setUploadingIndex(index)
+    const toastId = toast.loading("Subiendo imagen...")
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("tenantId", tenantId)
+
+      const result = await uploadProductImage(formData)
+
+      if (!result.success || !result.url) {
+        toast.error(result.error || "Error al subir imagen", { id: toastId })
+        return
+      }
+
+      addImageUrlAtIndex(result.url, index)
+      toast.success("Imagen subida con éxito", { id: toastId })
+    } catch {
+      toast.error("Error al subir imagen", { id: toastId })
+    } finally {
+      setUploadingIndex(null)
+    }
+  }
+
+  const addImageUrlAtIndex = (url: string, index: number) => {
+    const current = [...(form.getValues("image_urls") || [])]
+    current[index] = url
+    form.setValue("image_urls", current.filter(Boolean))
   }
 
   return (
@@ -234,54 +263,53 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
                   />
                 </TabsContent>
 
-                <TabsContent value="media" className="space-y-4 mt-0">
+                 <TabsContent value="media" className="space-y-4 mt-0">
                   <div className="grid grid-cols-3 gap-4">
                     {[0, 1, 2].map((i) => {
                       const urls = form.watch("image_urls")
                       const url = urls ? urls[i] : null
                       return (
-                        <div key={i} className="aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center relative group bg-muted/30">
+                        <div 
+                          key={i} 
+                          className="aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center relative group bg-muted/30 overflow-hidden hover:border-violet-400 transition-colors"
+                        >
                           {url ? (
                             <>
                               <Image src={url} alt="Producto" fill className="object-cover rounded-xl" />
                               <button 
                                 type="button"
                                 aria-label="Eliminar foto"
-                                onClick={() => form.setValue("image_urls", (form.getValues("image_urls") || []).filter((_, idx) => idx !== i))}
-                                className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  const current = [...(form.getValues("image_urls") || [])]
+                                  current.splice(i, 1)
+                                  form.setValue("image_urls", current)
+                                }}
+                                className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
                               >
                                 <Trash2 className="h-3 w-3" />
                               </button>
                             </>
-                          ) : (
+                          ) : uploadingIndex === i ? (
                             <div className="flex flex-col items-center gap-2">
-                              <ImagePlus className="h-6 w-6 text-muted-foreground" />
-                              <span className="text-[10px] text-muted-foreground font-bold uppercase">Foto {i+1}</span>
+                              <span className="h-5 w-5 animate-spin rounded-full border-2 border-violet-600 border-t-transparent" />
+                              <span className="text-[9px] text-muted-foreground font-bold uppercase">Subiendo...</span>
                             </div>
+                          ) : (
+                            <label className="flex flex-col items-center gap-2 cursor-pointer w-full h-full justify-center">
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={(e) => handleFileChange(e, i)}
+                              />
+                              <ImagePlus className="h-6 w-6 text-muted-foreground group-hover:text-violet-500 transition-colors" />
+                              <span className="text-[10px] text-muted-foreground group-hover:text-violet-550 transition-colors font-bold uppercase">Subir Foto {i+1}</span>
+                            </label>
                           )}
                         </div>
                       )
                     })}
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="img-url-input" className="text-xs font-bold text-muted-foreground block">URL de Imagen (Simulado)</label>
-                    <div className="flex gap-2">
-                      <Input id="img-url-input" placeholder="https://…" className="rounded-xl flex-1" />
-                      <Button 
-                        type="button" 
-                        variant="secondary" 
-                        className="rounded-xl"
-                        onClick={() => {
-                          const input = document.getElementById("img-url-input") as HTMLInputElement
-                          if (input.value) {
-                            addImageUrl(input.value)
-                            input.value = ""
-                          }
-                        }}
-                      >
-                        Subir
-                      </Button>
-                    </div>
                   </div>
                 </TabsContent>
 

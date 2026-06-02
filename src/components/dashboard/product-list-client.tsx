@@ -78,7 +78,7 @@ export function ProductListClient({ tenantId }: { tenantId: string }) {
 
   async function handleDelete() {
     if (!deletingProduct) return
-    const res = await deleteProduct(deletingProduct.id)
+    const res = await deleteProduct(deletingProduct.id, tenantId)
     if (res.success) {
       toast.success("Producto eliminado")
       setIsDeleteDialogOpen(false)
