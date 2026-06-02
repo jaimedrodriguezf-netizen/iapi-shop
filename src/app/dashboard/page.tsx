@@ -4,6 +4,7 @@ import { ShopSummaryTable, ShopSummary } from "@/components/dashboard/shop-summa
 import { getTenantOrders } from "@/lib/orders/actions";
 import { getMyTenants, getTenantSubscription } from "@/lib/tenants/actions";
 import { getUserRoleInfo } from "@/lib/auth/actions";
+import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
   // 1. Obtener datos del usuario delegando a Server Action (GGA Compliance)
@@ -13,6 +14,10 @@ export default async function DashboardPage() {
   // 2. Fetch de sucursales delegando a Server Action (GGA Clean Architecture)
   const tenantsResult = await getMyTenants();
   const tenants = tenantsResult.success && tenantsResult.data ? tenantsResult.data : [];
+
+  if (tenants.length === 0) {
+    redirect("/onboarding");
+  }
 
   const sucursales: ShopSummary[] = tenants.map(t => ({
     id: t.id,
