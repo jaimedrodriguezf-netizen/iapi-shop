@@ -56,7 +56,7 @@ const rolePermissions: Record<TenantRole, ReadonlySet<TenantPermission>> = {
   viewer: new Set(["products.read", "inventory.read", "orders.read", "customers.read", "analytics.read"]),
 };
 
-const protectedRoutePrefixes = ["/marketplace", "/tienda", "/producto", "/dashboard", "/admin"] as const;
+const protectedRoutePrefixes = ["/marketplace", "/tienda", "/producto", "/dashboard", "/admin", "/onboarding"] as const;
 
 export function can(role: TenantRole, permission: TenantPermission): boolean {
   return rolePermissions[role].has(permission);

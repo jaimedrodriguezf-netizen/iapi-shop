@@ -41,7 +41,7 @@ describe("tenant role permissions", () => {
 });
 
 describe("protected app routes", () => {
-  it.each(["/marketplace", "/tienda/demo", "/producto/demo", "/dashboard", "/admin"])(
+  it.each(["/marketplace", "/tienda/demo", "/producto/demo", "/dashboard", "/admin", "/onboarding"])(
     "requires authentication for %s",
     (pathname) => {
       expect(isProtectedAppRoute(pathname)).toBe(true);
