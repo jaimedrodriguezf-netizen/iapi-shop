@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { ShoppingBag, ArrowRight, Sparkles, Plus, Check } from "lucide-react";
+import { ShoppingBag, Sparkles, Plus, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export interface MotionProduct {
   id: string;
@@ -43,6 +44,7 @@ export function StorefrontMotionCanvas() {
       setFlyEffect(false);
       setIsAdding(false);
       setShowToast(true);
+      toast.success("¡Agregado al carrito!");
     }, 600);
   };
 

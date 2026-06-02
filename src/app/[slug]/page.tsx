@@ -49,7 +49,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="h-24 w-24 rounded-xl border-4 border-white dark:border-zinc-900 bg-zinc-100 overflow-hidden shadow-xl relative text-[var(--brand-primary)]">
               {tenant.logo_url ? (
-                <Image src={tenant.logo_url} alt={tenant.name} fill className="object-cover" />
+                <Image src={tenant.logo_url} alt={tenant.name} fill sizes="96px" priority={true} className="object-cover" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-2xl font-black bg-muted/20">
                   {tenant.name[0]}
@@ -67,7 +67,11 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
                 )}
               </div>
             </div>
-            <Button render={<a href={whatsappUrl} target="_blank" rel="noopener noreferrer" />} className="rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold px-6 shadow-lg shadow-green-200 dark:shadow-none">
+            <Button 
+              render={<a href={whatsappUrl} target="_blank" rel="noopener noreferrer" />} 
+              style={{ backgroundColor: brandColor }}
+              className="rounded-xl hover:opacity-90 text-white font-bold px-6 shadow-lg dark:shadow-none"
+            >
               <MessageCircle className="mr-2 h-4 w-4" /> Chatear
             </Button>
           </div>
@@ -171,7 +175,7 @@ function ProductCard({ product, tenantId, brandColor }: { product: Product, tena
     <article className="flex gap-4 p-4 bg-white dark:bg-zinc-900 rounded-xl border shadow-sm hover:shadow-md transition-shadow group">
       <div className="h-24 w-24 rounded-xl bg-muted overflow-hidden relative shrink-0 border">
         {product.image_urls?.[0] ? (
-          <Image src={product.image_urls[0]} alt={product.name} fill className="object-cover" />
+          <Image src={product.image_urls[0]} alt={product.name} fill sizes="96px" className="object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-muted-foreground">
             <Package className="h-6 w-6" />
