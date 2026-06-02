@@ -108,7 +108,7 @@ export async function getProducts(tenant_id: string): Promise<{ success: boolean
 
     const { data: products, error } = await supabase
       .from("products")
-      .select("*, categories(name)")
+      .select("*, categories(name), product_images(url, display_order)")
       .eq("tenant_id", tenant_id)
       .order("created_at", { ascending: false });
 
@@ -116,7 +116,18 @@ export async function getProducts(tenant_id: string): Promise<{ success: boolean
       return { success: false, error: error.message };
     }
 
-    return { success: true, products: products as (Product & { categories?: { name: string } | null })[] };
+    const formattedProducts = (products || []).map(p => {
+      const images = p.product_images as { url: string; display_order: number }[] | undefined;
+      const image_urls = images
+        ? [...images].sort((a, b) => a.display_order - b.display_order).map(img => img.url)
+        : [];
+      return {
+        ...p,
+        image_urls,
+      };
+    });
+
+    return { success: true, products: formattedProducts as (Product & { categories?: { name: string } | null })[] };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Error al obtener productos";
     return { success: false, error: msg };

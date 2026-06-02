@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createProduct, updateProduct, deleteProduct, getCategories, createCategory, uploadProductImage } from "./actions";
+import { createProduct, getProducts, updateProduct, deleteProduct, getCategories, createCategory, uploadProductImage } from "./actions";
 
 const mockSupabase = {
   auth: {
@@ -83,6 +83,35 @@ describe("Product Catalog Actions", () => {
       expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({
         category_id: null
       }));
+    });
+  });
+
+  describe("getProducts", () => {
+    it("should fetch products and sort/map their images into image_urls", async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
+      
+      const mockProducts = [
+        {
+          id: "prod-1",
+          name: "Producto Test 1",
+          price: 10,
+          tenant_id: "tenant-123",
+          categories: { name: "Bebidas" },
+          product_images: [
+            { url: "img2.jpg", display_order: 1 },
+            { url: "img1.jpg", display_order: 0 },
+          ],
+        },
+      ];
+      
+      mockSupabase.from.mockReturnValue(mockSupabase);
+      mockSupabase.select.mockReturnValue(mockSupabase);
+      mockSupabase.eq.mockReturnValue(mockSupabase);
+      mockSupabase.order.mockResolvedValue({ data: mockProducts, error: null });
+
+      const result = await getProducts("tenant-123");
+      expect(result.success).toBe(true);
+      expect(result.products?.[0].image_urls).toEqual(["img1.jpg", "img2.jpg"]);
     });
   });
 
