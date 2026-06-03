@@ -142,4 +142,78 @@ describe("SaaS Admin Actions - getSaaSUsers TDD", () => {
     expect(jaime?.id).toBe("jaime-id-456");
     expect(jaime?.full_name).toBe("Jaime Rodriguez");
   });
+
+  it("should return the correct platform role and plan for jaimedrodriguezf@gmail.com when the tenant is iapi", async () => {
+    const mockProfiles = [
+      {
+        id: "jaime-id-456",
+        email: "jaimedrodriguezf@gmail.com",
+        full_name: "Jaime Rodriguez",
+        created_at: "2026-06-02T00:00:00Z",
+        platform_admins: null,
+      },
+    ];
+
+    const mockTenantMembers = [
+      {
+        user_id: "jaime-id-456",
+        role: "owner",
+        tenant_id: "tenant-iapi-123",
+        tenants: {
+          id: "tenant-iapi-123",
+          name: "iapi",
+          slug: "iapi",
+          tenant_subscriptions: {
+            plans: { name: "Free", code: "free" },
+          },
+          products: [{ count: 12 }],
+        },
+      },
+    ];
+
+    // Mock supabase.from queries
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "profiles") {
+        return {
+          select: vi.fn().mockImplementation(() => ({
+            order: vi.fn().mockResolvedValue({ data: mockProfiles, error: null }),
+          })),
+          order: vi.fn().mockResolvedValue({ data: mockProfiles, error: null }),
+        };
+      }
+      if (table === "tenant_members") {
+        return {
+          select: vi.fn().mockResolvedValue({ data: mockTenantMembers, error: null }),
+        };
+      }
+      return {
+        select: vi.fn().mockResolvedValue({ data: [], error: null }),
+      };
+    });
+
+    // Mock listUsers to return empty so we only rely on profiles table
+    mockListUsers.mockResolvedValue({
+      data: { users: [] },
+      error: null,
+    });
+
+    const { getSaaSUsers } = await import("./actions");
+    const result = await getSaaSUsers();
+
+    expect(result.success).toBe(true);
+    expect(result.data).toBeDefined();
+
+    const jaimeUser = result.data?.find((u) => u.email === "jaimedrodriguezf@gmail.com");
+    expect(jaimeUser).toBeDefined();
+    
+    // El rol de plataforma es merchant (no termina en @iapi.shop y no tiene platform_admins)
+    expect(jaimeUser?.platformRole).toBe("merchant");
+    
+    // Su sucursal es iapi y tiene el plan Free
+    expect(jaimeUser?.tenants).toHaveLength(1);
+    expect(jaimeUser?.tenants[0].name).toBe("iapi");
+    expect(jaimeUser?.tenants[0].slug).toBe("iapi");
+    expect(jaimeUser?.tenants[0].planName).toBe("Free");
+    expect(jaimeUser?.tenants[0].productCount).toBe(12);
+  });
 });
