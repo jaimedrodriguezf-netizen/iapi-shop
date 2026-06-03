@@ -308,7 +308,7 @@ create policy "audit_logs_insert_authenticated" on public.audit_logs
 
 insert into public.plans (code, name, price_monthly, product_limit, user_limit, ai_text_credits, ai_image_credits, qr_analytics_enabled)
 values
-  ('free', 'Free', 0, 10, 1, 20, 5, false),
+  ('free', 'Free', 0, 25, 1, 20, 5, false),
   ('starter', 'Starter', 9.99, 50, 2, 100, 20, true),
   ('pro', 'Pro', 29.99, 300, 5, 500, 100, true),
   ('business', 'Business', 79.99, 2000, 10, 2000, 500, true)

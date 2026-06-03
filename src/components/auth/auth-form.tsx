@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 import type { AuthActionState } from "@/lib/auth/actions";
 
 type AuthFormProps = {
@@ -19,6 +20,8 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
   const [isPending, startTransition] = React.useTransition();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]> | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = (formData: FormData) => {
     setErrorMsg(null);
@@ -84,15 +87,25 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
 
           <label className="grid gap-2 text-sm font-semibold text-slate-800 dark:text-zinc-200">
             Contraseña
-            <input
-              className="h-11 rounded-xl border border-zinc-200 bg-background px-3 text-base outline-none transition focus:border-violet-accent focus:ring-4 focus:ring-violet-accent/10 dark:border-zinc-800 dark:focus:border-violet-accent dark:focus:ring-violet-accent/20 text-slate-900 dark:text-white"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              minLength={6}
-              disabled={isPending}
-              required
-            />
+            <div className="relative">
+              <input
+                className="h-11 w-full rounded-xl border border-zinc-200 bg-background pl-3 pr-10 text-base outline-none transition focus:border-violet-accent focus:ring-4 focus:ring-violet-accent/10 dark:border-zinc-800 dark:focus:border-violet-accent dark:focus:ring-violet-accent/20 text-slate-900 dark:text-white"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                minLength={6}
+                disabled={isPending}
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none flex items-center justify-center"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={isPending}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
             {fieldErrors?.password && (
               <span className="text-[11px] text-red-600 dark:text-red-400 font-bold mt-0.5 animate-in fade-in duration-200">
                 {fieldErrors.password[0]}
@@ -103,15 +116,25 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
           {isRegister && (
             <label className="grid gap-2 text-sm font-semibold text-slate-800 dark:text-zinc-200">
               Confirmar contraseña
-              <input
-                className="h-11 rounded-xl border border-zinc-200 bg-background px-3 text-base outline-none transition focus:border-violet-accent focus:ring-4 focus:ring-violet-accent/10 dark:border-zinc-800 dark:focus:border-violet-accent dark:focus:ring-violet-accent/20 text-slate-900 dark:text-white"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                minLength={6}
-                disabled={isPending}
-                required
-              />
+              <div className="relative">
+                <input
+                  className="h-11 w-full rounded-xl border border-zinc-200 bg-background pl-3 pr-10 text-base outline-none transition focus:border-violet-accent focus:ring-4 focus:ring-violet-accent/10 dark:border-zinc-800 dark:focus:border-violet-accent dark:focus:ring-violet-accent/20 text-slate-900 dark:text-white"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  minLength={6}
+                  disabled={isPending}
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none flex items-center justify-center"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={isPending}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
               {fieldErrors?.confirmPassword && (
                 <span className="text-[11px] text-red-600 dark:text-red-400 font-bold mt-0.5 animate-in fade-in duration-200">
                   {fieldErrors.confirmPassword[0]}

@@ -3,6 +3,8 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { createClient } from "@/lib/supabase/server"
 import { Separator } from "@/components/ui/separator"
 import { ModeToggle } from "@/components/mode-toggle"
+import { getMyTenants, getTenantSubscription } from "@/lib/tenants/actions"
+import { getUserRoleInfo } from "@/lib/auth/actions"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -21,9 +23,28 @@ export default async function DashboardLayout({
   const { data } = await supabase.auth.getClaims()
   const email = typeof data?.claims?.email === "string" ? data.claims.email : "Usuario"
 
+  const roleResult = await getUserRoleInfo()
+  const platformRole = roleResult.success && roleResult.data ? roleResult.data.platformRole : "merchant"
+
+  const tenantsResult = await getMyTenants()
+  const tenants = tenantsResult.success && tenantsResult.data ? tenantsResult.data : []
+  
+  let planName = "Free"
+  if (tenants.length > 0) {
+    const activeTenantId = tenants[0].id
+    const subResult = await getTenantSubscription(activeTenantId)
+    if (subResult.success && subResult.data) {
+      planName = subResult.data.plans?.name || "Free"
+    }
+  }
+
+  if (platformRole === "admin") {
+    planName = "Business"
+  }
+
   return (
     <SidebarProvider>
-      <AppSidebar email={email} />
+      <AppSidebar email={email} planName={planName} platformRole={platformRole} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -43,7 +64,14 @@ export default async function DashboardLayout({
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-          <div className="flex items-center gap-2 px-4">
+          <div className="flex items-center gap-3 px-4">
+            <span className={`text-xs px-2.5 py-1 rounded-full font-black uppercase tracking-wider ${
+              planName.toLowerCase() === "business" 
+                ? "bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400 border border-violet-200/50 dark:border-violet-900/50" 
+                : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+            }`}>
+              Plan {planName}
+            </span>
             <ModeToggle />
           </div>
         </header>

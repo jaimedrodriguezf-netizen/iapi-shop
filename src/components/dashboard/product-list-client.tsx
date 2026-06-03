@@ -48,7 +48,7 @@ interface ProductWithCategory extends Product {
   } | null;
 }
 
-export function ProductListClient({ tenantId }: { tenantId: string }) {
+export function ProductListClient({ tenantId, planName = "free" }: { tenantId: string; planName?: string }) {
   const [products, setProducts] = React.useState<ProductWithCategory[]>([])
   const [loading, setLoading] = React.useState(true)
   
@@ -202,6 +202,7 @@ export function ProductListClient({ tenantId }: { tenantId: string }) {
       {/* Modal Unificado (Crear/Editar) */}
       <ProductFormModal 
         tenantId={tenantId}
+        planName={planName}
         product={selectedProduct}
         open={isModalOpen}
         onOpenChange={setIsModalOpen}

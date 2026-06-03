@@ -10,6 +10,7 @@ import {
   Settings,
   Store,
   User,
+  Users,
 } from "lucide-react"
 
 import {
@@ -48,6 +49,11 @@ const navItems = [
     url: "/dashboard/qr",
     icon: QrCode,
   },
+  {
+    title: "Usuarios SaaS",
+    url: "/dashboard/admin/users",
+    icon: Users,
+  },
 ]
 
 const footerItems = [
@@ -58,7 +64,7 @@ const footerItems = [
   },
 ]
 
-export function AppSidebar({ email }: { email: string }) {
+export function AppSidebar({ email, planName, platformRole = "merchant" }: { email: string; planName: string; platformRole?: string }) {
   const { setOpenMobile, isMobile } = useSidebar()
 
   const handleNavItemClick = () => {
@@ -81,14 +87,24 @@ export function AppSidebar({ email }: { email: string }) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu className="px-2 py-4">
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} render={<Link href={item.url} onClick={handleNavItemClick} />}>
-                <item.icon className="h-5 w-5" />
-                <span className="font-bold">{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {navItems
+            .filter((item) => {
+              if (item.url === "/dashboard/stores") {
+                return planName.toLowerCase() === "business" || platformRole === "admin"
+              }
+              if (item.url === "/dashboard/admin/users") {
+                return platformRole === "admin"
+              }
+              return true
+            })
+            .map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton tooltip={item.title} render={<Link href={item.url} onClick={handleNavItemClick} />}>
+                  <item.icon className="h-5 w-5" />
+                  <span className="font-bold">{item.title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="border-t p-4">
@@ -108,7 +124,18 @@ export function AppSidebar({ email }: { email: string }) {
               </div>
               <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                 <span className="text-xs font-bold truncate max-w-[120px]">{email}</span>
-                <span className="text-[10px] text-muted-foreground uppercase">Vendedor</span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold">
+                    {platformRole === "admin" ? "Administrador" : "Vendedor"}
+                  </span>
+                  <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase tracking-wider ${
+                    planName.toLowerCase() === "business" 
+                      ? "bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400 border border-violet-200/50 dark:border-violet-900/50" 
+                      : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                  }`}>
+                    {planName}
+                  </span>
+                </div>
               </div>
             </div>
           </SidebarMenuItem>

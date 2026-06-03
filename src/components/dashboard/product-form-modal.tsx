@@ -37,14 +37,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { createProduct, updateProduct, getCategories, createCategory, uploadProductImage } from "@/lib/products/actions"
 import Image from "next/image"
 
-const productSchema = z.object({
+const baseProductSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres."),
   price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
     message: "Ingresa un precio válido.",
   }),
   category_id: z.string().optional(),
   description: z.string().optional(),
-  image_urls: z.array(z.string()).max(3, "Máximo 3 fotos"),
+  image_urls: z.array(z.string()),
 })
 
 interface Category {
@@ -54,6 +54,7 @@ interface Category {
 
 interface ProductFormModalProps {
   tenantId: string
+  planName?: string
   product: {
     id: string;
     name: string;
@@ -67,13 +68,25 @@ interface ProductFormModalProps {
   onSuccess: () => void
 }
 
-export function ProductFormModal({ tenantId, product, open, onOpenChange, onSuccess }: ProductFormModalProps) {
+export function ProductFormModal({ tenantId, planName = "free", product, open, onOpenChange, onSuccess }: ProductFormModalProps) {
   const [categories, setCategories] = React.useState<Category[]>([])
   const [newCategoryName, setNewCategoryName] = React.useState("")
 
   const isEditing = !!product
 
-  const form = useForm<z.infer<typeof productSchema>>({
+  const maxImages = React.useMemo(() => {
+    const plan = planName.toLowerCase()
+    if (plan === "business") return 6
+    if (plan === "pro") return 3
+    if (plan === "starter") return 3
+    return 1
+  }, [planName])
+
+  const productSchema = React.useMemo(() => baseProductSchema.extend({
+    image_urls: z.array(z.string()).max(maxImages, `El plan ${planName} permite un máximo de ${maxImages} ${maxImages === 1 ? "foto" : "fotos"}.`),
+  }), [maxImages, planName])
+
+  const form = useForm<z.infer<typeof baseProductSchema>>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
@@ -126,7 +139,7 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
     }
   }
 
-  async function onSubmit(values: z.infer<typeof productSchema>) {
+  async function onSubmit(values: z.infer<typeof baseProductSchema>) {
     try {
       const payload = {
         tenant_id: tenantId,
@@ -212,7 +225,7 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
               <TabsList className="w-full justify-start rounded-none border-b bg-transparent px-6 h-12">
                 <TabsTrigger value="general" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-500 rounded-none h-full">General</TabsTrigger>
                 <TabsTrigger value="media" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-500 rounded-none h-full">
-                  Fotos ({form.watch("image_urls")?.length || 0}/3)
+                  Fotos ({form.watch("image_urls")?.length || 0}/{maxImages})
                 </TabsTrigger>
                 <TabsTrigger value="category" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-500 rounded-none h-full">Categoría</TabsTrigger>
               </TabsList>
@@ -264,8 +277,8 @@ export function ProductFormModal({ tenantId, product, open, onOpenChange, onSucc
                 </TabsContent>
 
                  <TabsContent value="media" className="space-y-4 mt-0">
-                  <div className="grid grid-cols-3 gap-4">
-                    {[0, 1, 2].map((i) => {
+                  <div className={`grid gap-4 ${maxImages === 1 ? "grid-cols-1 max-w-[200px] mx-auto" : "grid-cols-3"}`}>
+                    {Array.from({ length: maxImages }).map((_, i) => {
                       const urls = form.watch("image_urls")
                       const url = urls ? urls[i] : null
                       return (

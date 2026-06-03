@@ -27,7 +27,8 @@ const PLANS: PricingPlan[] = [
     priceAnnually: 0,
     features: [
       { text: "Catálogo digital QR básico", included: true },
-      { text: "Hasta 15 productos activos", included: true },
+      { text: "Hasta 25 productos activos", included: true },
+      { text: "1 foto por producto", included: true },
       { text: "Pedidos directos por WhatsApp", included: true },
       { text: "Soporte por comunidad", included: true },
       { text: "Pasarela PayPal Ecuador", included: false },
@@ -43,7 +44,8 @@ const PLANS: PricingPlan[] = [
     priceAnnually: 23,
     features: [
       { text: "Todo lo del Plan Gratis", included: true },
-      { text: "Productos y catálogos ilimitados", included: true },
+      { text: "Hasta 300 productos activos", included: true },
+      { text: "Hasta 3 fotos por producto", included: true },
       { text: "Descarga de QR en alta resolución", included: true },
       { text: "Estudio básico de fondos con IA", included: true },
       { text: "Soporte técnico por email", included: true },
@@ -60,6 +62,8 @@ const PLANS: PricingPlan[] = [
     priceAnnually: 63,
     features: [
       { text: "Todo lo del Plan Standard", included: true },
+      { text: "Hasta 2000 productos activos", included: true },
+      { text: "Hasta 6 fotos por producto", included: true },
       { text: "Integración de PayPal Ecuador", included: true },
       { text: "Dominio personalizado", included: true },
       { text: "Gestión de sucursales y empleados", included: true },

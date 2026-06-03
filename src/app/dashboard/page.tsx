@@ -39,7 +39,11 @@ export default async function DashboardPage() {
 
   // 4. Obtener el plan delegando a Server Action
   const subResult = activeTenantId ? await getTenantSubscription(activeTenantId) : { success: false };
-  const planName = (subResult.success && subResult.data) ? subResult.data.plans?.name || "N/A" : "N/A";
+  let planName = (subResult.success && subResult.data) ? subResult.data.plans?.name || "N/A" : "N/A";
+
+  if (platformRole === "admin") {
+    planName = "Business";
+  }
 
   return (
     <section className="space-y-6 py-6">

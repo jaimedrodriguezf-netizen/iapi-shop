@@ -71,9 +71,9 @@ export async function createProduct(input: CreateProductInput): Promise<{ succes
 
     if (error) return { success: false, error: error.message };
 
-    // 2. Insertar Imágenes (máximo 3)
+    // 2. Insertar Imágenes (máximo 6 según límite de plan)
     if (input.image_urls && input.image_urls.length > 0) {
-      const imagesToInsert = input.image_urls.slice(0, 3).map((url, index) => ({
+      const imagesToInsert = input.image_urls.slice(0, 6).map((url, index) => ({
         product_id: product.id,
         url,
         display_order: index,
@@ -163,10 +163,10 @@ export async function updateProduct(id: string, tenant_id: string, input: Partia
 
     if (error) return { success: false, error: error.message };
 
-    // Actualizar imágenes (simplificado: borrar y re-insertar)
+    // Actualizar imágenes (simplificado: borrar y re-insertar, máx 6)
     if (input.image_urls) {
       await supabase.from("product_images").delete().eq("product_id", id);
-      const imagesToInsert = input.image_urls.slice(0, 3).map((url, index) => ({
+      const imagesToInsert = input.image_urls.slice(0, 6).map((url, index) => ({
         product_id: id,
         url,
         display_order: index,

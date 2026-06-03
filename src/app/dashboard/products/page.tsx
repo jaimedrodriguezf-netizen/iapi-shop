@@ -1,12 +1,23 @@
-import { getMyTenant } from "@/lib/tenants/actions"
+import { getMyTenant, getTenantSubscription } from "@/lib/tenants/actions"
 import { ProductListClient } from "@/components/dashboard/product-list-client"
 import { redirect } from "next/navigation"
+import { getUserRoleInfo } from "@/lib/auth/actions"
 
 export default async function ProductsPage() {
   const result = await getMyTenant()
 
   if (!result.success || !result.data) {
     redirect("/onboarding")
+  }
+
+  const roleResult = await getUserRoleInfo()
+  const platformRole = roleResult.success && roleResult.data ? roleResult.data.platformRole : "merchant"
+
+  const subResult = await getTenantSubscription(result.data.id)
+  let planName = (subResult.success && subResult.data) ? subResult.data.plans?.name || "Free" : "Free"
+
+  if (platformRole === "admin") {
+    planName = "Business"
   }
 
   return (
@@ -16,7 +27,7 @@ export default async function ProductsPage() {
         <p className="text-muted-foreground italic">Gestiona los productos de tu sucursal.</p>
       </header>
       
-      <ProductListClient tenantId={result.data.id} />
+      <ProductListClient tenantId={result.data.id} planName={planName} />
     </section>
   )
 }
