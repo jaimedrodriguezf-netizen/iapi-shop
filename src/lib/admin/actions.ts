@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getUserRoleInfo, ActionResult } from "@/lib/auth/actions";
 
 export interface SaaSUser {
@@ -52,7 +52,75 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
       return { success: false, error: `Error al obtener perfiles: ${profilesError.message}` };
     }
 
-    // 2. Obtener todas las relaciones de miembros de tiendas
+    // Adaptar a una lista mutable
+    interface ProfileWithAdmin {
+      id: string;
+      email: string;
+      full_name: string | null;
+      created_at: string;
+      platform_admins: { role: "admin" | "support" | "moderator" | "billing_admin" } | { role: "admin" | "support" | "moderator" | "billing_admin" }[] | null;
+    }
+
+    const profilesList: ProfileWithAdmin[] = (profiles || []).map(p => ({
+      id: p.id,
+      email: p.email,
+      full_name: p.full_name,
+      created_at: p.created_at,
+      platform_admins: p.platform_admins as ProfileWithAdmin["platform_admins"]
+    }));
+
+    // Sincronizar en caliente perfiles faltantes si el adminClient está disponible
+    const adminClient = await createAdminClient();
+    if (adminClient) {
+      const { data: authData, error: authError } = await adminClient.auth.admin.listUsers();
+      if (!authError && authData?.users) {
+        const profileIds = new Set(profilesList.map((p) => p.id));
+        for (const authUser of authData.users) {
+          if (authUser.email && !profileIds.has(authUser.id)) {
+            const name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || null;
+            
+            // Insertar perfil faltante en profiles (autocure)
+            const { data: newProfile, error: insertError } = await adminClient
+              .from("profiles")
+              .insert({
+                id: authUser.id,
+                email: authUser.email,
+                full_name: name,
+                created_at: authUser.created_at,
+              })
+              .select(`
+                id,
+                email,
+                full_name,
+                created_at,
+                platform_admins ( role )
+              `)
+              .single();
+
+            if (!insertError && newProfile) {
+              profilesList.push({
+                id: newProfile.id,
+                email: newProfile.email,
+                full_name: newProfile.full_name,
+                created_at: newProfile.created_at,
+                platform_admins: newProfile.platform_admins as ProfileWithAdmin["platform_admins"]
+              });
+            } else {
+              // Fallback en memoria si la base de datos falla al insertar
+              profilesList.push({
+                id: authUser.id,
+                email: authUser.email,
+                full_name: name,
+                created_at: authUser.created_at,
+                platform_admins: null,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Obtener todas las relaciones de miembros de tiendas con conteo de productos agregados en base de datos
     const { data: members, error: membersError } = await supabase
       .from("tenant_members")
       .select(`
@@ -65,31 +133,13 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
           slug,
           tenant_subscriptions (
             plans ( name, code )
-          )
+          ),
+          products ( count )
         )
       `);
 
     if (membersError) {
       return { success: false, error: `Error al obtener miembros: ${membersError.message}` };
-    }
-
-    // 3. Obtener todos los productos para contar por tenant en memoria (eficiente)
-    const { data: products, error: productsError } = await supabase
-      .from("products")
-      .select("tenant_id");
-
-    if (productsError) {
-      return { success: false, error: `Error al obtener productos: ${productsError.message}` };
-    }
-
-    // Procesar conteos de productos
-    const productCounts: Record<string, number> = {};
-    if (products) {
-      for (const p of products) {
-        if (p.tenant_id) {
-          productCounts[p.tenant_id] = (productCounts[p.tenant_id] || 0) + 1;
-        }
-      }
     }
 
     // Mapear sucursales por usuario
@@ -102,6 +152,7 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
           name: string;
           slug: string;
           tenant_subscriptions: { plans: { name: string; code: string } } | { plans: { name: string; code: string } }[] | null;
+          products: { count: number }[] | { count: number } | null;
         } | null;
 
         if (rawTenant) {
@@ -118,6 +169,16 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
             }
           }
 
+          // Resolver conteo de productos
+          let productCount = 0;
+          if (rawTenant.products) {
+            if (Array.isArray(rawTenant.products)) {
+              productCount = rawTenant.products[0]?.count || 0;
+            } else {
+              productCount = (rawTenant.products as { count: number }).count || 0;
+            }
+          }
+
           if (!userTenantsMap[userId]) {
             userTenantsMap[userId] = [];
           }
@@ -127,14 +188,14 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
             name: rawTenant.name,
             slug: rawTenant.slug,
             planName,
-            productCount: productCounts[rawTenant.id] || 0,
+            productCount,
           });
         }
       }
     }
 
     // 4. Consolidar el resultado final de SaaSUser
-    const saasUsers: SaaSUser[] = (profiles || []).map((p) => {
+    const saasUsers: SaaSUser[] = profilesList.map((p) => {
       const isPlatformAdmin = Array.isArray(p.platform_admins) 
         ? p.platform_admins.length > 0 
         : !!p.platform_admins;
