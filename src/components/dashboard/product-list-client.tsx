@@ -51,6 +51,7 @@ interface ProductWithCategory extends Product {
 export function ProductListClient({ tenantId, planName = "free" }: { tenantId: string; planName?: string }) {
   const [products, setProducts] = React.useState<ProductWithCategory[]>([])
   const [loading, setLoading] = React.useState(true)
+  const [searchTerm, setSearchTerm] = React.useState("")
   
   // Estado Unificado para el Modal de Formulario (Crear/Editar)
   const [isModalOpen, setIsModalOpen] = React.useState(false)
@@ -59,6 +60,17 @@ export function ProductListClient({ tenantId, planName = "free" }: { tenantId: s
   // Estados para Eliminación
   const [deletingProduct, setDeletingProduct] = React.useState<Product | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
+
+  // Filtrar productos por término de búsqueda
+  const filteredProducts = React.useMemo(() => {
+    if (!searchTerm.trim()) return products
+    const term = searchTerm.toLowerCase()
+    return products.filter(product => 
+      product.name.toLowerCase().includes(term) ||
+      product.categories?.name?.toLowerCase().includes(term) ||
+      product.description?.toLowerCase().includes(term)
+    )
+  }, [products, searchTerm])
 
   const fetchProducts = React.useCallback(async () => {
     setLoading(true)
@@ -184,7 +196,12 @@ export function ProductListClient({ tenantId, planName = "free" }: { tenantId: s
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Buscar productos..." className="pl-10 rounded-xl" />
+          <Input 
+            placeholder="Buscar productos..." 
+            className="pl-10 rounded-xl" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
         
         {/* Botón para CREAR */}
@@ -237,7 +254,7 @@ export function ProductListClient({ tenantId, planName = "free" }: { tenantId: s
           <p className="text-sm text-muted-foreground animate-pulse font-medium text-violet-600">Actualizando catálogo...</p>
         </div>
       ) : (
-        <DataTable columns={columns} data={products} />
+        <DataTable columns={columns} data={filteredProducts} />
       )}
     </div>
   )

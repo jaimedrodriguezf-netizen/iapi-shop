@@ -1,13 +1,13 @@
-import { getMyTenant, getTenantSubscription } from "@/lib/tenants/actions"
+import { ensureUserTenant, getTenantSubscription } from "@/lib/tenants/actions"
 import { ProductListClient } from "@/components/dashboard/product-list-client"
 import { redirect } from "next/navigation"
 import { getUserRoleInfo } from "@/lib/auth/actions"
 
 export default async function ProductsPage() {
-  const result = await getMyTenant()
+  const result = await ensureUserTenant()
 
   if (!result.success || !result.data) {
-    redirect("/onboarding")
+    redirect("/login")
   }
 
   const roleResult = await getUserRoleInfo()

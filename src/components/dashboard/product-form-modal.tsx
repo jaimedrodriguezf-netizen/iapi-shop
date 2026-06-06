@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ImagePlus, Trash2 } from "lucide-react"
+import { ImagePlus, Trash2, Sparkles, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -35,6 +36,7 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { createProduct, updateProduct, getCategories, createCategory, uploadProductImage } from "@/lib/products/actions"
+import { generateProductDescription } from "@/lib/ai/actions"
 import Image from "next/image"
 
 const baseProductSchema = z.object({
@@ -71,6 +73,7 @@ interface ProductFormModalProps {
 export function ProductFormModal({ tenantId, planName = "free", product, open, onOpenChange, onSuccess }: ProductFormModalProps) {
   const [categories, setCategories] = React.useState<Category[]>([])
   const [newCategoryName, setNewCategoryName] = React.useState("")
+  const [isGeneratingAI, setIsGeneratingAI] = React.useState(false)
 
   const isEditing = !!product
 
@@ -136,6 +139,33 @@ export function ProductFormModal({ tenantId, planName = "free", product, open, o
       loadCategories()
     } else {
       toast.error(res.error || "No se pudo crear la categoría")
+    }
+  }
+
+  async function handleGenerateDescription() {
+    const productName = form.getValues("name")
+    if (!productName || productName.length < 2) {
+      toast.error("Escribe un nombre de producto primero (mínimo 2 caracteres)")
+      return
+    }
+
+    const selectedCategoryId = form.getValues("category_id")
+    const categoryObj = categories.find(c => c.id === selectedCategoryId)
+    const categoryName = categoryObj?.name
+
+    setIsGeneratingAI(true)
+    try {
+      const result = await generateProductDescription(productName, categoryName)
+      if (result.success && result.description) {
+        form.setValue("description", result.description)
+        toast.success("Descripción generada con IA")
+      } else {
+        toast.error(result.error || "No se pudo generar la descripción")
+      }
+    } catch {
+      toast.error("Error al conectar con la IA")
+    } finally {
+      setIsGeneratingAI(false)
     }
   }
 
@@ -265,11 +295,28 @@ export function ProductFormModal({ tenantId, planName = "free", product, open, o
                       <FormItem>
                         <FormLabel className="font-bold">Descripción</FormLabel>
                         <FormControl>
-                          <Input placeholder="Describe tu producto…" {...field} className="rounded-xl" />
+                          <Textarea placeholder="Describe tu producto…" {...field} className="rounded-xl min-h-24 resize-none" value={field.value ?? ""} />
                         </FormControl>
-                        <FormDescription className="flex items-center gap-1">
-                          Pronto botón de IA 🤖
-                        </FormDescription>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="rounded-xl text-violet-600 border-violet-200 hover:bg-violet-50 hover:text-violet-700"
+                            onClick={handleGenerateDescription}
+                            disabled={isGeneratingAI || !form.watch("name") || form.watch("name").length < 2}
+                          >
+                            {isGeneratingAI ? (
+                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                            ) : (
+                              <Sparkles className="mr-1 h-3 w-3" />
+                            )}
+                            {isGeneratingAI ? "Generando…" : "Generar con IA"}
+                          </Button>
+                          <FormDescription className="mt-0">
+                            Describe tu producto o genera una descripción con IA
+                          </FormDescription>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}

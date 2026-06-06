@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { toast } from "sonner"
-import { Check, MapPin, Palette, Share2 } from "lucide-react"
+import { Check, MapPin, Palette, Share2, AlertTriangle, Building, Globe } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -24,12 +24,43 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { updateTenantBranding, Tenant } from "@/lib/tenants/actions"
+import { updateTenantSettings, type Tenant, type Address, type SocialLinks } from "@/lib/tenants/actions"
 import { cn } from "@/lib/utils"
 
+// WCAG AA contrast check: calculates relative luminance contrast ratio
+function getLuminance(hex: string): number {
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  const toLinear = (c: number) => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b)
+}
+
+function getContrastRatio(hex1: string, hex2: string): number {
+  const l1 = getLuminance(hex1)
+  const l2 = getLuminance(hex2)
+  const lighter = Math.max(l1, l2)
+  const darker = Math.min(l1, l2)
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
+function hasLowContrast(hex: string): boolean {
+  const whiteContrast = getContrastRatio(hex, "#FFFFFF")
+  const darkContrast = getContrastRatio(hex, "#000000")
+  return whiteContrast < 4.5 && darkContrast < 4.5
+}
+
 const brandingSchema = z.object({
-  brand_color: z.string().regex(/^#[0-9A-F]{6}$/i, "HEX inválido"),
-  address: z.string().min(5, "La dirección debe ser más descriptiva").optional().or(z.literal("")),
+  name: z.string().min(2, "El nombre de la tienda debe tener al menos 2 caracteres"),
+  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Formato de slug inválido. Solo minúsculas, números y guiones"),
+  status: z.enum(["active", "draft"]),
+  brand_color: z.string().regex(/^#[0-9A-F]{6}$/i, "Formato HEX inválido (ej: #7c3aed)").or(z.literal("")),
+  secondary_color: z.string().regex(/^#[0-9A-F]{6}$/i, "Formato HEX inválido").or(z.literal("")),
+  street: z.string().optional().or(z.literal("")),
+  city: z.string().optional().or(z.literal("")),
+  state: z.string().optional().or(z.literal("")),
+  zip: z.string().optional().or(z.literal("")),
+  country: z.string().optional().or(z.literal("")),
   instagram: z.string().optional().or(z.literal("")),
   facebook: z.string().optional().or(z.literal("")),
   tiktok: z.string().optional().or(z.literal("")),
@@ -44,31 +75,75 @@ const PRESET_COLORS = [
   { name: "Slate", value: "#475569" },
 ]
 
+function parseAddress(tenant: Tenant): { street: string; city: string; state: string; zip: string; country: string } {
+  if (!tenant.address) return { street: "", city: "", state: "", zip: "", country: "" }
+  if (typeof tenant.address === "string") {
+    return { street: tenant.address, city: "", state: "", zip: "", country: "" }
+  }
+  const addr = tenant.address as Address
+  return {
+    street: addr.street || "",
+    city: addr.city || "",
+    state: addr.state || "",
+    zip: addr.zip || "",
+    country: addr.country || "",
+  }
+}
+
 export function SettingsForm({ tenant }: { tenant: Tenant }) {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+
+  const parsedAddress = parseAddress(tenant)
 
   const form = useForm<z.infer<typeof brandingSchema>>({
     resolver: zodResolver(brandingSchema),
     defaultValues: {
+      name: tenant.name || "",
+      slug: tenant.slug || "",
+      status: (tenant.status as "active" | "draft") || "draft",
       brand_color: tenant.brand_color || "#7c3aed",
-      address: tenant.address || "",
+      secondary_color: tenant.secondary_color || "",
+      street: parsedAddress.street,
+      city: parsedAddress.city,
+      state: parsedAddress.state,
+      zip: parsedAddress.zip,
+      country: parsedAddress.country,
       instagram: tenant.social_links?.instagram || "",
       facebook: tenant.social_links?.facebook || "",
       tiktok: tenant.social_links?.tiktok || "",
     },
   })
 
+  const currentBrandColor = form.watch("brand_color")
+  const watchName = form.watch("name")
+  const watchSlug = form.watch("slug")
+  const cannotPublish = watchName === "Mi Tienda" || (watchSlug ? watchSlug.startsWith("tienda-") : false)
+
+  React.useEffect(() => {
+    if (cannotPublish && form.getValues("status") === "active") {
+      form.setValue("status", "draft")
+    }
+  }, [cannotPublish, form])
+
   async function onSubmit(values: z.infer<typeof brandingSchema>) {
     setIsSubmitting(true)
     try {
-      const result = await updateTenantBranding(tenant.id, {
-        brand_color: values.brand_color,
-        address: values.address,
-        social_links: {
-          instagram: values.instagram,
-          facebook: values.facebook,
-          tiktok: values.tiktok,
-        },
+      const addressValue = (values.street || values.city || values.state || values.zip || values.country)
+        ? { street: values.street, city: values.city, state: values.state, zip: values.zip, country: values.country }
+        : null
+
+      const socialLinksValue = (values.instagram || values.facebook || values.tiktok)
+        ? { instagram: values.instagram, facebook: values.facebook, tiktok: values.tiktok }
+        : null
+
+      const result = await updateTenantSettings(tenant.id, {
+        name: values.name,
+        slug: values.slug,
+        status: values.status,
+        brand_color: values.brand_color || null,
+        secondary_color: values.secondary_color || null,
+        address: addressValue as Address | null,
+        social_links: socialLinksValue as SocialLinks | null,
       })
 
       if (result.success) {
@@ -84,13 +159,95 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
     }
   }
 
-  const currentBrandColor = form.watch("brand_color")
+  const showContrastWarning = currentBrandColor && currentBrandColor !== "" && /^#[0-9A-F]{6}$/i.test(currentBrandColor) && hasLowContrast(currentBrandColor)
 
   return (
     <div className="grid gap-8 lg:grid-cols-5">
       <div className="lg:col-span-3 space-y-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <Card className="rounded-3xl border-none shadow-sm bg-background">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-violet-600 mb-2">
+                  <Globe className="h-5 w-5" />
+                  <span className="text-xs font-black uppercase tracking-widest">Ajustes Generales</span>
+                </div>
+                <CardTitle className="text-2xl font-black">Información de la Tienda</CardTitle>
+                <CardDescription>
+                  Configura el nombre público de tu negocio, su dirección web y el estado de publicación.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="store-name" className="font-bold">Nombre de la Tienda</FormLabel>
+                      <FormControl>
+                        <Input id="store-name" placeholder="Mi Tienda Hermosa" {...field} className="rounded-xl h-12" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="store-slug" className="font-bold">Dirección Web (slug)</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground text-sm font-medium">iapi.shop/</span>
+                          <Input id="store-slug" placeholder="mi-tienda" {...field} className="rounded-xl h-12" />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col space-y-2">
+                      <FormLabel htmlFor="status-toggle" className="font-bold">Publicar Tienda</FormLabel>
+                      <div className="flex items-center gap-3">
+                        <FormControl>
+                          <div className="relative inline-flex items-center">
+                            <input
+                              type="checkbox"
+                              id="status-toggle"
+                              aria-label="Publicar Tienda"
+                              className="sr-only peer"
+                              checked={field.value === "active"}
+                              disabled={cannotPublish}
+                              onChange={(e) => field.onChange(e.target.checked ? "active" : "draft")}
+                            />
+                            <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-violet-600"></div>
+                            <span className="ml-3 text-sm font-medium text-zinc-950 dark:text-zinc-50">
+                              {field.value === "active" ? "Pública (Activa)" : "Borrador (Construcción)"}
+                            </span>
+                          </div>
+                        </FormControl>
+                      </div>
+                      {cannotPublish && (
+                        <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400 text-sm font-medium bg-amber-50 dark:bg-amber-950/30 px-4 py-3 rounded-xl mt-2">
+                          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                          <span>
+                            Para publicar tu tienda, primero debes cambiar el nombre por defecto &apos;Mi Tienda&apos; y configurar un slug personalizado que no empiece con &apos;tienda-&apos;.
+                          </span>
+                        </div>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
             <Card className="rounded-3xl border-none shadow-sm bg-background">
               <CardHeader>
                 <div className="flex items-center gap-2 text-violet-600 mb-2">
@@ -135,6 +292,12 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                           </div>
                         </div>
                       </FormControl>
+                      {showContrastWarning && (
+                        <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm font-medium bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-xl">
+                          <AlertTriangle className="h-4 w-4 shrink-0" />
+                          Este color tiene bajo contraste. Puede ser difícil de leer sobre fondos claros u oscuros.
+                        </div>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -145,32 +308,105 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
             <Card className="rounded-3xl border-none shadow-sm bg-background">
               <CardHeader>
                 <div className="flex items-center gap-2 text-violet-600 mb-2">
-                  <Share2 className="h-5 w-5" />
-                  <span className="text-xs font-black uppercase tracking-widest">Contacto y Redes</span>
+                  <Building className="h-5 w-5" />
+                  <span className="text-xs font-black uppercase tracking-widest">Dirección del Negocio</span>
                 </div>
-                <CardTitle className="text-2xl font-black">Información del Negocio</CardTitle>
+                <CardTitle className="text-2xl font-black">Dirección Física</CardTitle>
                 <CardDescription>
-                  Estos datos aparecerán en el pie de página de tu catálogo público.
+                  Aparecerá en el pie de página de tu catálogo público.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="address"
+                  name="street"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-bold">Dirección Física</FormLabel>
+                      <FormLabel className="font-bold">Calle y Número</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="Av. Amazonas y Eloy Alfaro, Quito" {...field} className="pl-10 rounded-xl h-12" />
+                          <Input placeholder="Av. Amazonas 123" {...field} className="pl-10 rounded-xl h-12" />
                         </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-black uppercase text-muted-foreground">Ciudad</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Quito" {...field} className="rounded-xl" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-black uppercase text-muted-foreground">Provincia / Estado</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Pichincha" {...field} className="rounded-xl" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="zip"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-black uppercase text-muted-foreground">Código Postal</FormLabel>
+                        <FormControl>
+                          <Input placeholder="170150" {...field} className="rounded-xl" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-black uppercase text-muted-foreground">País</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Ecuador" {...field} className="pl-10 rounded-xl" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
+            <Card className="rounded-3xl border-none shadow-sm bg-background">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-violet-600 mb-2">
+                  <Share2 className="h-5 w-5" />
+                  <span className="text-xs font-black uppercase tracking-widest">Contacto y Redes</span>
+                </div>
+                <CardTitle className="text-2xl font-black">Redes Sociales</CardTitle>
+                <CardDescription>
+                  Tus clientes podrán encontrar tus perfiles desde el pie de página.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-3">
                   <FormField
                     control={form.control}
@@ -181,7 +417,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                         <FormControl>
                           <div className="relative">
                             <Share2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="@usuario" {...field} className="pl-10 rounded-xl" />
+                            <Input placeholder="https://instagram.com/usuario" {...field} className="pl-10 rounded-xl" />
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -197,7 +433,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                         <FormControl>
                           <div className="relative">
                             <Share2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="link-a-pagina" {...field} className="pl-10 rounded-xl" />
+                            <Input placeholder="https://facebook.com/pagina" {...field} className="pl-10 rounded-xl" />
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -213,7 +449,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                         <FormControl>
                           <div className="relative">
                             <Share2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="@usuario" {...field} className="pl-10 rounded-xl" />
+                            <Input placeholder="https://tiktok.com/@usuario" {...field} className="pl-10 rounded-xl" />
                           </div>
                         </FormControl>
                         <FormMessage />

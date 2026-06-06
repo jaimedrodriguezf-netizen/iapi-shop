@@ -43,13 +43,29 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
         id,
         email,
         full_name,
-        created_at,
-        platform_admins ( role )
+        created_at
       `)
       .order("created_at", { ascending: false });
 
     if (profilesError) {
       return { success: false, error: `Error al obtener perfiles: ${profilesError.message}` };
+    }
+
+    // 2. Obtener los platform_admins para determinar roles
+    const { data: platformAdmins, error: platformAdminsError } = await supabase
+      .from("platform_admins")
+      .select("user_id, role");
+
+    if (platformAdminsError) {
+      return { success: false, error: `Error al obtener admins: ${platformAdminsError.message}` };
+    }
+
+    // Crear un mapa de user_id -> role para platform_admins
+    const platformAdminMap = new Map<string, string>();
+    if (platformAdmins) {
+      for (const pa of platformAdmins) {
+        platformAdminMap.set(pa.user_id, pa.role);
+      }
     }
 
     // Adaptar a una lista mutable
@@ -58,7 +74,7 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
       email: string;
       full_name: string | null;
       created_at: string;
-      platform_admins: { role: "admin" | "support" | "moderator" | "billing_admin" } | { role: "admin" | "support" | "moderator" | "billing_admin" }[] | null;
+      isPlatformAdmin: boolean;
     }
 
     const profilesList: ProfileWithAdmin[] = (profiles || []).map(p => ({
@@ -66,7 +82,7 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
       email: p.email,
       full_name: p.full_name,
       created_at: p.created_at,
-      platform_admins: p.platform_admins as ProfileWithAdmin["platform_admins"]
+      isPlatformAdmin: platformAdminMap.has(p.id),
     }));
 
     // Sincronizar en caliente perfiles faltantes si el adminClient está disponible
@@ -88,13 +104,7 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
                 full_name: name,
                 created_at: authUser.created_at,
               })
-              .select(`
-                id,
-                email,
-                full_name,
-                created_at,
-                platform_admins ( role )
-              `)
+              .select("id, email, full_name, created_at")
               .single();
 
             if (!insertError && newProfile) {
@@ -103,7 +113,7 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
                 email: newProfile.email,
                 full_name: newProfile.full_name,
                 created_at: newProfile.created_at,
-                platform_admins: newProfile.platform_admins as ProfileWithAdmin["platform_admins"]
+                isPlatformAdmin: platformAdminMap.has(newProfile.id),
               });
             } else {
               // Fallback en memoria si la base de datos falla al insertar
@@ -112,7 +122,7 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
                 email: authUser.email,
                 full_name: name,
                 created_at: authUser.created_at,
-                platform_admins: null,
+                isPlatformAdmin: platformAdminMap.has(authUser.id),
               });
             }
           }
@@ -120,7 +130,7 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
       }
     }
 
-    // 2. Obtener todas las relaciones de miembros de tiendas con conteo de productos agregados en base de datos
+    // 3. Obtener todas las relaciones de miembros de tiendas con conteo de productos agregados en base de datos
     const { data: members, error: membersError } = await supabase
       .from("tenant_members")
       .select(`
@@ -196,11 +206,7 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
 
     // 4. Consolidar el resultado final de SaaSUser
     const saasUsers: SaaSUser[] = profilesList.map((p) => {
-      const isPlatformAdmin = Array.isArray(p.platform_admins) 
-        ? p.platform_admins.length > 0 
-        : !!p.platform_admins;
-      
-      const platformRole = isPlatformAdmin ? "admin" : "merchant";
+      const platformRole = p.isPlatformAdmin ? "admin" : "merchant";
 
       // Forzar plan business para administradores
       const tenants = userTenantsMap[p.id] || [];

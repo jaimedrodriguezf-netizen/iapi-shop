@@ -2,9 +2,8 @@ import Link from "next/link";
 import { SampleSalesChart } from "@/components/dashboard/sample-chart";
 import { ShopSummaryTable, ShopSummary } from "@/components/dashboard/shop-summary-table";
 import { getTenantOrders } from "@/lib/orders/actions";
-import { getMyTenants, getTenantSubscription } from "@/lib/tenants/actions";
+import { getMyTenants, getTenantSubscription, ensureUserTenant, type Tenant } from "@/lib/tenants/actions";
 import { getUserRoleInfo } from "@/lib/auth/actions";
-import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
   // 1. Obtener datos del usuario delegando a Server Action (GGA Compliance)
@@ -12,11 +11,15 @@ export default async function DashboardPage() {
   const platformRole = roleResult.success && roleResult.data ? roleResult.data.platformRole : "merchant";
 
   // 2. Fetch de sucursales delegando a Server Action (GGA Clean Architecture)
-  const tenantsResult = await getMyTenants();
-  const tenants = tenantsResult.success && tenantsResult.data ? tenantsResult.data : [];
-
-  if (tenants.length === 0) {
-    redirect("/onboarding");
+  let tenants: Tenant[] = [];
+  if (platformRole !== "admin") {
+    const ensureResult = await ensureUserTenant();
+    if (ensureResult.success && ensureResult.data) {
+      tenants = [ensureResult.data];
+    }
+  } else {
+    const tenantsResult = await getMyTenants();
+    tenants = tenantsResult.success && tenantsResult.data ? tenantsResult.data : [];
   }
 
   const sucursales: ShopSummary[] = tenants.map(t => ({

@@ -21,7 +21,8 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
   return (
     <Button 
       size="icon"
-      className="rounded-xl bg-violet-500 hover:bg-violet-600 text-white shadow-sm"
+      className="rounded-xl text-white shadow-sm transition-all hover:opacity-90 active:scale-95"
+      style={{ backgroundColor: "var(--brand-color)" }}
       onClick={() => {
         addItem(product.tenant_id, {
           id: product.id,

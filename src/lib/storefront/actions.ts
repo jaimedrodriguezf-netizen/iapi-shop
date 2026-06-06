@@ -61,8 +61,8 @@ const fetchStorefrontDataCached = cache(async (slug: string): Promise<ActionResu
       .eq("slug", slug)
       .single();
 
-    if (tenantError || !tenant || tenant.status !== "active") {
-      return { success: false, error: "Sucursal no encontrada o inactiva" };
+    if (tenantError || !tenant) {
+      return { success: false, error: "Sucursal no encontrada" };
     }
 
     // 2. Obtener Categorías

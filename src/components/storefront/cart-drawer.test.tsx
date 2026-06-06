@@ -53,4 +53,31 @@ describe("CartDrawer Accessibility and Typography", () => {
       expect(priceEl).toHaveClass("tabular-nums");
     });
   });
+
+  it("applies dynamic brand color style to trigger and checkout buttons", async () => {
+    useCart.getState().addItem("tenant-123", {
+      id: "prod-1",
+      name: "Hamburguesa Vegana",
+      price: 12.50,
+      image_url: "https://example.com/hamb.jpg",
+    });
+
+    render(
+      <CartDrawer 
+        whatsapp="+593999999999" 
+        tenantName="Burger Shop" 
+        tenantId="tenant-123" 
+      />
+    );
+
+    const cartButton = screen.getByRole("button", { name: /abrir carrito/i });
+    expect(cartButton).toHaveStyle({ backgroundColor: "var(--brand-color)" });
+
+    const user = userEvent.setup();
+    await user.click(cartButton);
+
+    const checkoutBtn = screen.getByRole("button", { name: /pedir por whatsapp/i });
+    expect(checkoutBtn).toHaveStyle({ backgroundColor: "var(--brand-color)" });
+  });
 });
+

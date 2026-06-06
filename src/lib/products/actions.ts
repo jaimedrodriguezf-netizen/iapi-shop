@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getTenantSubscription } from "@/lib/tenants/actions";
 
 export interface Product {
   id: string;
@@ -42,6 +43,44 @@ export type CreateProductInput = {
   tags?: string[]; // IDs de tags existentes
 };
 
+export async function checkProductLimit(tenant_id: string): Promise<{
+  allowed: boolean;
+  current: number;
+  limit: number;
+  error?: string;
+}> {
+  try {
+    const supabase = await createClient();
+
+    const { count, error: countError } = await supabase
+      .from("products")
+      .select("*", { count: "exact", head: true })
+      .eq("tenant_id", tenant_id);
+
+    if (countError) {
+      return { allowed: false, current: 0, limit: 0, error: "Error al verificar límite de productos" };
+    }
+
+    const current = count ?? 0;
+
+    const subResult = await getTenantSubscription(tenant_id);
+    if (!subResult.success || !subResult.data?.plans) {
+      return { allowed: false, current, limit: 0, error: "No se pudo obtener el plan de suscripción" };
+    }
+
+    const limit = subResult.data.plans.product_limit;
+
+    if (current >= limit) {
+      return { allowed: false, current, limit, error: `Has alcanzado el límite de ${limit} productos para tu plan actual.` };
+    }
+
+    return { allowed: true, current, limit };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Error al verificar límite de productos";
+    return { allowed: false, current: 0, limit: 0, error: msg };
+  }
+}
+
 export async function createProduct(input: CreateProductInput): Promise<{ success: boolean; product?: Product; error?: string }> {
   try {
     const supabase = await createClient();
@@ -49,6 +88,12 @@ export async function createProduct(input: CreateProductInput): Promise<{ succes
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return { success: false, error: "No autorizado" };
+    }
+
+    // Check product limit before creating
+    const limitCheck = await checkProductLimit(input.tenant_id);
+    if (!limitCheck.allowed) {
+      return { success: false, error: limitCheck.error || "Límite de productos alcanzado" };
     }
 
     const slug = input.slug || input.name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");

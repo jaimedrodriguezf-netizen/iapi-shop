@@ -1,13 +1,13 @@
-import { getMyTenant } from "@/lib/tenants/actions";
+import { ensureUserTenant } from "@/lib/tenants/actions";
 import { getTenantOrders } from "@/lib/orders/actions";
 import { redirect } from "next/navigation";
 import { OrderListClient } from "@/components/dashboard/order-list-client";
 
 export default async function OrdersPage() {
-  const tenantResult = await getMyTenant();
+  const tenantResult = await ensureUserTenant();
 
   if (!tenantResult.success || !tenantResult.data) {
-    redirect("/onboarding");
+    redirect("/login");
   }
 
   const tenantId = tenantResult.data.id;

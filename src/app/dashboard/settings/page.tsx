@@ -1,12 +1,12 @@
-import { getMyTenant } from "@/lib/tenants/actions";
+import { ensureUserTenant } from "@/lib/tenants/actions";
 import { redirect } from "next/navigation";
 import { SettingsForm } from "@/components/dashboard/settings-form";
 
 export default async function SettingsPage() {
-  const result = await getMyTenant();
+  const result = await ensureUserTenant();
 
   if (!result.success || !result.data) {
-    redirect("/onboarding");
+    redirect("/login");
   }
 
   return (

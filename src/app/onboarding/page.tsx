@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { Check, Loader2, X } from "lucide-react"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -32,7 +33,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { createTenant } from "@/lib/tenants/actions"
+import { createTenant, checkSlugAvailability } from "@/lib/tenants/actions"
+import { useDebounce } from "@/hooks/use-debounce"
 
 const countries = [
   { label: "🇪🇨 Ecuador (+593)", value: "+593" },
@@ -55,11 +57,21 @@ const formSchema = z.object({
   country_code: z.string(),
   phone_number: z.string().regex(/^[0-9\s-]{7,}$/, {
     message: "Ingresa un número de teléfono válido.",
-  }),
+  }).optional().or(z.literal("")),
 })
+
+type SlugAvailability = {
+  status: "idle" | "checking" | "available" | "taken" | "error";
+  message?: string;
+}
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [slugAvailability, setSlugAvailability] = React.useState<SlugAvailability>({
+    status: "idle",
+  })
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -70,27 +82,11 @@ export default function OnboardingPage() {
     },
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const fullPhone = `${values.country_code}${values.phone_number.replace(/\s+/g, "")}`
-      const result = await createTenant({
-        name: values.name,
-        slug: values.slug,
-        whatsapp_phone: fullPhone,
-      })
-      
-      if (result.success) {
-        toast.success("¡Sucursal creada con éxito!")
-        router.push(`/dashboard`)
-      } else {
-        toast.error(result.error || "Error al crear la sucursal")
-      }
-    } catch (error) {
-      toast.error("Ocurrió un error inesperado")
-    }
-  }
-
   const watchName = form.watch("name")
+  const watchSlug = form.watch("slug")
+  const debouncedSlug = useDebounce(watchSlug, 400)
+  const slugErrors = form.formState.errors.slug
+
   React.useEffect(() => {
     if (watchName && !form.getFieldState("slug").isDirty) {
       const generatedSlug = watchName
@@ -100,6 +96,77 @@ export default function OnboardingPage() {
       form.setValue("slug", generatedSlug)
     }
   }, [watchName, form])
+
+  React.useEffect(() => {
+    if (!debouncedSlug || debouncedSlug.length < 2 || slugErrors) {
+      setSlugAvailability({ status: "idle" })
+      return
+    }
+
+    let cancelled = false
+
+    async function checkAvailability() {
+      setSlugAvailability({ status: "checking" })
+      const result = await checkSlugAvailability(debouncedSlug)
+
+      if (cancelled) return
+
+      if (result.error) {
+        if (result.error === "No autorizado") {
+          setSlugAvailability({ status: "error", message: result.error })
+        } else {
+          // Format validation error — slug is invalid, not "taken"
+          setSlugAvailability({ status: "idle" })
+        }
+        return
+      }
+
+      if (result.available) {
+        setSlugAvailability({
+          status: "available",
+          message: "Disponible",
+        })
+      } else {
+        setSlugAvailability({
+          status: "taken",
+          message: "Ya está en uso",
+        })
+      }
+    }
+
+    checkAvailability()
+
+    return () => {
+      cancelled = true
+    }
+  }, [debouncedSlug, slugErrors])
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true)
+    try {
+      const fullPhone = values.phone_number 
+        ? `${values.country_code}${values.phone_number.replace(/\s+/g, "")}`
+        : undefined
+      const result = await createTenant({
+        name: values.name,
+        slug: values.slug,
+        whatsapp_phone: fullPhone,
+      })
+
+      if (result.success && result.data) {
+        toast.success("¡Sucursal creada con éxito!")
+        router.push(`/dashboard/${result.data.slug}`)
+      } else {
+        toast.error(result.error || "Error al crear la sucursal")
+      }
+    } catch (error) {
+      toast.error("Ocurrió un error inesperado")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const isSubmitDisabled = isSubmitting || slugAvailability.status === "taken" || slugAvailability.status === "checking"
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted p-6">
@@ -135,12 +202,38 @@ export default function OnboardingPage() {
                     <FormControl>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-violet-600 bg-violet-50 px-3 py-2 rounded-lg">iapi.shop/</span>
-                        <Input placeholder="mi-sucursal" {...field} className="rounded-xl font-medium" />
+                        <div className="relative flex-1">
+                          <Input
+                            placeholder="mi-sucursal"
+                            {...field}
+                            className="rounded-xl font-medium pr-8"
+                          />
+                          {slugAvailability.status === "available" && (
+                            <Check className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-green-600" />
+                          )}
+                          {slugAvailability.status === "taken" && (
+                            <X className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+                          )}
+                          {slugAvailability.status === "checking" && (
+                            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
+                          )}
+                        </div>
                       </div>
                     </FormControl>
-                    <FormDescription>
-                      Link público para tus clientes.
-                    </FormDescription>
+                    {slugAvailability.status === "available" && (
+                      <p className="text-sm text-green-600 font-medium">{slugAvailability.message}</p>
+                    )}
+                    {slugAvailability.status === "taken" && (
+                      <p className="text-sm text-red-500 font-medium">{slugAvailability.message}</p>
+                    )}
+                    {slugAvailability.status === "checking" && (
+                      <p className="text-sm text-muted-foreground">Verificando disponibilidad...</p>
+                    )}
+                    {slugAvailability.status === "idle" && (
+                      <FormDescription>
+                        Link público para tus clientes.
+                      </FormDescription>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -187,8 +280,19 @@ export default function OnboardingPage() {
                   Donde recibirás los pedidos por WhatsApp.
                 </FormDescription>
               </div>
-              <Button type="submit" className="w-full rounded-xl font-bold py-6 bg-violet-500 hover:bg-violet-600 shadow-sm" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Creando..." : "Finalizar y empezar"}
+              <Button
+                type="submit"
+                className="w-full rounded-xl font-bold py-6 bg-violet-500 hover:bg-violet-600 shadow-sm"
+                disabled={isSubmitDisabled}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creando...
+                  </>
+                ) : (
+                  "Finalizar y empezar"
+                )}
               </Button>
             </form>
           </Form>

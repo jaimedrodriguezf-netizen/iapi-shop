@@ -18,6 +18,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import Image from "next/image"
 import { toast } from "sonner"
 import { createOrder } from "@/lib/orders/actions"
+import { formatCartMessage, buildWhatsAppCartUrl } from "@/lib/utils/whatsapp"
 
 export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: string, tenantName: string, tenantId: string }) {
   const { updateQuantity, getTenantItems, getTenantTotal, removeItem, clearCart } = useCart()
@@ -32,7 +33,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
     setIsProcessing(true)
 
     try {
-      // 1. Guardar la orden en nuestra base de datos (Persistence for Analytics)
+      // 1. Persist the order for analytics (best-effort — WhatsApp is still sent on failure)
       const orderResult = await createOrder({
         tenant_id: tenantId,
         total_amount: total,
@@ -49,29 +50,22 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
         toast.error("Error al procesar el pedido internamente. Intentando por WhatsApp…")
       }
 
-      // 2. Generar el mensaje de WhatsApp
-      let message = `*Nuevo Pedido - ${tenantName}*\n`
-      if (orderResult.success && orderResult.data) {
-        message += `_Orden #${orderResult.data.slice(-6).toUpperCase()}_\n\n`
-      } else {
-        message += `\n`
-      }
+      // 2. Format the WhatsApp message via the utility
+      const orderRef = orderResult.success && orderResult.data
+        ? orderResult.data.slice(-6).toUpperCase()
+        : undefined
 
-      filteredItems.forEach((item) => {
-        message += `• ${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}\n`
-      })
-      message += `\n*Total: $${total.toFixed(2)}*\n\n`
-      message += `Muchas gracias!`
+      const message = formatCartMessage(tenantName, filteredItems, { orderRef })
+      const whatsappUrl = whatsapp
+        ? buildWhatsAppCartUrl(whatsapp, message)
+        : `https://wa.me/?text=${encodeURIComponent(message)}`
 
-      const encodedMessage = encodeURIComponent(message)
-      const whatsappUrl = `https://wa.me/${whatsapp?.replace(/\+/g, "")}?text=${encodedMessage}`
-      
       toast.success("¡Pedido generado! Abriendo WhatsApp…")
-      
-      // 3. Limpiar carrito de esta sucursal
+
+      // 3. Clear the cart for this tenant
       clearCart(tenantId)
-      
-      // 4. Redirigir
+
+      // 4. Open WhatsApp
       window.open(whatsappUrl, "_blank")
     } catch (error) {
       toast.error("Ocurrió un error al procesar tu compra.")
@@ -85,12 +79,16 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
       <DrawerTrigger render={
         <Button 
           aria-label="Abrir carrito"
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-xl bg-violet-600 hover:bg-violet-700 shadow-2xl text-white z-50 transition-all active:scale-95"
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-xl shadow-2xl text-white z-50 transition-all hover:opacity-90 active:scale-95"
+          style={{ backgroundColor: "var(--brand-color)" }}
         >
           <div className="relative">
             <ShoppingBag className="h-7 w-7" />
             {itemCount > 0 && (
-              <span className="absolute -top-3 -right-3 bg-white text-violet-600 text-[10px] font-black h-5 w-5 rounded-xl flex items-center justify-center border-2 border-violet-600 animate-in zoom-in">
+              <span 
+                className="absolute -top-3 -right-3 bg-white text-[10px] font-black h-5 w-5 rounded-xl flex items-center justify-center border-2 animate-in zoom-in"
+                style={{ color: "var(--brand-color)", borderColor: "var(--brand-color)" }}
+              >
                 {itemCount}
               </span>
             )}
@@ -100,7 +98,10 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
       <DrawerContent className="rounded-t-3xl max-h-[85vh]">
         <div className="mx-auto w-full max-w-lg">
           <DrawerHeader className="border-b pb-4">
-            <DrawerTitle className="text-2xl font-black flex items-center gap-2 text-violet-600">
+            <DrawerTitle 
+              className="text-2xl font-black flex items-center gap-2"
+              style={{ color: "var(--brand-color)" }}
+            >
               Tu Carrito <ShoppingBag className="h-5 w-5" />
             </DrawerTitle>
             <DrawerDescription>
@@ -129,7 +130,10 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-sm truncate">{item.name}</h4>
-                      <p className="text-violet-600 font-black text-sm tabular-nums">${item.price.toFixed(2)}</p>
+                      <p 
+                        className="font-black text-sm tabular-nums"
+                        style={{ color: "var(--brand-color)" }}
+                      >${item.price.toFixed(2)}</p>
                     </div>
                     <div className="flex items-center gap-2 bg-muted/50 rounded-xl p-1">
                       <Button 
@@ -170,10 +174,14 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
           <DrawerFooter className="border-t p-6 bg-muted/20">
             <div className="flex items-center justify-between mb-4">
               <span className="text-muted-foreground font-medium uppercase text-xs tracking-widest">Total Estimado</span>
-              <span className="text-3xl font-black text-violet-600 tabular-nums">${total.toFixed(2)}</span>
+              <span 
+                className="text-3xl font-black tabular-nums"
+                style={{ color: "var(--brand-color)" }}
+              >${total.toFixed(2)}</span>
             </div>
             <Button 
-              className="w-full rounded-xl font-black py-8 bg-green-500 hover:bg-green-600 text-white shadow-lg text-lg"
+              className="w-full rounded-xl font-black py-8 text-white shadow-lg text-lg transition-all hover:opacity-90 active:scale-95"
+              style={{ backgroundColor: "var(--brand-color)" }}
               disabled={filteredItems.length === 0 || isProcessing}
               onClick={handleCheckout}
             >
@@ -183,6 +191,15 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
                 </>
               )}
             </Button>
+            {filteredItems.length > 0 && (
+              <Button 
+                variant="ghost" 
+                className="rounded-xl font-bold mt-2 w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => clearCart(tenantId)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Vaciar carrito
+              </Button>
+            )}
             <DrawerClose render={<Button variant="ghost" className="rounded-xl font-bold mt-2 w-full text-muted-foreground" />}>
               Continuar comprando
             </DrawerClose>

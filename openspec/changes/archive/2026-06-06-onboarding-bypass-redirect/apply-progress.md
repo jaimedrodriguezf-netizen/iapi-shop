@@ -1,0 +1,13 @@
+# Apply Progress: onboarding-bypass-redirect
+
+## TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| **Phase 1: ensureUserTenant** | `src/lib/tenants/actions.test.ts` | Vitest Unit | Mock setup & existing tests | Created new tests in actions.test.ts checking provisioning | Implemented draft-tenant provisioning in actions.ts | Tested both new tenant creation and returning existing tenant | Cleaned up database queries and alphanumeric generation |
+| **Phase 1: updateTenantSettings** | `src/lib/tenants/actions.test.ts` | Vitest Unit | Mock setup & existing tests | Added tests for publishing validators & uniqueness checks | Added logic in updateTenantSettings for slug check & defaults | Tested duplicate slug error, 'Mi Tienda' name error, 'tienda-' slug error, and valid publishing | Consolidated name/slug checks and optimized paths revalidation |
+| **Phase 1: getStorefrontData** | `src/lib/storefront/actions.test.ts` | Vitest Unit | Mock setup | Created tests checking fetch support for draft status | Modified fetchStorefrontDataCached condition to allow draft | Tested fetching with active vs draft status | Maintained caching behaviour and robust error handling |
+| **Phase 2: Dashboard Views** | `src/lib/tenants/actions.test.ts` / Manual | Integration | Redirect checks | Verified that getMyTenant was removed and ensureUserTenant handles setup | Updated page.tsx (dashboard, products, orders, qr, settings) | Verified that pages render without redirect loop | Ensured consistent use of ensureUserTenant |
+| **Phase 3: Settings Form** | `src/components/dashboard/settings-form.test.tsx` | Vitest Unit | Component setup | Added tests verifying form validation and auto-draft reset | Added name, slug, status fields and useEffect watcher | Verified that status reverts to draft when default name/slug are used | Cleaned up Tailwind toggle layout and visual warnings |
+| **Phase 4: Public storefront** | `src/app/[slug]/page.test.tsx` | Vitest Unit | Page test setup | Added test verifying draft shows under construction page | Added draft status check and page markup in page.tsx | Verified catalog doesn't render when status is draft | Replaced layout elements with clean Tailwind-styled card |
+| **Phase 5: Playwright E2E** | `e2e/storefront-draft.spec.ts` | Playwright E2E | Existing E2E tests | Wrote storefront-draft.spec.ts checking publishing and view blocking | Verified E2E flow behaves correctly on local DB | Simulated full publish/unpublish workflow and UI warnings | Re-asserted cleanup logic to restore DB state to 'evolution' |

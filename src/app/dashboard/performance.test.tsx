@@ -21,6 +21,17 @@ vi.mock("next/headers", () => ({
 }));
 
 vi.mock("@/lib/tenants/actions", () => ({
+  ensureUserTenant: vi.fn().mockResolvedValue({
+    success: true,
+    data: {
+      id: "tenant-123",
+      name: "Shop Gourmet",
+      slug: "gourmet",
+      brand_color: "#7c3aed",
+      status: "active",
+      created_at: "2026-06-01",
+    },
+  }),
   getMyTenant: vi.fn().mockResolvedValue({
     success: true,
     data: {
@@ -76,6 +87,7 @@ vi.mock("@/lib/auth/actions", () => ({
 
 vi.mock("@/lib/utils/qr", () => ({
   generateQRCodeDataURL: vi.fn().mockResolvedValue("data:image/png;base64,mock"),
+  generateQR: vi.fn().mockResolvedValue("data:image/png;base64,mock"),
 }));
 
 // Mock slow/external charting/form components
