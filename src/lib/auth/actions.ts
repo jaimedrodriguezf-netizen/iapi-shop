@@ -13,14 +13,14 @@ export type AuthActionState = {
 };
 
 const authSchema = z.object({
-  email: z.string().trim().email("Ingresa un email válido."),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
+  email: z.string().trim().email("Ingresa un email válido.").max(255, "El email no puede tener más de 255 caracteres."),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres.").max(72, "La contraseña no puede tener más de 72 caracteres."),
 });
 
 const registerSchema = z
   .object({
-    email: z.string().trim().email("Ingresa un email válido."),
-    password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
+    email: z.string().trim().email("Ingresa un email válido.").max(255, "El email no puede tener más de 255 caracteres."),
+    password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres.").max(72, "La contraseña no puede tener más de 72 caracteres."),
     confirmPassword: z.string().min(6, "La confirmación es requerida."),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -36,8 +36,16 @@ export async function login(formData: FormData): Promise<AuthActionState> {
       return validationError(parsed.error.flatten().fieldErrors);
     }
 
+    const captchaToken = formData.get("captchaToken") as string | null;
     const supabase = await createClient();
-    const { error } = await supabase.auth.signInWithPassword(parsed.data);
+    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: parsed.data.email,
+      password: parsed.data.password,
+      options: {
+        captchaToken: captchaToken || undefined,
+      },
+    });
 
     if (error) {
       return { success: false, error: "No pudimos iniciar sesión. Revisa tus credenciales." };
@@ -64,10 +72,14 @@ export async function register(formData: FormData): Promise<AuthActionState> {
       return validationError(parsed.error.flatten().fieldErrors);
     }
 
+    const captchaToken = formData.get("captchaToken") as string | null;
     const supabase = await createClient();
     const { error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
+      options: {
+        captchaToken: captchaToken || undefined,
+      },
     });
 
     if (error) {
@@ -139,5 +151,30 @@ export async function getUserRoleInfo(): Promise<ActionResult<UserRoleInfo>> {
   } catch (err: unknown) {
     console.error("getUserRoleInfo Error:", err);
     return { success: false, error: "Error al obtener rol del usuario" };
+  }
+}
+
+export async function signInWithGoogle(redirectTo: string): Promise<ActionResult<{ url: string }>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+      },
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    if (data?.url) {
+      return { success: true, data: { url: data.url } };
+    }
+
+    return { success: false, error: "No se pudo obtener la URL de inicio de sesión con Google." };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Error inesperado.";
+    return { success: false, error: errorMsg };
   }
 }

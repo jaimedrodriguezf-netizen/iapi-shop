@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { isProtectedAppRoute } from "@/lib/auth/permissions";
 import { updateSession } from "@/lib/supabase/middleware";
 
-export async function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   if (!isProtectedAppRoute(request.nextUrl.pathname)) {
     return updateSession(request);
   }
