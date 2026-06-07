@@ -11,9 +11,14 @@ export default function Home() {
         
         {/* Navigation Header */}
         <header className="flex items-center justify-between gap-2">
-          <p className="text-base sm:text-lg font-black tracking-tight flex items-center gap-1 sm:gap-1.5 text-violet-600 dark:text-violet-400 shrink-0">
-            <QrCode className="h-4.5 w-4.5 sm:h-5 sm:w-5" /> Mercado QR
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-base sm:text-lg font-black tracking-tight flex items-center gap-1 sm:gap-1.5 text-violet-600 dark:text-violet-400 shrink-0">
+              <QrCode className="h-4.5 w-4.5 sm:h-5 sm:w-5" /> Mercado QR
+            </p>
+            <span className="font-mono bg-violet-accent/10 text-violet-accent border border-violet-accent/20 px-2 py-0.5 rounded-full text-[10px] font-bold tabular-nums">
+              v{pkg.version}
+            </span>
+          </div>
           <nav aria-label="Navegación pública" className="flex items-center gap-1.5 sm:gap-3 text-xs sm:text-sm font-bold">
             <Link className="rounded-xl px-2.5 py-1.5 sm:px-4 sm:py-2 text-slate-750 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900" href="/vendedores">
               Vendedores
