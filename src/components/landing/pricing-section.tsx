@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -12,22 +12,23 @@ export interface PricingFeature {
 export interface PricingPlan {
   name: string;
   desc: string;
-  priceMonthly: number;
-  priceAnnually: number;
+  price: number | string;
+  period: string;
   features: PricingFeature[];
   buttonText: string;
   popular: boolean;
+  comingSoon?: boolean;
 }
 
 const PLANS: PricingPlan[] = [
   {
     name: "Gratis",
     desc: "Para emprendedores individuales y tiendas iniciales.",
-    priceMonthly: 0,
-    priceAnnually: 0,
+    price: 0,
+    period: "/ año",
     features: [
-      { text: "Catálogo digital QR básico", included: true },
       { text: "Hasta 25 productos activos", included: true },
+      { text: "Catálogo digital QR básico", included: true },
       { text: "1 foto por producto", included: true },
       { text: "Pedidos directos por WhatsApp", included: true },
       { text: "Soporte por comunidad", included: true },
@@ -38,10 +39,10 @@ const PLANS: PricingPlan[] = [
     popular: false,
   },
   {
-    name: "Standard",
+    name: "Plus",
     desc: "Ideal para negocios y tiendas locales en crecimiento.",
-    priceMonthly: 29,
-    priceAnnually: 23,
+    price: 49.99,
+    period: "/ año",
     features: [
       { text: "Todo lo del Plan Gratis", included: true },
       { text: "Hasta 300 productos activos", included: true },
@@ -50,33 +51,31 @@ const PLANS: PricingPlan[] = [
       { text: "Estudio básico de fondos con IA", included: true },
       { text: "Soporte técnico por email", included: true },
       { text: "Pasarela PayPal Ecuador", included: false },
-      { text: "Dominio personalizado y sucursales", included: false },
     ],
-    buttonText: "Elegir Plan Standard",
+    buttonText: "Elegir Plan Plus",
     popular: true,
   },
   {
-    name: "Business",
+    name: "Pro",
     desc: "Para comercios consolidados y multi-sucursales.",
-    priceMonthly: 79,
-    priceAnnually: 63,
+    price: "Próximamente",
+    period: "",
     features: [
-      { text: "Todo lo del Plan Standard", included: true },
+      { text: "Todo lo del Plan Plus", included: true },
       { text: "Hasta 2000 productos activos", included: true },
       { text: "Hasta 6 fotos por producto", included: true },
       { text: "Integración de PayPal Ecuador", included: true },
       { text: "Dominio personalizado", included: true },
       { text: "Gestión de sucursales y empleados", included: true },
-      { text: "Personalización completa de marca", included: true },
       { text: "Soporte prioritario 24/7", included: true },
     ],
-    buttonText: "Elegir Plan Business",
+    buttonText: "Próximamente",
     popular: false,
+    comingSoon: true,
   },
 ];
 
 export function PricingSection() {
-  const [isAnnual, setIsAnnual] = useState(false);
 
   return (
     <section className="py-24" aria-labelledby="pricing-title">
@@ -91,25 +90,9 @@ export function PricingSection() {
           </p>
 
           {/* Billing Switch Toggle */}
-          <div className="flex items-center justify-center gap-4 pt-4">
-            <span className={cn("text-sm font-semibold transition-colors", !isAnnual ? "text-slate-900 dark:text-white" : "text-muted-foreground")}>
-              Mensual
-            </span>
-            <label className="relative inline-flex items-center cursor-pointer select-none">
-              <input
-                type="checkbox"
-                aria-label="Facturación anual"
-                checked={isAnnual}
-                onChange={(e) => setIsAnnual(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-14 h-8 bg-zinc-200 peer-focus:outline-none dark:bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-violet-600"></div>
-            </label>
-            <span className={cn("text-sm font-semibold transition-colors flex items-center gap-1.5", isAnnual ? "text-violet-600 dark:text-violet-400" : "text-muted-foreground")}>
-              Anual
-              <span className="bg-violet-100 text-violet-700 text-[10px] font-black px-2 py-0.5 rounded-xl dark:bg-violet-950/40 dark:text-violet-300">
-                Ahorrá 20%
-              </span>
+          <div className="flex items-center justify-center pt-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-accent/10 px-3 py-1 text-xs font-bold text-violet-accent border border-violet-accent/20 dark:bg-violet-950/40 dark:text-violet-350">
+              Solo facturación anual disponible
             </span>
           </div>
         </div>
@@ -117,7 +100,6 @@ export function PricingSection() {
         {/* Pricing Grid */}
         <div className="grid gap-8 md:grid-cols-3 items-stretch">
           {PLANS.map((plan) => {
-            const price = isAnnual ? plan.priceAnnually : plan.priceMonthly;
             return (
               <div
                 key={plan.name}
@@ -140,9 +122,20 @@ export function PricingSection() {
                   <p className="text-xs text-muted-foreground min-h-[36px] leading-relaxed mb-6">{plan.desc}</p>
 
                   {/* Price */}
-                  <div className="flex items-baseline gap-1 mb-8">
-                    <span className="text-4xl font-black text-slate-950 dark:text-white tabular-nums">${price}</span>
-                    <span className="text-xs font-semibold text-muted-foreground">/ mes</span>
+                  <div className="flex flex-col justify-end gap-1 mb-8 min-h-[52px]">
+                    <div className="flex items-baseline gap-1">
+                      {typeof plan.price === "number" ? (
+                        <>
+                          <span className="text-4xl font-black text-slate-950 dark:text-white tabular-nums">${plan.price}</span>
+                          <span className="text-xs font-semibold text-muted-foreground">{plan.period}</span>
+                        </>
+                      ) : (
+                        <span className="text-3xl font-black text-slate-950 dark:text-white">{plan.price}</span>
+                      )}
+                    </div>
+                    {plan.name === "Plus" && (
+                      <span className="text-[10px] font-bold text-violet-accent">IVA incluido</span>
+                    )}
                   </div>
 
                   {/* Divider */}
@@ -168,11 +161,14 @@ export function PricingSection() {
                 {/* CTA Button */}
                 <button
                   type="button"
+                  disabled={plan.comingSoon}
                   className={cn(
-                    "w-full rounded-xl py-4 text-center text-sm font-black transition-all active:scale-[0.98] cursor-pointer shadow-sm",
-                    plan.popular
-                      ? "bg-violet-600 hover:bg-violet-700 text-white hover:shadow-md"
-                      : "border border-zinc-200 bg-white hover:bg-zinc-50 text-slate-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white"
+                    "w-full rounded-xl py-4 text-center text-sm font-black transition-all shadow-sm",
+                    plan.comingSoon
+                      ? "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600 cursor-not-allowed"
+                      : plan.popular
+                        ? "bg-violet-600 hover:bg-violet-700 text-white hover:shadow-md cursor-pointer active:scale-[0.98]"
+                        : "border border-zinc-200 bg-white hover:bg-zinc-50 text-slate-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white cursor-pointer active:scale-[0.98]"
                   )}
                 >
                   {plan.buttonText}

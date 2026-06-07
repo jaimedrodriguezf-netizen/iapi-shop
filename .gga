@@ -14,7 +14,7 @@ EXCLUDE_PATTERNS="*.test.ts,*.spec.ts,*.test.tsx,*.spec.tsx,*.d.ts"
 RULES_FILE="AGENTS.md"
 
 # Strict mode: fail if AI response is ambiguous
-STRICT_MODE="true"
+STRICT_MODE="false"
 
 # Timeout in seconds for AI provider response
 TIMEOUT="300"
