@@ -49,7 +49,7 @@ describe("AuthForm Component - Edge Cases and UX/UI States", () => {
   it("disables all inputs and submit button when the form submission is pending", async () => {
     const user = userEvent.setup();
     // Simulate a slow action to test pending state
-    let resolveAction!: (value: any) => void;
+    let resolveAction!: (value: unknown) => void;
     const actionPromise = new Promise((resolve) => {
       resolveAction = resolve;
     });

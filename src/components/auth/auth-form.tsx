@@ -4,20 +4,32 @@ import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-import { signInWithGoogle, type AuthActionState } from "@/lib/auth/actions";
+import { signInWithGoogle, login, register, type AuthActionState } from "@/lib/auth/actions";
 import { Turnstile } from "./turnstile";
 
 type AuthFormProps = {
-  title: string;
-  description: string;
-  submitLabel: string;
-  switchHref: string;
-  switchLabel: string;
-  action: (formData: FormData) => Promise<AuthActionState>;
+  title?: string;
+  description?: string;
+  submitLabel?: string;
+  switchHref?: string;
+  switchLabel?: string;
+  action?: (formData: FormData) => Promise<AuthActionState>;
   isRegister?: boolean;
+  loginAction?: (formData: FormData) => Promise<AuthActionState>;
+  registerAction?: (formData: FormData) => Promise<AuthActionState>;
 };
 
-export function AuthForm({ title, description, submitLabel, switchHref, switchLabel, action, isRegister }: AuthFormProps) {
+export function AuthForm({
+  title,
+  description,
+  submitLabel,
+  switchLabel,
+  action,
+  isRegister,
+  loginAction,
+  registerAction,
+}: AuthFormProps) {
+  const [isRegisterMode, setIsRegisterMode] = useState(isRegister ?? false);
   const [isPending, startTransition] = React.useTransition();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]> | null>(null);
@@ -28,6 +40,65 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
+
+  // Synchronize internal state with URL on popstate
+  React.useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window !== "undefined") {
+        const path = window.location.pathname;
+        setIsRegisterMode(path === "/register");
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const handleToggleMode = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const newMode = !isRegisterMode;
+    setIsRegisterMode(newMode);
+    
+    // Clear errors and tokens when toggling mode
+    setErrorMsg(null);
+    setFieldErrors(null);
+    setCaptchaToken(null);
+
+    // Update URL smoothly if window is available
+    if (typeof window !== "undefined") {
+      const newPath = newMode ? "/register" : "/login";
+      window.history.pushState(null, "", newPath);
+    }
+  };
+
+  const isInitialMode = isRegisterMode === (isRegister ?? false);
+
+  const currentTitle = isInitialMode && title
+    ? title
+    : isRegisterMode
+      ? "Crear cuenta"
+      : "Ingresar al panel";
+
+  const currentDescription = isInitialMode && description
+    ? description
+    : isRegisterMode
+      ? "Registra tu acceso para empezar a configurar tu tienda privada en IAPI Shop."
+      : "Accede con tu cuenta registrada para gestionar tu tienda, productos, QR e IA.";
+
+  const currentSubmitLabel = isInitialMode && submitLabel
+    ? submitLabel
+    : isRegisterMode
+      ? "Crear mi cuenta"
+      : "Iniciar sesión";
+
+  const currentSwitchLabel = isInitialMode && switchLabel
+    ? switchLabel
+    : isRegisterMode
+      ? "¿Ya tienes cuenta? Inicia sesión"
+      : "¿No tienes cuenta? Regístrate";
+
+  const currentAction = isRegisterMode
+    ? (registerAction || (isRegister && action) || register)
+    : (loginAction || (!isRegister && action) || login);
 
   const handleGoogleSignIn = () => {
     if (isPending) return;
@@ -60,7 +131,7 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
 
     startTransition(async () => {
       try {
-        const result = await action(formData);
+        const result = await currentAction(formData);
 
         if (!result.success) {
           const cleanedError = stripHtml(result.error || "Revisa los campos del formulario.");
@@ -184,8 +255,8 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
         <div className="backdrop-blur-md bg-white/75 dark:bg-zinc-900/75 border border-white/20 dark:border-zinc-800/20 shadow-2xl rounded-3xl p-8 max-w-md w-full">
           <div className="mb-8 space-y-2 text-center">
             <p className="text-sm font-bold text-violet-accent">IAPI</p>
-            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">{title}</h1>
-            <p className="text-sm leading-6 text-muted-foreground">{description}</p>
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">{currentTitle}</h1>
+            <p className="text-sm leading-6 text-muted-foreground">{currentDescription}</p>
           </div>
 
           {errorMsg && (
@@ -224,7 +295,7 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
                   className="h-11 w-full rounded-xl border border-zinc-200 bg-background pl-10 pr-10 text-base outline-none transition focus:border-violet-accent focus:ring-4 focus:ring-violet-accent/10 dark:border-zinc-800 dark:focus:border-violet-accent dark:focus:ring-violet-accent/20 text-slate-900 dark:text-white"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete={isRegister ? "new-password" : "current-password"}
+                  autoComplete={isRegisterMode ? "new-password" : "current-password"}
                   minLength={6}
                   disabled={isPending}
                   required
@@ -245,7 +316,7 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
               )}
             </label>
 
-            {isRegister && (
+            {isRegisterMode && (
               <label className="grid gap-2 text-sm font-semibold text-slate-800 dark:text-zinc-200">
                 Confirmar contraseña
                 <div className="relative">
@@ -277,7 +348,7 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
               </label>
             )}
 
-            {!isRegister && (
+            {!isRegisterMode && (
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center space-x-2 cursor-pointer text-slate-600 dark:text-zinc-400 font-medium">
                   <input
@@ -297,10 +368,10 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
             )}
 
             {siteKey && (
-              <>
+              <React.Fragment key={isRegisterMode ? "register" : "login"}>
                 <input type="hidden" name="captchaToken" value={captchaToken || ""} />
                 <Turnstile siteKey={siteKey} onSuccess={setCaptchaToken} />
-              </>
+              </React.Fragment>
             )}
 
             <button
@@ -308,7 +379,7 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
               type="submit"
               disabled={isPending || (!!siteKey && !captchaToken)}
             >
-              {isPending ? "Procesando..." : submitLabel}
+              {isPending ? "Procesando..." : currentSubmitLabel}
             </button>
           </form>
 
@@ -343,9 +414,14 @@ export function AuthForm({ title, description, submitLabel, switchHref, switchLa
           </div>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            <Link className="font-bold text-violet-accent hover:text-violet-accent-hover dark:text-violet-400 dark:hover:text-violet-300 underline-offset-4 hover:underline" href={switchHref}>
-              {switchLabel}
-            </Link>
+            <button
+              type="button"
+              onClick={handleToggleMode}
+              disabled={isPending}
+              className="font-bold text-violet-accent hover:text-violet-accent-hover dark:text-violet-400 dark:hover:text-violet-300 underline-offset-4 hover:underline cursor-pointer bg-transparent border-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {currentSwitchLabel}
+            </button>
           </div>
         </div>
       </section>

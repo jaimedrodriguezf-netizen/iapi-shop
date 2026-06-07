@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { getUserRoleInfo } from "@/lib/auth/actions";
+import pkg from "../../../package.json";
 
 export default async function AdminPage() {
   const res = await getUserRoleInfo();
@@ -19,6 +20,11 @@ export default async function AdminPage() {
         <p className="mt-3 text-sm text-muted-foreground">
           {email} tiene rol <strong>{role}</strong>. Este acceso bootstrap será migrado a `platform_admins` con RLS.
         </p>
+
+        <div className="mt-8 flex justify-between items-center text-xs text-muted-foreground border-t pt-4">
+          <span>IAPI Shop © {new Date().getFullYear()}</span>
+          <span className="font-mono bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 text-[10px] font-bold">v{pkg.version}</span>
+        </div>
       </section>
     </main>
   );

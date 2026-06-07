@@ -4,6 +4,7 @@ import { ShopSummaryTable, ShopSummary } from "@/components/dashboard/shop-summa
 import { getTenantOrders } from "@/lib/orders/actions";
 import { getMyTenants, getTenantSubscription, ensureUserTenant, type Tenant } from "@/lib/tenants/actions";
 import { getUserRoleInfo } from "@/lib/auth/actions";
+import pkg from "../../../package.json";
 
 export default async function DashboardPage() {
   // 1. Obtener datos del usuario delegando a Server Action (GGA Compliance)
@@ -82,6 +83,11 @@ export default async function DashboardPage() {
         <div className="lg:col-span-3">
           <ShopSummaryTable data={sucursales} />
         </div>
+      </div>
+
+      <div className="mt-8 flex justify-between items-center text-xs text-muted-foreground border-t pt-4">
+        <span>IAPI Shop © {new Date().getFullYear()}</span>
+        <span className="font-mono bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 text-[10px] font-bold">v{pkg.version}</span>
       </div>
     </section>
   );
