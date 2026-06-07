@@ -23,8 +23,8 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <TooltipProvider>

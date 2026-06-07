@@ -2,7 +2,6 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { createClient } from "@/lib/supabase/server"
 import { Separator } from "@/components/ui/separator"
-import { ModeToggle } from "@/components/mode-toggle"
 import { getMyTenants, getTenantSubscription } from "@/lib/tenants/actions"
 import { getUserRoleInfo } from "@/lib/auth/actions"
 import {
@@ -72,7 +71,6 @@ export default async function DashboardLayout({
             }`}>
               Plan {planName}
             </span>
-            <ModeToggle />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

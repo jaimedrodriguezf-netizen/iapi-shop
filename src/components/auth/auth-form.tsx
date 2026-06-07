@@ -162,80 +162,80 @@ export function AuthForm({
   return (
     <main className="flex min-h-screen flex-col md:flex-row bg-zinc-50 dark:bg-zinc-950">
       {/* Left Panel (Emotional/Branding) */}
-      <section className="hidden md:flex md:w-1/2 flex-col justify-between p-12 bg-gradient-to-br from-violet-900 via-zinc-900 to-slate-950 text-white relative overflow-hidden">
+      <section className="hidden md:flex md:w-1/2 flex-col justify-between p-12 bg-gradient-to-br from-violet-100 via-violet-50 to-white dark:from-violet-950 dark:via-zinc-900 dark:to-zinc-950 text-slate-900 dark:text-zinc-150 relative overflow-hidden">
         {/* Ambient lighting / background blur glow */}
-        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-violet-500/20 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-violet-300/30 dark:bg-violet-500/20 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-300/20 dark:bg-indigo-500/10 blur-3xl pointer-events-none" />
 
         {/* Top brand logo */}
         <div className="z-10 flex items-center space-x-2">
-          <span className="text-xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">IAPI</span>
+          <span className="text-xl font-black tracking-wider bg-gradient-to-r from-violet-600 to-indigo-500 dark:from-violet-400 dark:to-indigo-300 bg-clip-text text-transparent">IAPI</span>
         </div>
 
         {/* Middle emotional copy and dashboard mockup */}
         <div className="z-10 my-auto space-y-8 max-w-lg">
           <div className="space-y-4">
-            <h2 className="text-4xl font-extrabold tracking-tight leading-tight lg:text-5xl">
+            <h2 className="text-4xl font-extrabold tracking-tight leading-tight lg:text-5xl text-slate-900 dark:text-white">
               Desbloquea tu Potencial.
             </h2>
-            <p className="text-lg text-zinc-300 font-medium">
+            <p className="text-lg text-slate-600 dark:text-zinc-300 font-medium">
               Gestiona, escala y triunfa con IAPI.
             </p>
           </div>
 
           {/* Dashboard Mockup card */}
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl shadow-2xl space-y-6">
+          <div className="rounded-3xl border border-violet-100/80 bg-white/80 dark:border-white/10 dark:bg-white/5 p-6 backdrop-blur-xl shadow-2xl space-y-6">
             {/* Mockup Header */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-4">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-red-500/80" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                 <div className="w-3 h-3 rounded-full bg-green-500/80" />
               </div>
-              <span className="text-xs font-semibold text-zinc-400">iapi-dashboard.png</span>
+              <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400">iapi-dashboard.png</span>
             </div>
 
             {/* Dashboard grid */}
             <div className="grid grid-cols-2 gap-4">
               {/* Sales Card */}
-              <div className="rounded-xl border border-white/5 bg-white/5 p-4 shadow-sm">
-                <p className="text-xs font-semibold text-zinc-400">Ventas Totales</p>
-                <p className="text-xl font-bold mt-1 text-white">$12,450.00</p>
-                <span className="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+              <div className="rounded-xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-4 shadow-sm">
+                <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400">Ventas Totales</p>
+                <p className="text-xl font-bold mt-1 text-slate-900 dark:text-white">$12,450.00</p>
+                <span className="inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
                   +15.3%
                 </span>
               </div>
               {/* Simple Chart Card */}
-              <div className="rounded-xl border border-white/5 bg-white/5 p-4 shadow-sm flex flex-col justify-between">
+              <div className="rounded-xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-4 shadow-sm flex flex-col justify-between">
                 <div>
-                  <p className="text-xs font-semibold text-zinc-400">Conversión</p>
-                  <p className="text-lg font-bold text-white">3.24%</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400">Conversión</p>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white">3.24%</p>
                 </div>
                 {/* Simple bar charts */}
                 <div className="flex items-end space-x-1.5 h-8 mt-2">
-                  <div className="w-full bg-zinc-700 rounded-t h-4" />
-                  <div className="w-full bg-zinc-700 rounded-t h-6" />
-                  <div className="w-full bg-violet-500/80 rounded-t h-8" />
-                  <div className="w-full bg-zinc-700 rounded-t h-5" />
+                  <div className="w-full bg-slate-200 dark:bg-zinc-700 rounded-t h-4" />
+                  <div className="w-full bg-slate-200 dark:bg-zinc-700 rounded-t h-6" />
+                  <div className="w-full bg-violet-600 dark:bg-violet-500/80 rounded-t h-8" />
+                  <div className="w-full bg-slate-200 dark:bg-zinc-700 rounded-t h-5" />
                 </div>
               </div>
             </div>
 
             {/* Weekly Activity simple line simulation */}
-            <div className="rounded-xl border border-white/5 bg-white/5 p-4 shadow-sm space-y-3">
+            <div className="rounded-xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-4 shadow-sm space-y-3">
               <div className="flex justify-between items-center">
-                <p className="text-xs font-semibold text-zinc-400">Actividad Semanal</p>
-                <span className="text-[10px] text-violet-400 font-bold">En vivo</span>
+                <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400">Actividad Semanal</p>
+                <span className="text-[10px] text-violet-600 dark:text-violet-400 font-bold">En vivo</span>
               </div>
               <div className="h-10 flex items-end justify-between px-1">
                 {/* Visual SVG line */}
-                <svg className="w-full h-full text-violet-400/30 overflow-visible" viewBox="0 0 100 30" fill="none" preserveAspectRatio="none">
+                <svg className="w-full h-full text-violet-500/20 dark:text-violet-400/30 overflow-visible" viewBox="0 0 100 30" fill="none" preserveAspectRatio="none">
                   <path d="M0 25 C10 20, 20 5, 30 15 C40 25, 50 10, 60 2 C70 -5, 80 12, 90 8 C100 4, 100 4, 100 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   <path d="M0 25 C10 20, 20 5, 30 15 C40 25, 50 10, 60 2 C70 -5, 80 12, 90 8 C100 4, 100 4, 100 4 L100 30 L0 30 Z" fill="url(#violet-gradient)" />
                   <defs>
                     <linearGradient id="violet-gradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="rgb(139, 92, 246)" stopOpacity="0.2"/>
-                      <stop offset="100%" stopColor="rgb(139, 92, 246)" stopOpacity="0"/>
+                      <stop offset="0%" stopColor="rgb(124, 58, 237)" stopOpacity="0.2"/>
+                      <stop offset="100%" stopColor="rgb(124, 58, 237)" stopOpacity="0"/>
                     </linearGradient>
                   </defs>
                 </svg>
@@ -245,7 +245,7 @@ export function AuthForm({
         </div>
 
         {/* Footer text */}
-        <div className="z-10 text-xs text-zinc-500 font-semibold">
+        <div className="z-10 text-xs text-slate-400 dark:text-zinc-500 font-semibold">
           © 2026 IAPI Inc. Todos los derechos reservados.
         </div>
       </section>
