@@ -1,6 +1,5 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
-import { createClient } from "@/lib/supabase/server"
 import { Separator } from "@/components/ui/separator"
 import { getMyTenants, getTenantSubscription } from "@/lib/tenants/actions"
 import { getUserRoleInfo } from "@/lib/auth/actions"
@@ -18,12 +17,9 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-  const { data } = await supabase.auth.getClaims()
-  const email = typeof data?.claims?.email === "string" ? data.claims.email : "Usuario"
-
   const roleResult = await getUserRoleInfo()
   const platformRole = roleResult.success && roleResult.data ? roleResult.data.platformRole : "merchant"
+  const email = roleResult.success && roleResult.data ? roleResult.data.email : "Usuario"
 
   const tenantsResult = await getMyTenants()
   const tenants = tenantsResult.success && tenantsResult.data ? tenantsResult.data : []
@@ -66,8 +62,8 @@ export default async function DashboardLayout({
           <div className="flex items-center gap-3 px-4">
             <span className={`text-xs px-2.5 py-1 rounded-full font-black uppercase tracking-wider ${
               planName.toLowerCase() === "business" 
-                ? "bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400 border border-violet-200/50 dark:border-violet-900/50" 
-                : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                ? "bg-violet-accent/10 text-violet-accent border border-violet-accent/20" 
+                : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-transparent"
             }`}>
               Plan {planName}
             </span>
