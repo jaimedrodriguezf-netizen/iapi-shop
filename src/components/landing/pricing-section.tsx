@@ -106,12 +106,12 @@ export function PricingSection() {
                 className={cn(
                   "rounded-3xl border p-6 sm:p-8 flex flex-col justify-between relative transition-all duration-300 hover:shadow-xl",
                   plan.popular
-                    ? "border-violet-500 bg-gradient-to-b from-violet-50/30 to-white dark:from-violet-950/10 dark:to-zinc-900 shadow-lg md:scale-105 z-10"
-                    : "border-zinc-200 bg-white dark:border-zinc-850 dark:bg-zinc-900"
+                    ? "border-violet-accent bg-gradient-to-b from-violet-accent/5 to-white dark:from-violet-accent/10 dark:to-zinc-900 shadow-lg md:scale-105 z-10"
+                    : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
                 )}
               >
                 {plan.popular && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-violet-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-xl shadow-md">
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-violet-accent text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-xl shadow-md">
                     Más Popular
                   </span>
                 )}
@@ -146,7 +146,7 @@ export function PricingSection() {
                     {plan.features.map((feat) => (
                       <li key={feat.text} className="flex items-start gap-3 text-sm">
                         {feat.included ? (
-                          <Check className="h-5 w-5 text-violet-600 dark:text-violet-400 shrink-0" />
+                          <Check className="h-5 w-5 text-violet-accent shrink-0" />
                         ) : (
                           <X className="h-5 w-5 text-zinc-300 dark:text-zinc-700 shrink-0" />
                         )}
@@ -167,7 +167,7 @@ export function PricingSection() {
                     plan.comingSoon
                       ? "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600 cursor-not-allowed"
                       : plan.popular
-                        ? "bg-violet-600 hover:bg-violet-700 text-white hover:shadow-md cursor-pointer active:scale-[0.98]"
+                        ? "bg-violet-accent hover:bg-violet-accent-hover text-white hover:shadow-md cursor-pointer active:scale-[0.98]"
                         : "border border-zinc-200 bg-white hover:bg-zinc-50 text-slate-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white cursor-pointer active:scale-[0.98]"
                   )}
                 >

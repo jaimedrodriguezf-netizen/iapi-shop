@@ -25,6 +25,9 @@ export default function Home() {
             </span>
           </div>
           <nav aria-label="Navegación pública" className="flex items-center gap-1.5 sm:gap-3 text-xs sm:text-sm font-bold">
+            <a className="rounded-xl px-2.5 py-1.5 sm:px-4 sm:py-2 text-slate-750 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900" href="#pricing-title">
+              Planes
+            </a>
             <Link className="rounded-xl px-2.5 py-1.5 sm:px-4 sm:py-2 text-slate-750 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900" href="/vendedores">
               Vendedores
             </Link>
@@ -53,7 +56,7 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col gap-3 sm:flex-row justify-center pt-2">
-              <Link className="rounded-xl bg-violet-650 hover:bg-violet-700 text-center text-sm font-black text-white px-8 py-4 shadow-lg shadow-violet-550/20 active:scale-95 transition-all" href="/register">
+              <Link className="rounded-xl bg-violet-accent hover:bg-violet-accent-hover text-center text-sm font-black text-white px-8 py-4 shadow-lg shadow-violet-accent/20 active:scale-95 transition-all" href="/register">
                 Crear mi tienda gratis
               </Link>
               <Link className="rounded-xl border border-zinc-200 bg-white px-8 py-4 text-center text-sm font-black text-slate-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-950" href="/login">

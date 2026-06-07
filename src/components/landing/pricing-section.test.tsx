@@ -1,29 +1,23 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { PricingSection } from "./pricing-section";
-import userEvent from "@testing-library/user-event";
 
 describe("PricingSection Component", () => {
-  it("renders plans and toggles prices between monthly and annual billing", async () => {
+  it("renders the Gratis, Plus, and Pro plans", () => {
     render(<PricingSection />);
 
-    // 1. Verify toggle button renders
-    const toggleBtn = screen.getByRole("checkbox", { name: /facturación anual/i });
-    expect(toggleBtn).toBeInTheDocument();
-    expect(toggleBtn).not.toBeChecked();
+    // 1. Check plan names
+    expect(screen.getByRole("heading", { name: "Gratis" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Plus" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Pro" })).toBeInTheDocument();
 
-    // 2. Check initial monthly prices
+    // 2. Check prices
     expect(screen.getByText(/\$0/i)).toBeInTheDocument();
-    expect(screen.getByText(/\$29/i)).toBeInTheDocument();
-    expect(screen.getByText(/\$79/i)).toBeInTheDocument();
+    expect(screen.getByText(/\$49.99/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Próximamente/i)).toHaveLength(2);
 
-    // 3. Click toggle to switch to annual billing
-    const user = userEvent.setup();
-    await user.click(toggleBtn);
-    expect(toggleBtn).toBeChecked();
-
-    // 4. Check that prices updated to annual discount rates
-    expect(screen.getByText(/\$23/i)).toBeInTheDocument();
-    expect(screen.getByText(/\$63/i)).toBeInTheDocument();
+    // 3. Verify features
+    expect(screen.getByText(/Hasta 25 productos activos/i)).toBeInTheDocument();
+    expect(screen.getByText(/Hasta 300 productos activos/i)).toBeInTheDocument();
   });
 });
