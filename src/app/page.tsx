@@ -4,7 +4,12 @@ import { PricingSection } from "@/components/landing/pricing-section";
 import { Sparkles, Shield, QrCode } from "lucide-react";
 import pkg from "../../package.json";
 
+interface PackageJson {
+  version: string;
+}
+
 export default function Home() {
+  const version = (pkg as PackageJson).version;
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#f5f3ff,transparent_34%),linear-gradient(135deg,#fff,#f8fafc)] text-slate-950 dark:bg-[radial-gradient(circle_at_top_left,#1e1b4b,transparent_34%),linear-gradient(135deg,#09090b,#030712)] dark:text-zinc-50">
       <section className="mx-auto flex w-full max-w-6xl flex-col px-6 py-8">
@@ -16,7 +21,7 @@ export default function Home() {
               <QrCode className="h-4.5 w-4.5 sm:h-5 sm:w-5" /> Mercado QR
             </p>
             <span className="font-mono bg-violet-accent/10 text-violet-accent border border-violet-accent/20 px-2 py-0.5 rounded-full text-[10px] font-bold tabular-nums">
-              v{pkg.version}
+              v{version}
             </span>
           </div>
           <nav aria-label="Navegación pública" className="flex items-center gap-1.5 sm:gap-3 text-xs sm:text-sm font-bold">
@@ -80,7 +85,7 @@ export default function Home() {
             <Link className="hover:text-slate-900 dark:hover:text-white" href="/terminos">Términos y condiciones</Link>
             <Link className="hover:text-slate-900 dark:hover:text-white" href="/privacidad">Privacidad</Link>
             <span className="bg-zinc-150 text-slate-800 dark:bg-zinc-800 dark:text-zinc-200 px-3 py-1 rounded-xl font-bold tabular-nums">
-              v{pkg.version}
+              v{version}
             </span>
           </div>
         </footer>
