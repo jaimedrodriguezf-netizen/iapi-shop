@@ -151,4 +151,71 @@ describe("StorefrontCatalog", () => {
     // "Todos" chip should not appear since there's only one visible category
     expect(screen.queryByText("Todos")).toBeNull();
   });
+
+  it("should recursively filter products by subcategory and render cascading rows when parent category is selected", () => {
+    const hierarchicalCategories = [
+      { id: "cat-1", name: "Ropa", parent_id: null },
+      { id: "cat-2", name: "Hombre", parent_id: "cat-1" },
+      { id: "cat-3", name: "Camisas", parent_id: "cat-2" },
+      { id: "cat-other", name: "Comida", parent_id: null },
+    ];
+
+    const hierarchicalProducts = [
+      { id: "p1", name: "Ropa General", price: 10, category_id: "cat-1" },
+      { id: "p2", name: "Pantalón Hombre", price: 20, category_id: "cat-2" },
+      { id: "p3", name: "Camisa Manga Larga", price: 30, category_id: "cat-3" },
+      { id: "p4", name: "Hamburguesa", price: 5, category_id: "cat-other" },
+    ];
+
+    render(
+      <StorefrontCatalog
+        categories={hierarchicalCategories}
+        products={hierarchicalProducts}
+        tenantId="t1"
+        brandColor="#7c3aed"
+      />
+    );
+
+    // Initial state: show all products
+    expect(screen.getByText("Ropa General")).toBeDefined();
+    expect(screen.getByText("Pantalón Hombre")).toBeDefined();
+    expect(screen.getByText("Camisa Manga Larga")).toBeDefined();
+    expect(screen.getByText("Hamburguesa")).toBeDefined();
+
+    // Click Level 1 "Ropa"
+    const l1Chips = screen.getAllByRole("button");
+    const ropaChip = l1Chips.find((btn) => btn.textContent === "Ropa");
+    expect(ropaChip).toBeDefined();
+    fireEvent.click(ropaChip!);
+
+    // Should recursively show all Ropa, Hombre, and Camisas products, but NOT Hamburguesa
+    expect(screen.getByText("Ropa General")).toBeDefined();
+    expect(screen.getByText("Pantalón Hombre")).toBeDefined();
+    expect(screen.getByText("Camisa Manga Larga")).toBeDefined();
+    expect(screen.queryByText("Hamburguesa")).toBeNull();
+
+    // Level 2 Subcategory "Hombre" should now be rendered as a chip
+    const l2Chips = screen.getAllByRole("button");
+    const hombreChip = l2Chips.find((btn) => btn.textContent === "Hombre");
+    expect(hombreChip).toBeDefined();
+    fireEvent.click(hombreChip!);
+
+    // Should show "Pantalón Hombre" and "Camisa Manga Larga" (Level 3), but NOT "Ropa General" (Level 1) or "Hamburguesa"
+    expect(screen.queryByText("Ropa General")).toBeNull();
+    expect(screen.getByText("Pantalón Hombre")).toBeDefined();
+    expect(screen.getByText("Camisa Manga Larga")).toBeDefined();
+    expect(screen.queryByText("Hamburguesa")).toBeNull();
+
+    // Level 3 Category "Camisas" should now be rendered as a chip
+    const l3Chips = screen.getAllByRole("button");
+    const camisasChip = l3Chips.find((btn) => btn.textContent === "Camisas");
+    expect(camisasChip).toBeDefined();
+    fireEvent.click(camisasChip!);
+
+    // Should show ONLY "Camisa Manga Larga"
+    expect(screen.queryByText("Ropa General")).toBeNull();
+    expect(screen.queryByText("Pantalón Hombre")).toBeNull();
+    expect(screen.getByText("Camisa Manga Larga")).toBeDefined();
+    expect(screen.queryByText("Hamburguesa")).toBeNull();
+  });
 });

@@ -1,5 +1,5 @@
--- Seed data for product catalog: comprehensive Temu-style 3-level categories hierarchy.
--- Relies on the foundation seed having created seed tenants.
+-- SQL Script to Populate Temu-style 3-Level Categories for all Active Tenants
+-- You can run this in your Supabase SQL Editor.
 
 WITH inserted_l1 AS (
   INSERT INTO public.categories (tenant_id, name, slug)

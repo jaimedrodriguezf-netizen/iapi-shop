@@ -21,6 +21,7 @@ export interface Category {
   tenant_id: string;
   name: string;
   slug: string;
+  parent_id?: string | null;
   created_at?: string;
 }
 
@@ -272,7 +273,7 @@ export async function getCategories(tenant_id: string): Promise<{ success: boole
   }
 }
 
-export async function createCategory(tenant_id: string, name: string): Promise<{ success: boolean; category?: Category; error?: string }> {
+export async function createCategory(tenant_id: string, name: string, parent_id?: string | null): Promise<{ success: boolean; category?: Category; error?: string }> {
   try {
     const supabase = await createClient();
 
@@ -281,10 +282,60 @@ export async function createCategory(tenant_id: string, name: string): Promise<{
       return { success: false, error: "No autorizado" };
     }
 
+    const platformRole = user.email?.endsWith("@iapi.shop") ? "admin" : "merchant";
+
+    // 1. Subscription plan check (only for merchants)
+    if (platformRole !== "admin") {
+      const { data: sub } = await supabase
+        .from("tenant_subscriptions")
+        .select("plans(name)")
+        .eq("tenant_id", tenant_id)
+        .maybeSingle();
+
+      const subTyped = sub as { plans: { name: string } | null } | null;
+      const planName = subTyped?.plans?.name || "Free";
+      if (planName.toLowerCase() === "free") {
+        return { success: false, error: "Tu plan no permite crear categorías." };
+      }
+    }
+
+    // 2. Hierarchy and tenant isolation validation
+    if (parent_id) {
+      const { data: parentCategory, error: parentError } = await supabase
+        .from("categories")
+        .select("id, parent_id")
+        .eq("id", parent_id)
+        .eq("tenant_id", tenant_id)
+        .maybeSingle();
+
+      if (parentError || !parentCategory) {
+        return { success: false, error: "La categoría padre especificada no existe." };
+      }
+
+      // If parent has a parent_id, it is a Level 2 category.
+      // We must fetch its parent (grandparent) to ensure we do not exceed 3 levels (grandparent must be Level 1, having parent_id = null).
+      if (parentCategory.parent_id) {
+        const { data: grandParentCategory, error: gpError } = await supabase
+          .from("categories")
+          .select("id, parent_id")
+          .eq("id", parentCategory.parent_id)
+          .eq("tenant_id", tenant_id)
+          .maybeSingle();
+
+        if (gpError || !grandParentCategory) {
+          return { success: false, error: "La categoría padre de segundo nivel no existe." };
+        }
+
+        if (grandParentCategory.parent_id) {
+          return { success: false, error: "No se puede agregar una categoría en este nivel (límite de 3 niveles jerárquicos)." };
+        }
+      }
+    }
+
     const slug = name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
     const { data, error } = await supabase
       .from("categories")
-      .insert({ tenant_id, name, slug })
+      .insert({ tenant_id, name, slug, parent_id: parent_id || null })
       .select()
       .single();
     

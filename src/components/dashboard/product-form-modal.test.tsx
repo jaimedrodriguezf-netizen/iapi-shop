@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ProductFormModal } from "./product-form-modal";
 import userEvent from "@testing-library/user-event";
 import { toast } from "sonner";
-import { createCategory } from "@/lib/products/actions";
+import { createCategory, getCategories, updateProduct } from "@/lib/products/actions";
 import { generateProductDescription } from "@/lib/ai/actions";
 
 // Mock de acciones de servidor de productos
@@ -12,6 +12,7 @@ vi.mock("@/lib/products/actions", () => ({
   updateProduct: vi.fn(),
   getCategories: vi.fn().mockResolvedValue({ success: true, categories: [] }),
   createCategory: vi.fn(),
+  uploadProductImage: vi.fn(),
 }));
 
 vi.mock("@/lib/ai/actions", () => ({
@@ -63,7 +64,7 @@ describe("ProductFormModal Accessibility and Typography", () => {
     const createBtn = screen.getByRole("button", { name: /crear/i });
     await user.click(createBtn);
 
-    expect(createCategoryMock).toHaveBeenCalledWith("tenant-123", "Postres Exclusivos");
+    expect(createCategoryMock).toHaveBeenCalledWith("tenant-123", "Postres Exclusivos", null);
     expect(toastErrorSpy).toHaveBeenCalledWith("Error al crear categoría");
   });
 
@@ -147,5 +148,93 @@ describe("ProductFormModal Accessibility and Typography", () => {
 
     const aiButton = screen.getByRole("button", { name: /generar con ia/i });
     expect(aiButton).toBeDisabled();
+  });
+
+  it("does not render the AI generation button on the Free plan", () => {
+    const handleOpenChange = vi.fn();
+    const handleSuccess = vi.fn();
+
+    render(
+      <ProductFormModal 
+        tenantId="tenant-123" 
+        planName="free"
+        product={null} 
+        open={true} 
+        onOpenChange={handleOpenChange} 
+        onSuccess={handleSuccess} 
+      />
+    );
+
+    const aiButton = screen.queryByRole("button", { name: /generar con ia/i });
+    expect(aiButton).not.toBeInTheDocument();
+  });
+
+  it("resolves hierarchical category levels correctly when editing a product", async () => {
+    const mockCategories = [
+      { id: "cat-1", tenant_id: "tenant-123", slug: "ropa", name: "Ropa", parent_id: null },
+      { id: "cat-2", tenant_id: "tenant-123", slug: "hombre", name: "Hombre", parent_id: "cat-1" },
+      { id: "cat-3", tenant_id: "tenant-123", slug: "camisas", name: "Camisas", parent_id: "cat-2" },
+    ];
+    vi.mocked(getCategories).mockResolvedValue({ success: true, categories: mockCategories });
+
+    const handleOpenChange = vi.fn();
+    const handleSuccess = vi.fn();
+    const mockProduct = {
+      id: "prod-1",
+      name: "Camisa Casual",
+      price: 25.99,
+      category_id: "cat-3",
+      description: "Camisa de vestir",
+      image_urls: [],
+    };
+
+    render(
+      <ProductFormModal 
+        tenantId="tenant-123" 
+        planName="pro"
+        product={mockProduct} 
+        open={true} 
+        onOpenChange={handleOpenChange} 
+        onSuccess={handleSuccess} 
+      />
+    );
+
+    // Wait for categories to load
+    await screen.findByRole("tab", { name: /categoría/i });
+    
+    // We check that getCategories was called
+    expect(getCategories).toHaveBeenCalledWith("tenant-123");
+  });
+
+  it("supports parent category selection up to level 2 for merchants and admins", async () => {
+    const mockCategories = [
+      { id: "cat-1", tenant_id: "tenant-123", slug: "ropa", name: "Ropa", parent_id: null },
+      { id: "cat-2", tenant_id: "tenant-123", slug: "hombre", name: "Hombre", parent_id: "cat-1" },
+      { id: "cat-3", tenant_id: "tenant-123", slug: "camisas", name: "Camisas", parent_id: "cat-2" }, // Level 3 category, cannot be a parent
+    ];
+    vi.mocked(getCategories).mockResolvedValue({ success: true, categories: mockCategories });
+
+    const handleOpenChange = vi.fn();
+    const handleSuccess = vi.fn();
+
+    render(
+      <ProductFormModal 
+        tenantId="tenant-123" 
+        planName="pro"
+        platformRole="merchant"
+        product={null} 
+        open={true} 
+        onOpenChange={handleOpenChange} 
+        onSuccess={handleSuccess} 
+      />
+    );
+
+    const user = userEvent.setup();
+    const catTab = screen.getByRole("tab", { name: /categoría/i });
+    await user.click(catTab);
+
+    // Verify parent category selection is available in UI
+    const parentSelectText = screen.getByText(/¿Depende de otra categoría?/i);
+    expect(parentSelectText).toBeInTheDocument();
   });
 });

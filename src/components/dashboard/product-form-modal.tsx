@@ -52,11 +52,13 @@ const baseProductSchema = z.object({
 interface Category {
   id: string;
   name: string;
+  parent_id?: string | null;
 }
 
 interface ProductFormModalProps {
   tenantId: string
   planName?: string
+  platformRole?: string
   product: {
     id: string;
     name: string;
@@ -70,10 +72,40 @@ interface ProductFormModalProps {
   onSuccess: () => void
 }
 
-export function ProductFormModal({ tenantId, planName = "free", product, open, onOpenChange, onSuccess }: ProductFormModalProps) {
+export function ProductFormModal({ tenantId, planName = "starter", platformRole = "merchant", product, open, onOpenChange, onSuccess }: ProductFormModalProps) {
   const [categories, setCategories] = React.useState<Category[]>([])
   const [newCategoryName, setNewCategoryName] = React.useState("")
+  const [newCategoryParentId, setNewCategoryParentId] = React.useState<string>("none")
+  const [selectedLevel1Id, setSelectedLevel1Id] = React.useState<string>("")
+  const [selectedLevel2Id, setSelectedLevel2Id] = React.useState<string>("")
+  const [selectedLevel3Id, setSelectedLevel3Id] = React.useState<string>("")
   const [isGeneratingAI, setIsGeneratingAI] = React.useState(false)
+  const hasInitializedRef = React.useRef(false)
+
+  const level1Categories = React.useMemo(() => {
+    return categories.filter(c => !c.parent_id);
+  }, [categories]);
+
+  const level2Categories = React.useMemo(() => {
+    return selectedLevel1Id ? categories.filter(c => c.parent_id === selectedLevel1Id) : [];
+  }, [categories, selectedLevel1Id]);
+
+  const level3Categories = React.useMemo(() => {
+    return selectedLevel2Id ? categories.filter(c => c.parent_id === selectedLevel2Id) : [];
+  }, [categories, selectedLevel2Id]);
+
+  const eligibleParents = React.useMemo(() => {
+    return categories.filter(c => {
+      if (!c.parent_id) return true;
+      const parent = categories.find(p => p.id === c.parent_id);
+      if (parent && !parent.parent_id) return true;
+      return false;
+    });
+  }, [categories]);
+
+  const eligibleParentsForRole = React.useMemo(() => {
+    return eligibleParents;
+  }, [eligibleParents]);
 
   const isEditing = !!product
 
@@ -108,7 +140,40 @@ export function ProductFormModal({ tenantId, planName = "free", product, open, o
   }, [tenantId])
 
   React.useEffect(() => {
+    if (open && categories.length > 0 && !hasInitializedRef.current) {
+      if (product && product.category_id) {
+        const leafCategory = categories.find(c => c.id === product.category_id);
+        if (leafCategory) {
+          hasInitializedRef.current = true;
+          if (leafCategory.parent_id) {
+            const parentCategory = categories.find(c => c.id === leafCategory.parent_id);
+            if (parentCategory && parentCategory.parent_id) {
+              setSelectedLevel1Id(parentCategory.parent_id);
+              setSelectedLevel2Id(leafCategory.parent_id);
+              setSelectedLevel3Id(product.category_id);
+            } else {
+              setSelectedLevel1Id(leafCategory.parent_id);
+              setSelectedLevel2Id(product.category_id);
+              setSelectedLevel3Id("");
+            }
+          } else {
+            setSelectedLevel1Id(product.category_id);
+            setSelectedLevel2Id("");
+            setSelectedLevel3Id("");
+          }
+        }
+      } else {
+        hasInitializedRef.current = true;
+        setSelectedLevel1Id("");
+        setSelectedLevel2Id("");
+        setSelectedLevel3Id("");
+      }
+    }
+  }, [open, categories, product]);
+
+  React.useEffect(() => {
     if (open) {
+      hasInitializedRef.current = false
       loadCategories()
       if (product) {
         form.reset({
@@ -126,16 +191,28 @@ export function ProductFormModal({ tenantId, planName = "free", product, open, o
           description: "",
           image_urls: [],
         })
+        setSelectedLevel1Id("")
+        setSelectedLevel2Id("")
+        setSelectedLevel3Id("")
       }
     }
   }, [open, loadCategories, product, form])
 
   async function handleCreateCategory() {
     if (!newCategoryName) return
-    const res = await createCategory(tenantId, newCategoryName)
+    const isFree = planName.toLowerCase() === "free"
+    if (isFree) {
+      toast.error("El plan gratis no permite crear categorías")
+      return
+    }
+
+    const parentId = newCategoryParentId === "none" ? null : newCategoryParentId
+
+    const res = await createCategory(tenantId, newCategoryName, parentId)
     if (res.success) {
       toast.success("Categoría creada")
       setNewCategoryName("")
+      setNewCategoryParentId("none")
       loadCategories()
     } else {
       toast.error(res.error || "No se pudo crear la categoría")
@@ -143,6 +220,11 @@ export function ProductFormModal({ tenantId, planName = "free", product, open, o
   }
 
   async function handleGenerateDescription() {
+    if (planName.toLowerCase() === "free") {
+      toast.error("El plan gratis no incluye generación con IA")
+      return
+    }
+
     const productName = form.getValues("name")
     if (!productName || productName.length < 2) {
       toast.error("Escribe un nombre de producto primero (mínimo 2 caracteres)")
@@ -298,23 +380,27 @@ export function ProductFormModal({ tenantId, planName = "free", product, open, o
                           <Textarea placeholder="Describe tu producto…" {...field} className="rounded-xl min-h-24 resize-none" value={field.value ?? ""} />
                         </FormControl>
                         <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="rounded-xl text-violet-600 border-violet-200 hover:bg-violet-50 hover:text-violet-700"
-                            onClick={handleGenerateDescription}
-                            disabled={isGeneratingAI || !form.watch("name") || form.watch("name").length < 2}
-                          >
-                            {isGeneratingAI ? (
-                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                            ) : (
-                              <Sparkles className="mr-1 h-3 w-3" />
-                            )}
-                            {isGeneratingAI ? "Generando…" : "Generar con IA"}
-                          </Button>
+                          {planName.toLowerCase() !== "free" && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="rounded-xl text-violet-600 border-violet-200 hover:bg-violet-50 hover:text-violet-700"
+                              onClick={handleGenerateDescription}
+                              disabled={isGeneratingAI || !form.watch("name") || form.watch("name").length < 2}
+                            >
+                              {isGeneratingAI ? (
+                                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                              ) : (
+                                <Sparkles className="mr-1 h-3 w-3" />
+                              )}
+                              {isGeneratingAI ? "Generando…" : "Generar con IA"}
+                            </Button>
+                          )}
                           <FormDescription className="mt-0">
-                            Describe tu producto o genera una descripción con IA
+                            {planName.toLowerCase() === "free" 
+                              ? "Describe tu producto" 
+                              : "Describe tu producto o genera una descripción con IA"}
                           </FormDescription>
                         </div>
                         <FormMessage />
@@ -374,44 +460,151 @@ export function ProductFormModal({ tenantId, planName = "free", product, open, o
                 </TabsContent>
 
                 <TabsContent value="category" className="space-y-4 mt-0">
-                  <FormField
-                    control={form.control}
-                    name="category_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Seleccionar Categoría</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl">
-                              <SelectValue placeholder="Elige una categoría" />
-                            </SelectTrigger>
-                          </FormControl>
+                  <div className="space-y-4">
+                    {/* Level 1: Category */}
+                    <div className="space-y-2">
+                      <FormLabel className="font-bold">Categoría Principal</FormLabel>
+                      <Select 
+                        onValueChange={(val) => {
+                          const value = val === "none" ? "" : (val || "");
+                          setSelectedLevel1Id(value);
+                          setSelectedLevel2Id("");
+                          setSelectedLevel3Id("");
+                          form.setValue("category_id", value);
+                        }} 
+                        value={selectedLevel1Id || "none"}
+                      >
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="Elige una categoría principal">
+                            {selectedLevel1Id === "" || selectedLevel1Id === "none" ? "Sin categoría" : categories.find(c => c.id === selectedLevel1Id)?.name}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          <SelectItem value="none">Sin categoría</SelectItem>
+                          {level1Categories.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Level 2: Subcategory */}
+                    {selectedLevel1Id && selectedLevel1Id !== "none" && level2Categories.length > 0 && (
+                      <div className="space-y-2">
+                        <FormLabel className="font-bold">Subcategoría</FormLabel>
+                        <Select 
+                          onValueChange={(val) => {
+                            const value = val || "";
+                            setSelectedLevel2Id(value);
+                            setSelectedLevel3Id("");
+                            form.setValue("category_id", value === "none" ? selectedLevel1Id : value);
+                          }} 
+                          value={selectedLevel2Id}
+                        >
+                          <SelectTrigger className="rounded-xl">
+                            <SelectValue placeholder="Elige una subcategoría (opcional)">
+                              {selectedLevel2Id === "none" ? "Ninguna subcategoría" : categories.find(c => c.id === selectedLevel2Id)?.name}
+                            </SelectValue>
+                          </SelectTrigger>
                           <SelectContent className="rounded-xl">
-                            {categories.map((c) => (
+                            <SelectItem value="none">Ninguna subcategoría</SelectItem>
+                            {level2Categories.map((c) => (
                               <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                      </FormItem>
+                      </div>
                     )}
-                  />
-                  
-                  <div className="rounded-xl border bg-muted/20 p-4 space-y-3">
-                    <label htmlFor="new-category-input" className="text-xs font-black uppercase text-muted-foreground block">O crear una nueva</label>
-                    <div className="flex gap-2">
-                      <Input 
-                        id="new-category-input"
-                        aria-label="Nombre de la nueva categoría"
-                        placeholder="Nueva categoría…" 
-                        className="rounded-xl flex-1" 
-                        value={newCategoryName}
-                        onChange={(e) => setNewCategoryName(e.target.value)}
-                      />
-                      <Button type="button" variant="outline" className="rounded-xl" onClick={handleCreateCategory}>
-                        Crear
-                      </Button>
-                    </div>
+
+                    {/* Level 3: Third Level */}
+                    {selectedLevel2Id && selectedLevel2Id !== "none" && level3Categories.length > 0 && (
+                      <div className="space-y-2">
+                        <FormLabel className="font-bold">Tercera Categoría</FormLabel>
+                        <Select 
+                          onValueChange={(val) => {
+                            const value = val || "";
+                            setSelectedLevel3Id(value);
+                            form.setValue("category_id", value === "none" ? selectedLevel2Id : value);
+                          }} 
+                          value={selectedLevel3Id}
+                        >
+                          <SelectTrigger className="rounded-xl">
+                            <SelectValue placeholder="Elige una tercera categoría (opcional)">
+                              {selectedLevel3Id === "none" ? "Ninguna tercera categoría" : categories.find(c => c.id === selectedLevel3Id)?.name}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent className="rounded-xl">
+                            <SelectItem value="none">Ninguna tercera categoría</SelectItem>
+                            {level3Categories.map((c) => (
+                              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </div>
+                  
+                  {planName.toLowerCase() !== "free" && (
+                    <div className="rounded-xl border bg-muted/20 p-4 space-y-4">
+                      <label htmlFor="new-category-input" className="text-xs font-black uppercase text-muted-foreground block" id="parent-category-label">
+                        ¿Depende de otra categoría? (Opcional)
+                      </label>
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <span className="text-[10px] text-muted-foreground font-bold uppercase block">
+                            Categoría Padre (Opcional)
+                          </span>
+                          <Select 
+                            onValueChange={(val) => setNewCategoryParentId(val || "none")} 
+                            value={newCategoryParentId}
+                          >
+                            <SelectTrigger className="rounded-xl h-9" aria-labelledby="parent-category-label">
+                              <SelectValue placeholder="Ninguna (Categoría Principal)">
+                                {(() => {
+                                  if (newCategoryParentId === "none") return "Ninguna (Categoría Principal)";
+                                  const c = categories.find(cat => cat.id === newCategoryParentId);
+                                  if (!c) return undefined;
+                                  const parent = c.parent_id ? categories.find(p => p.id === c.parent_id) : null;
+                                  return parent ? `Subcategoría > ${parent.name} > ${c.name}` : `Principal > ${c.name}`;
+                                })()}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                              <SelectItem value="none">Ninguna (Categoría Principal)</SelectItem>
+                              {eligibleParentsForRole.map((c) => {
+                                const parent = c.parent_id ? categories.find(p => p.id === c.parent_id) : null;
+                                const prefix = parent ? `Subcategoría > ${parent.name} > ` : "Principal > ";
+                                return (
+                                  <SelectItem key={c.id} value={c.id}>
+                                    {prefix}{c.name}
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Input 
+                            id="new-category-input"
+                            aria-label="Nombre de la nueva categoría"
+                            placeholder="Nombre de la nueva categoría…" 
+                            className="rounded-xl flex-1" 
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                          />
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            className="rounded-xl font-bold" 
+                            onClick={handleCreateCategory}
+                          >
+                            Crear
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </TabsContent>
               </div>
             </Tabs>

@@ -29,7 +29,7 @@ The system SHALL provide server actions to create and list categories scoped to 
 
 | Action | Description |
 |--------|-------------|
-| `createCategory(tenant_id, name)` | Creates category with auto-generated slug |
+| `createCategory(tenant_id, name, parent_id?)` | Creates category with auto-generated slug and optional parent category |
 | `getCategories(tenant_id)` | Returns categories for the tenant, ordered by name |
 
 #### Scenario: Create and list categories
@@ -38,6 +38,29 @@ The system SHALL provide server actions to create and list categories scoped to 
 - WHEN `createCategory("tenant-123", "Bebidas")` is called
 - THEN a category is inserted with auto-generated slug
 - AND `getCategories("tenant-123")` returns it alphabetically.
+
+### Requirement: Category Hierarchy Support
+
+The system SHALL support self-referencing hierarchy in categories via a nullable `parent_id` column. RLS policies and validations MUST ensure that the parent category belongs to the same tenant as the child category.
+
+#### Scenario: Create a subcategory (Level 2)
+- GIVEN a tenant "tenant-123" with an existing Level 1 category "Bebidas"
+- WHEN `createCategory("tenant-123", "Gaseosas", parent_id_of_Bebidas)` is called
+- THEN a category "Gaseosas" is created with `parent_id` referencing "Bebidas".
+
+#### Scenario: Create a third-level category (Level 3)
+- GIVEN a tenant "tenant-123" with a Level 2 category "Gaseosas"
+- WHEN `createCategory("tenant-123", "Colas", parent_id_of_Gaseosas)` is called
+- THEN a category "Colas" is created with `parent_id` referencing "Gaseosas".
+
+### Requirement: Hierarchy Limit (3 Levels)
+
+The user interface MUST restrict category depth to exactly 3 levels (Level 1 -> Level 2 -> Level 3). The category creation UI SHALL only allow selecting parent categories that are at Level 1 or Level 2.
+
+#### Scenario: Limit parent options in UI
+- GIVEN a tenant with categories at Level 1, Level 2, and Level 3
+- WHEN loading parent category options in the creation form
+- THEN only Level 1 and Level 2 categories are presented as options.
 
 ### Requirement: Product CRUD
 
@@ -70,6 +93,15 @@ The system SHALL provide server actions for full product lifecycle management. S
 - WHEN `deleteProduct("prod-1", "tenant-123")` is called
 - THEN the product is deleted and cascades remove associated rows.
 
+### Requirement: Product Association
+
+A product SHALL associate with a single category via `category_id`. If a product belongs to a subcategory or third-level category, `products.category_id` MUST hold the UUID of that specific leaf category.
+
+#### Scenario: Save product with leaf category
+- GIVEN a product form with Level 3 category "Colas" selected
+- WHEN the product is saved
+- THEN the product is persisted with `category_id` set to the UUID of "Colas".
+
 ### Requirement: Image upload with storage fallback
 
 The system SHALL upload product images to Supabase Storage and fall back to base64 data URLs on failure.
@@ -91,3 +123,22 @@ The system SHALL enforce product count limits per tenant based on subscription p
 - GIVEN a tenant on Free plan with 10 products
 - WHEN they attempt to create an 11th product
 - THEN creation is rejected with an appropriate error.
+
+### Requirement: Storefront Filtering by Category Hierarchy
+
+The storefront catalog filter MUST recursively include products from all child categories when a parent category is selected.
+
+#### Scenario: Filter by Level 1 category
+- GIVEN product A in Level 1 category "Bebidas"
+- AND product B in Level 2 category "Gaseosas" (child of "Bebidas")
+- AND product C in Level 3 category "Colas" (child of "Gaseosas")
+- WHEN a user selects the "Bebidas" category filter
+- THEN products A, B, and C are returned.
+
+#### Scenario: Filter by Level 2 category
+- GIVEN product A in Level 1 category "Bebidas"
+- AND product B in Level 2 category "Gaseosas" (child of "Bebidas")
+- AND product C in Level 3 category "Colas" (child of "Gaseosas")
+- WHEN a user selects the "Gaseosas" category filter
+- THEN products B and C are returned
+- AND product A is excluded.
