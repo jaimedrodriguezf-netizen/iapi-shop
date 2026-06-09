@@ -48,7 +48,17 @@ interface ProductWithCategory extends Product {
   } | null;
 }
 
-export function ProductListClient({ tenantId, planName = "free" }: { tenantId: string; planName?: string }) {
+export function ProductListClient({ 
+  tenantId, 
+  planName = "Starter", 
+  productLimit = 50,
+  platformRole = "merchant"
+}: { 
+  tenantId: string; 
+  planName?: string; 
+  productLimit?: number;
+  platformRole?: string;
+}) {
   const [products, setProducts] = React.useState<ProductWithCategory[]>([])
   const [loading, setLoading] = React.useState(true)
   const [searchTerm, setSearchTerm] = React.useState("")
@@ -162,7 +172,7 @@ export function ProductListClient({ tenantId, planName = "free" }: { tenantId: s
                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
-                  onSelect={() => {
+                  onClick={() => {
                     setTimeout(() => {
                       setSelectedProduct(product)
                       setIsModalOpen(true)
@@ -173,7 +183,7 @@ export function ProductListClient({ tenantId, planName = "free" }: { tenantId: s
                   <Edit2 className="mr-2 h-4 w-4" /> Editar
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onSelect={() => {
+                  onClick={() => {
                     setTimeout(() => {
                       setDeletingProduct(product)
                       setIsDeleteDialogOpen(true)
@@ -194,23 +204,42 @@ export function ProductListClient({ tenantId, planName = "free" }: { tenantId: s
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input 
-            placeholder="Buscar productos..." 
-            className="pl-10 rounded-xl" 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center flex-1">
+          <div className="relative max-w-sm flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input 
+              placeholder="Buscar productos..." 
+              className="pl-10 rounded-xl" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          {/* Contador de Productos */}
+          <div className="flex items-center gap-3 border bg-muted/30 rounded-xl px-3.5 py-1.5 text-xs font-semibold w-fit">
+            <span className="text-muted-foreground">Productos ({planName}):</span>
+            <span className="font-black text-violet-600 font-mono">{products.length} / {productLimit}</span>
+            <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div 
+                className={`h-full rounded-full transition-all duration-300 ${products.length >= productLimit ? 'bg-red-500' : 'bg-violet-600'}`}
+                style={{ width: `${Math.min(100, (products.length / productLimit) * 100)}%` }}
+              />
+            </div>
+          </div>
         </div>
         
         {/* Botón para CREAR */}
         <Button 
           onClick={() => {
+            if (products.length >= productLimit) {
+              toast.error(`Límite alcanzado: el plan ${planName} permite máximo ${productLimit} productos.`)
+              return
+            }
             setSelectedProduct(null)
             setIsModalOpen(true)
           }}
-          className="rounded-xl font-bold bg-violet-600 hover:bg-violet-700 text-white"
+          disabled={products.length >= productLimit}
+          className="rounded-xl font-bold bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="mr-2 h-4 w-4" /> Agregar Producto
         </Button>
@@ -220,6 +249,7 @@ export function ProductListClient({ tenantId, planName = "free" }: { tenantId: s
       <ProductFormModal 
         tenantId={tenantId}
         planName={planName}
+        platformRole={platformRole}
         product={selectedProduct}
         open={isModalOpen}
         onOpenChange={setIsModalOpen}

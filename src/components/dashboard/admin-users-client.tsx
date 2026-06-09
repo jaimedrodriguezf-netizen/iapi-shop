@@ -199,12 +199,11 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
                                       currentPlan: t.planName,
                                     });
                                     const codeMap: Record<string, string> = {
-                                      Free: "free",
                                       Starter: "starter",
                                       Pro: "pro",
                                       Business: "business",
                                     };
-                                    setNewPlanCode((codeMap[t.planName] || "free") as "free" | "starter" | "pro" | "business");
+                                    setNewPlanCode((codeMap[t.planName] || "starter") as "starter" | "pro" | "business");
                                   }}
                                   className="ml-auto text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 font-bold hover:underline cursor-pointer"
                                 >
@@ -311,7 +310,7 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
                 <SelectValue placeholder="Selecciona un plan" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
-                <SelectItem value="free">Free (25 prod, 1 foto, 1 sucursal)</SelectItem>
+                <SelectItem value="free">Free (5 prod, 1 foto, 1 sucursal)</SelectItem>
                 <SelectItem value="starter">Starter (50 prod, 3 fotos, 1 sucursal)</SelectItem>
                 <SelectItem value="pro">Pro (300 prod, 3 fotos, 1 sucursal)</SelectItem>
                 <SelectItem value="business">Business (2000 prod, 6 fotos, multi-sucursal)</SelectItem>

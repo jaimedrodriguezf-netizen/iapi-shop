@@ -1,7 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { StorefrontMotionCanvas } from "@/components/landing/storefront-motion-canvas";
 import { PricingSection } from "@/components/landing/pricing-section";
-import { Sparkles, Shield, QrCode } from "lucide-react";
+import { Sparkles, Shield } from "lucide-react";
 import pkg from "../../package.json";
 
 interface PackageJson {
@@ -17,20 +18,17 @@ export default function Home() {
         {/* Navigation Header */}
         <header className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <p className="text-base sm:text-lg font-black tracking-tight flex items-center gap-1 sm:gap-1.5 text-violet-600 dark:text-violet-400 shrink-0">
-              <QrCode className="h-4.5 w-4.5 sm:h-5 sm:w-5" /> Mercado QR
-            </p>
-            <span className="font-mono bg-violet-accent/10 text-violet-accent border border-violet-accent/20 px-2 py-0.5 rounded-full text-[10px] font-bold tabular-nums">
-              v{version}
-            </span>
+            <Link href="/" className="flex items-center gap-2">
+              <Image src="/logo.png" alt="iapi logo" width={48} height={48} className="h-10 w-10 sm:h-12 sm:w-12 object-contain" />
+              <span className="text-base sm:text-lg font-black tracking-tight text-violet-600 dark:text-violet-400 shrink-0">
+                iapi
+              </span>
+            </Link>
           </div>
           <nav aria-label="Navegación pública" className="flex items-center gap-1.5 sm:gap-3 text-xs sm:text-sm font-bold">
             <a className="rounded-xl px-2.5 py-1.5 sm:px-4 sm:py-2 text-slate-750 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900" href="#pricing-title">
               Planes
             </a>
-            <Link className="rounded-xl px-2.5 py-1.5 sm:px-4 sm:py-2 text-slate-750 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900" href="/vendedores">
-              Vendedores
-            </Link>
             <Link className="rounded-xl border border-zinc-200 bg-white px-2.5 py-1.5 sm:px-4 sm:py-2 text-slate-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-white" href="/login">
               Iniciar sesión
             </Link>
@@ -57,10 +55,7 @@ export default function Home() {
             
             <div className="flex flex-col gap-3 sm:flex-row justify-center pt-2">
               <Link className="rounded-xl bg-violet-accent hover:bg-violet-accent-hover text-center text-sm font-black text-white px-8 py-4 shadow-lg shadow-violet-accent/20 active:scale-95 transition-all" href="/register">
-                Crear mi tienda gratis
-              </Link>
-              <Link className="rounded-xl border border-zinc-200 bg-white px-8 py-4 text-center text-sm font-black text-slate-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-950" href="/login">
-                Explorar Demo
+                Crear mi tienda
               </Link>
             </div>
           </div>
@@ -83,7 +78,7 @@ export default function Home() {
 
         {/* Footer with copyright and version */}
         <footer className="mt-16 border-t pt-8 pb-12 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-muted-foreground dark:border-zinc-800/80 text-center md:text-left">
-          <p>© 2026 Mercado QR. Todos los derechos reservados.</p>
+          <p>© 2026 iapi. Todos los derechos reservados.</p>
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <Link className="hover:text-slate-900 dark:hover:text-white" href="/terminos">Términos y condiciones</Link>
             <Link className="hover:text-slate-900 dark:hover:text-white" href="/privacidad">Privacidad</Link>

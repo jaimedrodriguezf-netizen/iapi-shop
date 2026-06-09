@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import {
   LayoutDashboard,
   LogOut,
@@ -76,14 +77,18 @@ export function AppSidebar({ email, planName, platformRole = "merchant" }: { ema
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b px-6 py-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-600 text-white">
-            <Store className="h-5 w-5" />
-          </div>
+        <Link href="/" className="flex items-center gap-2 cursor-pointer group">
+          <Image
+            src="/logo.png"
+            alt="IAPI Logo"
+            width={40}
+            height={40}
+            className="h-10 w-10 object-contain group-hover:scale-105 transition-transform"
+          />
           <span className="font-black tracking-tight text-xl group-data-[collapsible=icon]:hidden">
             IAPI Shop
           </span>
-        </div>
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu className="px-2 py-4">
@@ -141,8 +146,12 @@ export function AppSidebar({ email, planName, platformRole = "merchant" }: { ema
           </SidebarMenuItem>
           <SidebarMenuItem>
             <form action={async () => {
-              toast.loading("Cerrando sesión...");
-              await logout();
+              const toastId = toast.loading("Cerrando sesión...");
+              try {
+                await logout();
+              } finally {
+                toast.dismiss(toastId);
+              }
             }}>
               <SidebarMenuButton type="submit" className="w-full text-destructive hover:text-destructive" tooltip="Cerrar Sesión">
                 <LogOut className="h-5 w-5" />

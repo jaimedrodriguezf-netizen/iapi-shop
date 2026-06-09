@@ -4,7 +4,6 @@ import { ShopSummaryTable, ShopSummary } from "@/components/dashboard/shop-summa
 import { getTenantOrders } from "@/lib/orders/actions";
 import { getMyTenants, getTenantSubscription, ensureUserTenant, type Tenant } from "@/lib/tenants/actions";
 import { getUserRoleInfo } from "@/lib/auth/actions";
-import pkg from "../../../package.json";
 
 export default async function DashboardPage() {
   // 1. Obtener datos del usuario delegando a Server Action (GGA Compliance)
@@ -41,6 +40,44 @@ export default async function DashboardPage() {
   
   const activeOrdersCount = orders.filter(o => o.status === 'pending' || o.status === 'confirmed').length;
 
+  // Formatear datos para el gráfico mensual de los últimos 6 meses
+  const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+  const now = new Date();
+  interface ChartDataPoint {
+    year: number;
+    monthIndex: number;
+    monthKey: string;
+    monthName: string;
+    sales: number;
+  }
+  const last6MonthsData: ChartDataPoint[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    last6MonthsData.push({
+      year: d.getFullYear(),
+      monthIndex: d.getMonth(),
+      monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+      monthName: months[d.getMonth()],
+      sales: 0,
+    });
+  }
+
+  orders.forEach(order => {
+    if (order.status === 'cancelled') return;
+    const orderDate = new Date(order.created_at);
+    const orderMonthKey = `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}`;
+    
+    const foundMonth = last6MonthsData.find(m => m.monthKey === orderMonthKey);
+    if (foundMonth) {
+      foundMonth.sales += Number(order.total_amount);
+    }
+  });
+
+  const chartData = last6MonthsData.map(m => ({
+    month: m.monthName,
+    sales: Number(m.sales.toFixed(2)),
+  }));
+
   // 4. Obtener el plan delegando a Server Action
   const subResult = activeTenantId ? await getTenantSubscription(activeTenantId) : { success: false };
   let planName = (subResult.success && subResult.data) ? subResult.data.plans?.name || "N/A" : "N/A";
@@ -48,6 +85,8 @@ export default async function DashboardPage() {
   if (platformRole === "admin") {
     planName = "Business";
   }
+
+  const isFreePlan = planName.toLowerCase() === "free";
 
   return (
     <section className="space-y-6 py-6">
@@ -77,17 +116,18 @@ export default async function DashboardPage() {
       )}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <div className="lg:col-span-4">
-          <SampleSalesChart />
+        <div className={isFreePlan ? "lg:col-span-7" : "lg:col-span-4"}>
+          <SampleSalesChart data={chartData} />
         </div>
-        <div className="lg:col-span-3">
-          <ShopSummaryTable data={sucursales} />
-        </div>
+        {!isFreePlan && (
+          <div className="lg:col-span-3">
+            <ShopSummaryTable data={sucursales} />
+          </div>
+        )}
       </div>
 
       <div className="mt-8 flex justify-between items-center text-xs text-muted-foreground border-t pt-4">
         <span>IAPI Shop © {new Date().getFullYear()}</span>
-        <span className="font-mono bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 text-[10px] font-bold">v{pkg.version}</span>
       </div>
     </section>
   );

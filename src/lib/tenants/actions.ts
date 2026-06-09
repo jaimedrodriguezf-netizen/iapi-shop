@@ -17,6 +17,12 @@ export interface SocialLinks {
   tiktok?: string;
 }
 
+export interface PublicSettings {
+  show_phone: boolean;
+  show_address: boolean;
+  show_social_links: boolean;
+}
+
 export interface Tenant {
   id: string;
   name: string;
@@ -29,6 +35,7 @@ export interface Tenant {
   logo_url?: string;
   status: string;
   created_at: string;
+  public_settings?: PublicSettings | null;
 }
 
 export interface ActionResult<T> {
@@ -158,6 +165,7 @@ export type UpdateTenantSettingsInput = {
   secondary_color?: string | null;
   address?: Address | null;
   social_links?: SocialLinks | null;
+  public_settings?: PublicSettings | null;
 };
 
 function isValidHexColor(value: string | null | undefined): boolean {
@@ -241,6 +249,7 @@ export async function updateTenantSettings(
     if (input.secondary_color !== undefined) updateData.secondary_color = input.secondary_color ?? null;
     if (input.address !== undefined) updateData.address = input.address ?? null;
     if (input.social_links !== undefined) updateData.social_links = input.social_links ?? null;
+    if (input.public_settings !== undefined) updateData.public_settings = input.public_settings ?? null;
 
     // Explicit Tenant Isolation: Filter by ID AND creator to ensure ownership before RLS
     const { data: tenant, error } = await supabase

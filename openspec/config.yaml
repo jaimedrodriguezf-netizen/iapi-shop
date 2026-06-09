@@ -5,6 +5,17 @@ context: |
   Stack: Next.js 16 App Router, TypeScript, Tailwind CSS, Supabase Auth/Postgres/RLS, PayPal Ecuador, Hostinger media, OpenAI SDK, Cloudflare Turnstile, Upstash Rate Limit.
   Testing: Vitest + React Testing Library for unit/component tests; Playwright for E2E.
   Security rule: anonymous users only access the public landing and must not read product database data.
+testing:
+  runner: vitest
+  command: npm run test
+  typecheck_command: npm run typecheck
+  lint_command: npm run lint
+  build_command: npm run build
+  e2e:
+    runner: playwright
+    command: npm run test:e2e
+  coverage:
+    configured: false
 rules:
   proposal:
     - Include rollback plan for risky changes.

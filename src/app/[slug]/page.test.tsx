@@ -16,6 +16,15 @@ vi.mock("@/components/storefront/cart-drawer", () => ({
 vi.mock("@/components/storefront/storefront-catalog", () => ({
   StorefrontCatalog: () => <div data-testid="storefront-catalog" />
 }));
+vi.mock("@/components/storefront/storefront-header", () => ({
+  StorefrontHeader: ({ tenant, formattedAddress }: any) => (
+    <div data-testid="storefront-header">
+      <span>{tenant.name}</span>
+      {formattedAddress && <span>Address: {formattedAddress}</span>}
+      {tenant.social_links && (tenant.social_links.instagram || tenant.social_links.facebook || tenant.social_links.tiktok) && <span>Síguenos</span>}
+    </div>
+  )
+}));
 
 describe("StorefrontPage component tests", () => {
   beforeEach(() => {
@@ -86,7 +95,7 @@ describe("StorefrontPage component tests", () => {
     render(pageElement);
 
     // Should find the formatted address
-    expect(screen.getByText("Calle Principal 123, Quito, Pichincha, 170150, Ecuador")).toBeInTheDocument();
+    expect(screen.getByText("Address: Calle Principal 123, Quito, Pichincha, 170150, Ecuador")).toBeInTheDocument();
     // Social section should be hidden (since social_links is null)
     expect(screen.queryByText("Síguenos")).not.toBeInTheDocument();
   });
@@ -114,8 +123,8 @@ describe("StorefrontPage component tests", () => {
     const pageElement = await StorefrontPage({ params: Promise.resolve({ slug: "mi-tienda" }) });
     render(pageElement);
 
-    // Visítanos column should not be rendered
-    expect(screen.queryByText("Visítanos")).not.toBeInTheDocument();
+    // Address section should not be rendered
+    expect(screen.queryByText(/Address:/)).not.toBeInTheDocument();
     // Social links section should be rendered
     expect(screen.getByText("Síguenos")).toBeInTheDocument();
   });

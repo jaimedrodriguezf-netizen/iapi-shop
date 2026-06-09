@@ -22,12 +22,12 @@ export interface PricingPlan {
 
 const PLANS: PricingPlan[] = [
   {
-    name: "Gratis",
+    name: "Free",
     desc: "Para emprendedores individuales y tiendas iniciales.",
     price: 0,
     period: "/ año",
     features: [
-      { text: "Hasta 25 productos activos", included: true },
+      { text: "Hasta 10 productos activos", included: true },
       { text: "Catálogo digital QR básico", included: true },
       { text: "1 foto por producto", included: true },
       { text: "Pedidos directos por WhatsApp", included: true },
@@ -44,9 +44,10 @@ const PLANS: PricingPlan[] = [
     price: 49.99,
     period: "/ año",
     features: [
-      { text: "Todo lo del Plan Gratis", included: true },
       { text: "Hasta 300 productos activos", included: true },
+      { text: "Catálogo digital QR básico", included: true },
       { text: "Hasta 3 fotos por producto", included: true },
+      { text: "Pedidos directos por WhatsApp", included: true },
       { text: "Descarga de QR en alta resolución", included: true },
       { text: "Estudio básico de fondos con IA", included: true },
       { text: "Soporte técnico por email", included: true },
@@ -57,17 +58,33 @@ const PLANS: PricingPlan[] = [
   },
   {
     name: "Pro",
-    desc: "Para comercios consolidados y multi-sucursales.",
+    desc: "Para comercios consolidados y marcas independientes.",
     price: "Próximamente",
     period: "",
     features: [
       { text: "Todo lo del Plan Plus", included: true },
-      { text: "Hasta 2000 productos activos", included: true },
+      { text: "Hasta 1000 productos activos", included: true },
       { text: "Hasta 6 fotos por producto", included: true },
       { text: "Integración de PayPal Ecuador", included: true },
       { text: "Dominio personalizado", included: true },
-      { text: "Gestión de sucursales y empleados", included: true },
       { text: "Soporte prioritario 24/7", included: true },
+    ],
+    buttonText: "Próximamente",
+    popular: false,
+    comingSoon: true,
+  },
+  {
+    name: "Business",
+    desc: "Para cadenas de comercios y operaciones multi-sucursal.",
+    price: "Próximamente",
+    period: "",
+    features: [
+      { text: "Todo lo del Plan Pro", included: true },
+      { text: "Hasta 2000 productos activos", included: true },
+      { text: "Hasta 10 fotos por producto", included: true },
+      { text: "Gestión de sucursales y empleados", included: true },
+      { text: "Acceso multi-usuario", included: true },
+      { text: "Soporte dedicado", included: true },
     ],
     buttonText: "Próximamente",
     popular: false,
@@ -98,7 +115,7 @@ export function PricingSection() {
         </div>
 
         {/* Pricing Grid */}
-        <div className="grid gap-8 md:grid-cols-3 items-stretch">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
           {PLANS.map((plan) => {
             return (
               <div

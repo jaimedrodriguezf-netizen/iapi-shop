@@ -2,16 +2,18 @@
 
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function generateProductDescription(name: string, categoryName?: string) {
   if (!name || name.length < 2) {
     return { success: false, error: "El nombre del producto es demasiado corto." };
   }
 
+  const apiKey = process.env.OPENAI_API_KEY || (process.env.NODE_ENV === "test" ? "mock-key" : undefined);
+  if (!apiKey) {
+    return { success: false, error: "Credenciales de IA no configuradas (falta OPENAI_API_KEY)." };
+  }
+
   try {
+    const openai = new OpenAI({ apiKey });
     const prompt = `Actúa como un experto en marketing gastronómico y ventas. 
     Escribe una descripción corta, provocativa y vendedora para un producto llamado "${name}"${categoryName ? ` de la categoría "${categoryName}"` : ""}. 
     La descripción debe tener máximo 2 frases y sonar natural para el público ecuatoriano. 

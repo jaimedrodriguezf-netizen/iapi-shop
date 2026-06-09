@@ -64,6 +64,9 @@ const brandingSchema = z.object({
   instagram: z.string().optional().or(z.literal("")),
   facebook: z.string().optional().or(z.literal("")),
   tiktok: z.string().optional().or(z.literal("")),
+  show_phone: z.boolean(),
+  show_address: z.boolean(),
+  show_social_links: z.boolean(),
 })
 
 const PRESET_COLORS = [
@@ -111,6 +114,9 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
       instagram: tenant.social_links?.instagram || "",
       facebook: tenant.social_links?.facebook || "",
       tiktok: tenant.social_links?.tiktok || "",
+      show_phone: tenant.public_settings?.show_phone !== false,
+      show_address: tenant.public_settings?.show_address !== false,
+      show_social_links: tenant.public_settings?.show_social_links !== false,
     },
   })
 
@@ -144,6 +150,11 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
         secondary_color: values.secondary_color || null,
         address: addressValue as Address | null,
         social_links: socialLinksValue as SocialLinks | null,
+        public_settings: {
+          show_phone: values.show_phone,
+          show_address: values.show_address,
+          show_social_links: values.show_social_links,
+        },
       })
 
       if (result.success) {
@@ -457,6 +468,104 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                     )}
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-3xl border-none shadow-sm bg-background">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-violet-600 mb-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  <span className="text-xs font-black uppercase tracking-widest">Privacidad en Catálogo</span>
+                </div>
+                <CardTitle className="text-2xl font-black">Privacidad en Catálogo</CardTitle>
+                <CardDescription>
+                  Elige qué información de contacto y enlaces de redes sociales se muestran públicamente en tu tienda.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="show_phone"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border p-4 shadow-sm bg-zinc-50 dark:bg-zinc-900/50">
+                      <div className="space-y-0.5">
+                        <FormLabel className="font-bold">Mostrar WhatsApp en Catálogo</FormLabel>
+                        <div className="text-xs text-muted-foreground">
+                          Permite a tus clientes ver el botón de WhatsApp para contactarte.
+                        </div>
+                      </div>
+                      <FormControl>
+                        <div className="relative inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            id="show-phone-toggle"
+                            aria-label="Mostrar WhatsApp en Catálogo"
+                            className="sr-only peer"
+                            checked={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-violet-600"></div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="show_address"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border p-4 shadow-sm bg-zinc-50 dark:bg-zinc-900/50">
+                      <div className="space-y-0.5">
+                        <FormLabel className="font-bold">Mostrar Dirección Física</FormLabel>
+                        <div className="text-xs text-muted-foreground">
+                          Muestra la dirección de tu negocio en el catálogo.
+                        </div>
+                      </div>
+                      <FormControl>
+                        <div className="relative inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            id="show-address-toggle"
+                            aria-label="Mostrar Dirección Física"
+                            className="sr-only peer"
+                            checked={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-violet-600"></div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="show_social_links"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border p-4 shadow-sm bg-zinc-50 dark:bg-zinc-900/50">
+                      <div className="space-y-0.5">
+                        <FormLabel className="font-bold">Mostrar Redes Sociales</FormLabel>
+                        <div className="text-xs text-muted-foreground">
+                          Muestra los enlaces a tus perfiles de redes sociales en el catálogo.
+                        </div>
+                      </div>
+                      <FormControl>
+                        <div className="relative inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            id="show-social-toggle"
+                            aria-label="Mostrar Redes Sociales"
+                            className="sr-only peer"
+                            checked={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-violet-600"></div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
               </CardContent>
             </Card>
 

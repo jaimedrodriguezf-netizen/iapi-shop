@@ -306,6 +306,76 @@ describe("Branding: updateTenantSettings", () => {
     expect(result.data).toBeDefined();
   });
 
+  it("should update public_settings with valid input", async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
+
+    const mockUpdatedTenant = {
+      id: "tenant-1",
+      slug: "mi-tienda",
+      public_settings: { show_phone: false, show_address: true, show_social_links: false },
+    };
+
+    vi.spyOn(mockSupabase, "from").mockImplementation((table: string) => {
+      if (table === "tenants") {
+        return {
+          update: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          select: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: mockUpdatedTenant, error: null }),
+        };
+      }
+      return mockSupabase;
+    });
+
+    const result = await updateTenantSettings("tenant-1", {
+      public_settings: { show_phone: false, show_address: true, show_social_links: false },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data).toBeDefined();
+    expect(result.data?.public_settings).toEqual({
+      show_phone: false,
+      show_address: true,
+      show_social_links: false,
+    });
+  });
+
+  it("should update public_settings with all values true (triangulation)", async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
+
+    const mockUpdatedTenant = {
+      id: "tenant-1",
+      slug: "mi-tienda",
+      public_settings: { show_phone: true, show_address: true, show_social_links: true },
+    };
+
+    vi.spyOn(mockSupabase, "from").mockImplementation((table: string) => {
+      if (table === "tenants") {
+        return {
+          update: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          select: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: mockUpdatedTenant, error: null }),
+        };
+      }
+      return mockSupabase;
+    });
+
+    const result = await updateTenantSettings("tenant-1", {
+      public_settings: { show_phone: true, show_address: true, show_social_links: true },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data).toBeDefined();
+    expect(result.data?.public_settings).toEqual({
+      show_phone: true,
+      show_address: true,
+      show_social_links: true,
+    });
+  });
+
+
+
   it("should reject invalid brand_color format", async () => {
     const result = await updateTenantSettings("tenant-1", {
       brand_color: "notacolor",

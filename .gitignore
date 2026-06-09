@@ -42,3 +42,7 @@ next-env.d.ts
 
 # manual e2e tests
 /e2emanual
+
+# Agent Teams Lite
+.atl/
+

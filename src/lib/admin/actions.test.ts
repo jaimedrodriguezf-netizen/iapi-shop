@@ -164,7 +164,7 @@ describe("SaaS Admin Actions - getSaaSUsers TDD", () => {
           name: "iapi",
           slug: "iapi",
           tenant_subscriptions: {
-            plans: { name: "Free", code: "free" },
+            plans: { name: "Starter", code: "starter" },
           },
           products: [{ count: 12 }],
         },
@@ -209,11 +209,11 @@ describe("SaaS Admin Actions - getSaaSUsers TDD", () => {
     // El rol de plataforma es merchant (no termina en @iapi.shop y no tiene platform_admins)
     expect(jaimeUser?.platformRole).toBe("merchant");
     
-    // Su sucursal es iapi y tiene el plan Free
+    // Su sucursal es iapi y tiene el plan Starter
     expect(jaimeUser?.tenants).toHaveLength(1);
     expect(jaimeUser?.tenants[0].name).toBe("iapi");
     expect(jaimeUser?.tenants[0].slug).toBe("iapi");
-    expect(jaimeUser?.tenants[0].planName).toBe("Free");
+    expect(jaimeUser?.tenants[0].planName).toBe("Starter");
     expect(jaimeUser?.tenants[0].productCount).toBe(12);
   });
 });

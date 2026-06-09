@@ -3,26 +3,10 @@
 import { cache } from "react";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import type { Tenant } from "@/lib/tenants/actions";
 
 export interface StorefrontData {
-  tenant: {
-    id: string;
-    name: string;
-    slug: string;
-    brand_color?: string;
-    secondary_color?: string;
-    whatsapp_phone?: string;
-    logo_url?: string;
-    address?: string;
-    city?: string | null;
-    province?: string | null;
-    status: string;
-    social_links?: {
-      instagram?: string;
-      facebook?: string;
-      tiktok?: string;
-    } | null;
-  };
+  tenant: Tenant;
   categories: {
     id: string;
     name: string;

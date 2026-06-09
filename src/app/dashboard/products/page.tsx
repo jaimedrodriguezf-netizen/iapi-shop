@@ -15,9 +15,11 @@ export default async function ProductsPage() {
 
   const subResult = await getTenantSubscription(result.data.id)
   let planName = (subResult.success && subResult.data) ? subResult.data.plans?.name || "Free" : "Free"
+  let productLimit = (subResult.success && subResult.data) ? subResult.data.plans?.product_limit || 5 : 5
 
   if (platformRole === "admin") {
     planName = "Business"
+    productLimit = 2000
   }
 
   return (
@@ -27,7 +29,7 @@ export default async function ProductsPage() {
         <p className="text-muted-foreground italic">Gestiona los productos de tu sucursal.</p>
       </header>
       
-      <ProductListClient tenantId={result.data.id} planName={planName} />
+      <ProductListClient tenantId={result.data.id} planName={planName} productLimit={productLimit} platformRole={platformRole} />
     </section>
   )
 }

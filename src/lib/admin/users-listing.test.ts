@@ -81,7 +81,7 @@ describe("Admin Users Module - Complete User Listing", () => {
           name: "evolution",
           slug: "iapi",
           tenant_subscriptions: {
-            plans: { name: "Free", code: "free" },
+            plans: { name: "Starter", code: "starter" },
           },
           products: [{ count: 0 }],
         },
@@ -95,7 +95,7 @@ describe("Admin Users Module - Complete User Listing", () => {
           name: "tienda",
           slug: "tienda",
           tenant_subscriptions: {
-            plans: { name: "Free", code: "free" },
+            plans: { name: "Starter", code: "starter" },
           },
           products: [{ count: 2 }],
         },
@@ -152,7 +152,7 @@ describe("Admin Users Module - Complete User Listing", () => {
     expect(jaimeUser?.tenants).toHaveLength(1);
     expect(jaimeUser?.tenants[0].name).toBe("evolution");
     expect(jaimeUser?.tenants[0].slug).toBe("iapi");
-    expect(jaimeUser?.tenants[0].planName).toBe("Free");
+    expect(jaimeUser?.tenants[0].planName).toBe("Starter");
     expect(jaimeUser?.tenants[0].productCount).toBe(0);
 
     const vendedorUser = result.data?.find((u) => u.email === "vendedor@iapi.shop");
@@ -160,7 +160,7 @@ describe("Admin Users Module - Complete User Listing", () => {
     expect(vendedorUser?.tenants).toHaveLength(1);
     expect(vendedorUser?.tenants[0].name).toBe("tienda");
     expect(vendedorUser?.tenants[0].slug).toBe("tienda");
-    expect(vendedorUser?.tenants[0].planName).toBe("Free");
+    expect(vendedorUser?.tenants[0].planName).toBe("Starter");
     expect(vendedorUser?.tenants[0].productCount).toBe(2);
   });
 
@@ -259,7 +259,7 @@ describe("Admin Users Module - Complete User Listing", () => {
           name: "evolution",
           slug: "iapi",
           tenant_subscriptions: {
-            plans: { name: "Free", code: "free" },
+            plans: { name: "Starter", code: "starter" },
           },
           products: [{ count: 0 }],
         },
@@ -273,7 +273,7 @@ describe("Admin Users Module - Complete User Listing", () => {
           name: "tienda",
           slug: "tienda",
           tenant_subscriptions: {
-            plans: { name: "Free", code: "free" },
+            plans: { name: "Starter", code: "starter" },
           },
           products: [{ count: 2 }],
         },

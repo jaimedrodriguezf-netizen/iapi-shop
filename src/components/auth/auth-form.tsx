@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { signInWithGoogle, login, register, type AuthActionState } from "@/lib/auth/actions";
@@ -168,9 +169,16 @@ export function AuthForm({
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-300/20 dark:bg-indigo-500/10 blur-3xl pointer-events-none" />
 
         {/* Top brand logo */}
-        <div className="z-10 flex items-center space-x-2">
-          <span className="text-xl font-black tracking-wider bg-gradient-to-r from-violet-600 to-indigo-500 dark:from-violet-400 dark:to-indigo-300 bg-clip-text text-transparent">IAPI</span>
-        </div>
+        <Link href="/" className="z-10 flex items-center gap-3 cursor-pointer group">
+          <Image
+            src="/logo.png"
+            alt="IAPI Logo"
+            width={48}
+            height={48}
+            className="w-12 h-12 object-contain group-hover:scale-105 transition-transform"
+          />
+          <span className="text-2xl font-black tracking-wider bg-gradient-to-r from-violet-600 to-indigo-500 dark:from-violet-400 dark:to-indigo-300 bg-clip-text text-transparent">IAPI</span>
+        </Link>
 
         {/* Middle emotional copy and dashboard mockup */}
         <div className="z-10 my-auto space-y-8 max-w-lg">
@@ -253,8 +261,17 @@ export function AuthForm({
       {/* Right Panel (Functional Form) */}
       <section className="flex-1 md:w-1/2 flex items-center justify-center px-6 py-12 bg-zinc-50 dark:bg-zinc-950">
         <div className="backdrop-blur-md bg-white/75 dark:bg-zinc-900/75 border border-white/20 dark:border-zinc-800/20 shadow-2xl rounded-3xl p-8 max-w-md w-full">
-          <div className="mb-8 space-y-2 text-center">
-            <p className="text-sm font-bold text-violet-accent">IAPI</p>
+          <div className="mb-8 space-y-2 text-center flex flex-col items-center">
+            <Link href="/" className="flex flex-col items-center gap-2 group cursor-pointer">
+              <Image
+                src="/logo.png"
+                alt="IAPI Logo"
+                width={64}
+                height={64}
+                className="w-16 h-16 object-contain group-hover:scale-105 transition-transform"
+              />
+              <span className="text-sm font-bold text-violet-accent tracking-wider">IAPI</span>
+            </Link>
             <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">{currentTitle}</h1>
             <p className="text-sm leading-6 text-muted-foreground">{currentDescription}</p>
           </div>

@@ -167,7 +167,7 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
 
         if (rawTenant) {
           // Normalizar el planName debido a posibles arrays de Supabase
-          let planName = "Free";
+          let planName = "Starter";
           const sub = rawTenant.tenant_subscriptions;
           if (sub) {
             if (Array.isArray(sub)) {
