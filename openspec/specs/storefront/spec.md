@@ -159,3 +159,19 @@ Branding changes saved in the dashboard MUST reflect on the next storefront requ
 - WHEN a visitor reloads `/[slug]`
 - THEN the storefront renders with `#22c55e`.
 
+
+### Requirement: Free Plan Storefront Publication
+
+The storefront page `/[slug]` MUST support public visibility when the tenant is on a Free plan (plan name contains "free"). However, it MUST apply specific limitations:
+- The brand color is forced to IAPI Violet `#7c3aed` and secondary color is forced to `NULL`.
+- The product catalog is limited to a maximum of 10 visible products.
+- A conversion banner (growth loop) is rendered above the footer directing visitors to IAPI Shop.
+
+#### Scenario: Storefront loaded on a Free plan
+- GIVEN a tenant is on a Free plan with 15 products
+- WHEN a visitor opens `/[slug]`
+- THEN the storefront renders successfully
+- AND only the first 10 products are visible
+- AND the theme color is forced to `#7c3aed`
+- AND a conversion banner is visible above the footer.
+

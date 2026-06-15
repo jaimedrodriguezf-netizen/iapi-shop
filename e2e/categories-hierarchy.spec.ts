@@ -1,7 +1,34 @@
 import { test, expect } from "@playwright/test";
+import fs from "fs";
+import path from "path";
+
+const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || "";
+const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || "";
+
+test.beforeAll(() => {
+  const envPath = path.resolve(process.cwd(), ".env.local");
+  if (fs.existsSync(envPath)) {
+    const content = fs.readFileSync(envPath, "utf-8");
+    content.split("\n").forEach((line) => {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        let value = match[2] || "";
+        if (value.startsWith('"') && value.endsWith('"')) {
+          value = value.substring(1, value.length - 1);
+        } else if (value.startsWith("'") && value.endsWith("'")) {
+          value = value.substring(1, value.length - 1);
+        }
+        process.env[key] = value.trim();
+      }
+    });
+  }
+});
 
 test.describe("Categories Hierarchy E2E Tests", () => {
   test("should allow creating and selecting a 3-level categories hierarchy in the product modal", async ({ page }) => {
+    test.skip(!process.env.E2E_ADMIN_PASSWORD, "E2E_ADMIN_PASSWORD not configured");
+
     const testId = Date.now().toString();
     const l1Name = `E2E-L1-${testId}`;
     const l2Name = `E2E-L2-${testId}`;
@@ -10,8 +37,8 @@ test.describe("Categories Hierarchy E2E Tests", () => {
 
     // 1. Iniciar sesión como administrador (permitido crear L1 y L2)
     await page.goto("/login");
-    await page.fill('input[name="email"]', "admin@iapi.shop");
-    await page.fill('input[name="password"]', "danro32676");
+    await page.fill('input[name="email"]', ADMIN_EMAIL);
+    await page.fill('input[name="password"]', ADMIN_PASSWORD);
     await Promise.all([
       page.click('button:has-text("Iniciar sesión")'),
       page.waitForURL("**/dashboard**"),
@@ -40,7 +67,7 @@ test.describe("Categories Hierarchy E2E Tests", () => {
     await page.waitForTimeout(1000); // Esperar a que la carga de categorías se estabilice
 
     // Seleccionar la Categoría Principal creada
-    await page.click('button[role="combobox"]:has-text("Elige una categoría principal")');
+    await page.click('text=Categoría Principal >> xpath=.. >> button[role="combobox"]');
     const l1Option = page.getByRole("option", { name: l1Name, exact: true });
     await l1Option.waitFor({ state: "visible", timeout: 5000 });
     await l1Option.click();
@@ -59,7 +86,7 @@ test.describe("Categories Hierarchy E2E Tests", () => {
     await page.waitForTimeout(1000); // Esperar a que la carga de categorías se estabilice
 
     // Seleccionar la Subcategoría creada
-    await page.click('button[role="combobox"]:has-text("Elige una subcategoría (opcional)")');
+    await page.click('text=Subcategoría >> xpath=.. >> button[role="combobox"]');
     const l2Option = page.getByRole("option", { name: l2Name, exact: true });
     await l2Option.waitFor({ state: "visible", timeout: 5000 });
     await l2Option.click();
@@ -78,7 +105,7 @@ test.describe("Categories Hierarchy E2E Tests", () => {
     await page.waitForTimeout(1000); // Esperar a que la carga de categorías se estabilice
 
     // Seleccionar la Tercera Categoría creada
-    await page.click('button[role="combobox"]:has-text("Elige una tercera categoría (opcional)")');
+    await page.click('text=Tercera Categoría >> xpath=.. >> button[role="combobox"]');
     const l3Option = page.getByRole("option", { name: l3Name, exact: true });
     await l3Option.waitFor({ state: "visible", timeout: 5000 });
     await l3Option.click();

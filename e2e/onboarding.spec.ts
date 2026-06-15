@@ -1,4 +1,59 @@
 import { test, expect } from "@playwright/test";
+import { createClient } from "@supabase/supabase-js";
+import fs from "fs";
+import path from "path";
+
+const TEST_EMAIL = process.env.E2E_TEST_EMAIL || "vendedor@iapi.shop";
+const TEST_PASSWORD = process.env.E2E_TEST_PASSWORD || "";
+
+test.beforeAll(async () => {
+  // Skip E2E if test credentials are not configured
+  if (!TEST_PASSWORD) {
+    return;
+  }
+  // Load environment variables from .env.local manually
+  const envPath = path.resolve(process.cwd(), ".env.local");
+  if (fs.existsSync(envPath)) {
+    const content = fs.readFileSync(envPath, "utf-8");
+    content.split("\n").forEach((line) => {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        let value = match[2] || "";
+        if (value.startsWith('"') && value.endsWith('"')) {
+          value = value.substring(1, value.length - 1);
+        } else if (value.startsWith("'") && value.endsWith("'")) {
+          value = value.substring(1, value.length - 1);
+        }
+        process.env[key] = value.trim();
+      }
+    });
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (supabaseUrl && serviceRoleKey) {
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false }
+    });
+
+    // Get user ID of vendedor@iapi.shop
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", TEST_EMAIL)
+      .maybeSingle();
+
+    if (profile?.id) {
+      // Delete any existing tenants to start onboarding with 0 tenants
+      await supabase
+        .from("tenants")
+        .delete()
+        .eq("created_by", profile.id);
+    }
+  }
+});
 
 test.describe("Merchant Onboarding", () => {
   test("should complete onboarding and reach dashboard", async ({ page }) => {
@@ -6,8 +61,8 @@ test.describe("Merchant Onboarding", () => {
     await page.goto("/login");
 
     // 2. Login with a test user
-    await page.fill('input[name="email"]', "vendedor@iapi.shop");
-    await page.fill('input[name="password"]', "danro32676");
+    await page.fill('input[name="email"]', TEST_EMAIL);
+    await page.fill('input[name="password"]', TEST_PASSWORD);
     await Promise.all([
       page.click('button:has-text("Iniciar sesión")'),
       page.waitForURL("**/dashboard**"),
@@ -41,8 +96,8 @@ test.describe("Merchant Onboarding", () => {
     await page.goto("/login");
 
     // 2. Login
-    await page.fill('input[name="email"]', "vendedor@iapi.shop");
-    await page.fill('input[name="password"]', "danro32676");
+    await page.fill('input[name="email"]', TEST_EMAIL);
+    await page.fill('input[name="password"]', TEST_PASSWORD);
     await Promise.all([
       page.click('button:has-text("Iniciar sesión")'),
       page.waitForURL("**/dashboard**"),
@@ -81,8 +136,8 @@ test.describe("Merchant Onboarding", () => {
 
     // 1. Login as User A (vendedor)
     await page.goto("/login");
-    await page.fill('input[name="email"]', "vendedor@iapi.shop");
-    await page.fill('input[name="password"]', "danro32676");
+    await page.fill('input[name="email"]', TEST_EMAIL);
+    await page.fill('input[name="password"]', TEST_PASSWORD);
     await Promise.all([
       page.click('button:has-text("Iniciar sesión")'),
       page.waitForURL("**/dashboard**"),

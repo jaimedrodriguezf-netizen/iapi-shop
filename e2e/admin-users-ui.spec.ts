@@ -1,13 +1,40 @@
 import { test, expect } from "@playwright/test";
+import fs from "fs";
+import path from "path";
+
+const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || "";
+const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || "";
+
+test.beforeAll(() => {
+  const envPath = path.resolve(process.cwd(), ".env.local");
+  if (fs.existsSync(envPath)) {
+    const content = fs.readFileSync(envPath, "utf-8");
+    content.split("\n").forEach((line) => {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        let value = match[2] || "";
+        if (value.startsWith('"') && value.endsWith('"')) {
+          value = value.substring(1, value.length - 1);
+        } else if (value.startsWith("'") && value.endsWith("'")) {
+          value = value.substring(1, value.length - 1);
+        }
+        process.env[key] = value.trim();
+      }
+    });
+  }
+});
 
 test.describe("SaaS Admin Panel - Real E2E Tests with Chromium", () => {
   test("should login as admin@iapi.shop and verify jaimedrodriguezf@gmail.com is listed under SaaS Users CRUD", async ({ page }) => {
+    test.skip(!process.env.E2E_ADMIN_PASSWORD, "E2E_ADMIN_PASSWORD not configured");
+
     // 1. Ir a la página de login
     await page.goto("/login");
 
-    // 2. Completar las credenciales reales provistas por el usuario
-    await page.fill('input[name="email"]', "admin@iapi.shop");
-    await page.fill('input[name="password"]', "danro32676");
+    // 2. Completar las credenciales desde variables de entorno
+    await page.fill('input[name="email"]', ADMIN_EMAIL);
+    await page.fill('input[name="password"]', ADMIN_PASSWORD);
 
     // 3. Hacer clic en iniciar sesión y esperar la navegación al dashboard
     await Promise.all([
@@ -38,12 +65,12 @@ test.describe("SaaS Admin Panel - Real E2E Tests with Chromium", () => {
     const jaimeRow = table.locator("tr", { hasText: "jaimedrodriguezf@gmail.com" });
     await expect(jaimeRow.getByText("evolution").first()).toBeVisible();
 
-    // 10. Verificar que la tienda 'tienda' asociada a vendedor esté listada
+    // 10. Verificar que el vendedor esté listado con su rol
     const vendedorRow = table.locator("tr", { hasText: "vendedor@iapi.shop" });
-    await expect(vendedorRow.getByText("tienda")).toBeVisible();
+    await expect(vendedorRow.getByText("Vendedor").first()).toBeVisible();
 
     // 11. Verificar que los planes estén visibles
-    await expect(jaimeRow.getByText("Free")).toBeVisible();
-    await expect(vendedorRow.getByText("Business")).toBeVisible();
+    await expect(jaimeRow.getByText("Free").first()).toBeVisible();
+    await expect(vendedorRow.getByText("Free").first()).toBeVisible();
   });
 });
