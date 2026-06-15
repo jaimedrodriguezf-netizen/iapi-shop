@@ -33,6 +33,17 @@ export async function createClient() {
   )
 }
 
+/**
+ * ⚠️ DANGER: Uses SUPABASE_SERVICE_ROLE_KEY which bypasses ALL RLS policies.
+ * 
+ * ONLY use for administrative operations that legitimately need to override RLS
+ * (e.g., listing all users, syncing profiles, platform-level mutations).
+ * 
+ * EVERY caller MUST perform its own authorization check BEFORE invoking this client.
+ * Never expose this client to the browser or to unauthenticated endpoints.
+ * 
+ * Returns null if the service role key is not configured (safer than crashing).
+ */
 export async function createAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

@@ -1,7 +1,11 @@
 "use server";
 
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { tenantRateLimit, slugRateLimit, getClientIdentifier } from "@/lib/rate-limit";
+import { assertTenantMember } from "@/lib/auth/guards";
+import { createNotification } from "@/lib/notifications/actions";
 
 export interface Address {
   street?: string;
@@ -36,6 +40,33 @@ export interface Tenant {
   status: string;
   created_at: string;
   public_settings?: PublicSettings | null;
+  plan_name?: string | null;
+}
+
+export interface ColorPalette {
+  id: string;
+  name: string;
+  brand_color: string;
+  secondary_color: string;
+  created_at: string;
+}
+
+export interface Country {
+  id: string;
+  name: string;
+  code: string;
+}
+
+export interface Province {
+  id: string;
+  country_id: string;
+  name: string;
+}
+
+export interface Canton {
+  id: string;
+  province_id: string;
+  name: string;
 }
 
 export interface ActionResult<T> {
@@ -76,16 +107,36 @@ export async function ensureUserTenant(): Promise<ActionResult<Tenant>> {
       return { success: false, error: "No autorizado" };
     }
 
-    // Check if user already has a tenant
-    const { data: existingTenant } = await supabase
-      .from("tenants")
-      .select("*")
-      .eq("created_by", user.id)
-      .limit(1)
-      .maybeSingle();
+    // Rate limiting
+    const clientIp = await getClientIdentifier();
+    const { success: rateLimitOk } = await tenantRateLimit.limit(clientIp);
+    if (!rateLimitOk) {
+      return { success: false, error: "Demasiadas solicitudes. Intenta de nuevo en un minuto." };
+    }
 
-    if (existingTenant) {
-      return { success: true, data: existingTenant as unknown as Tenant };
+    // Count existing tenants before creating
+    const { count, error: countError } = await supabase
+      .from("tenants")
+      .select("*", { count: "exact", head: true })
+      .eq("created_by", user.id);
+
+    if (countError) {
+      return { success: false, error: "Error al verificar sucursales existentes" };
+    }
+
+    const existingCount = count ?? 0;
+    if (existingCount >= 1) {
+      // User already has a tenant - return the existing one instead of creating new
+      const { data: existingTenant } = await supabase
+        .from("tenants")
+        .select("*")
+        .eq("created_by", user.id)
+        .limit(1)
+        .single();
+
+      if (existingTenant) {
+        return { success: true, data: existingTenant as unknown as Tenant };
+      }
     }
 
     // Generate unique slug
@@ -109,7 +160,7 @@ export async function ensureUserTenant(): Promise<ActionResult<Tenant>> {
       .single();
 
     if (tenantError) {
-      return { success: false, error: `Error al crear sucursal por defecto: ${tenantError.message}` };
+      return { success: false, error: "Error al procesar la solicitud" };
     }
 
     // Assign owner member
@@ -123,7 +174,8 @@ export async function ensureUserTenant(): Promise<ActionResult<Tenant>> {
       });
 
     if (memberError) {
-      return { success: false, error: `Error al asignar rol de dueño: ${memberError.message}` };
+      console.error("ensureUserTenant member:", memberError);
+      return { success: false, error: "Error al procesar la solicitud" };
     }
 
     // Retrieve free plan
@@ -145,7 +197,8 @@ export async function ensureUserTenant(): Promise<ActionResult<Tenant>> {
     });
 
     if (subError) {
-      return { success: false, error: `Error al activar la suscripción gratuita: ${subError.message}` };
+      console.error("ensureUserTenant subscription:", subError);
+      return { success: false, error: "Error al procesar la solicitud" };
     }
 
     return { success: true, data: tenant as unknown as Tenant };
@@ -168,6 +221,45 @@ export type UpdateTenantSettingsInput = {
   public_settings?: PublicSettings | null;
 };
 
+const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+const createTenantSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido").max(100, "El nombre no puede exceder 100 caracteres"),
+  slug: z.string().min(1, "El slug es requerido").max(60).regex(SLUG_REGEX, "Formato de slug inválido"),
+  whatsapp_phone: z.string().max(20, "El teléfono no puede exceder 20 caracteres").optional(),
+});
+
+const addressSchema = z.object({
+  street: z.string().max(200).optional(),
+  city: z.string().max(100).optional(),
+  state: z.string().max(100).optional(),
+  zip: z.string().max(20).optional(),
+  country: z.string().max(100).optional(),
+}).nullable().optional();
+
+const socialLinksSchema = z.object({
+  instagram: z.string().url().max(200).optional().or(z.literal("")),
+  facebook: z.string().url().max(200).optional().or(z.literal("")),
+  tiktok: z.string().url().max(200).optional().or(z.literal("")),
+}).nullable().optional();
+
+const publicSettingsSchema = z.object({
+  show_phone: z.boolean(),
+  show_address: z.boolean(),
+  show_social_links: z.boolean(),
+}).nullable().optional();
+
+const updateTenantSettingsSchema = z.object({
+  name: z.string().max(100, "El nombre no puede exceder 100 caracteres").optional(),
+  slug: z.string().max(60).regex(SLUG_REGEX, "Formato de slug inválido").optional(),
+  status: z.enum(["draft", "active", "suspended"]).optional(),
+  brand_color: z.string().nullable().optional(),
+  secondary_color: z.string().nullable().optional(),
+  address: addressSchema,
+  social_links: socialLinksSchema,
+  public_settings: publicSettingsSchema,
+});
+
 function isValidHexColor(value: string | null | undefined): boolean {
   if (value === null || value === undefined || value === "") return true;
   return HEX_COLOR_REGEX.test(value);
@@ -186,18 +278,29 @@ export async function updateTenantSettings(
       return { success: false, error: "Invalid secondary_color format" };
     }
 
+    // Zod validation
+    const parsed = updateTenantSettingsSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+    }
+
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return { success: false, error: "No autorizado" };
 
-    // Fetch existing tenant to check ownership and values
+    // Tenant membership guard (primary authorization)
+    const membership = await assertTenantMember(supabase, id);
+    if (!membership.ok) {
+      return { success: false, error: membership.error };
+    }
+
+    // Fetch existing tenant for value defaults (defense-in-depth: still filters by created_by)
     const { data: currentTenant, error: getError } = await supabase
       .from("tenants")
       .select("*")
       .eq("id", id)
-      .eq("created_by", user.id)
       .single();
 
     if (getError || !currentTenant) {
@@ -251,7 +354,7 @@ export async function updateTenantSettings(
     if (input.social_links !== undefined) updateData.social_links = input.social_links ?? null;
     if (input.public_settings !== undefined) updateData.public_settings = input.public_settings ?? null;
 
-    // Explicit Tenant Isolation: Filter by ID AND creator to ensure ownership before RLS
+    // Explicit Tenant Isolation: Filter by ID AND creator as defense-in-depth
     const { data: tenant, error } = await supabase
       .from("tenants")
       .update(updateData)
@@ -260,7 +363,10 @@ export async function updateTenantSettings(
       .select()
       .single();
 
-    if (error) return { success: false, error: error.message };
+    if (error) {
+      console.error("updateTenantSettings:", error);
+      return { success: false, error: "Error al acceder a los datos de la sucursal" };
+    }
 
     // Get the tenant slug to revalidate the public storefront page
     const slug = (tenant as unknown as { slug: string }).slug;
@@ -303,7 +409,20 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResu
       return { success: false, error: "No autorizado" };
     }
 
-    // 2. Validar límite de sucursales: solo el plan 'business' permite múltiples sucursales
+    // Rate limiting
+    const clientIp = await getClientIdentifier();
+    const { success: rateLimitOk } = await tenantRateLimit.limit(clientIp);
+    if (!rateLimitOk) {
+      return { success: false, error: "Demasiadas solicitudes. Intenta de nuevo en un minuto." };
+    }
+
+    // Zod validation
+    const parsed = createTenantSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+    }
+
+    // 2. Validar límite de sucursales: solo el plan 'plus' permite múltiples sucursales
     const { data: existingTenants, error: countError } = await supabase
       .from("tenants")
       .select("id")
@@ -326,15 +445,15 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResu
         return { success: false, error: "Error al verificar planes de suscripción" };
       }
 
-      const hasBusiness = subs?.some(sub => {
+const hasPlus = subs?.some(sub => {
         const rawPlan = sub.plans as unknown as { code: string } | null;
-        return rawPlan?.code === "business";
+        return rawPlan?.code === "plus";
       });
 
-      if (!hasBusiness) {
+      if (!hasPlus) {
         return { 
           success: false, 
-          error: "El plan actual solo permite tener una sucursal individual. Para agregar más sucursales, por favor adquiere el Plan Business." 
+          error: "El plan actual solo permite tener una sucursal individual. Para agregar más sucursales, por favor adquiere el Plan Plus." 
         };
       }
     }
@@ -343,9 +462,9 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResu
     const { data: tenant, error: tenantError } = await supabase
       .from("tenants")
       .insert({
-        name: input.name,
-        slug: input.slug,
-        whatsapp_phone: input.whatsapp_phone,
+        name: parsed.data.name,
+        slug: parsed.data.slug,
+        whatsapp_phone: parsed.data.whatsapp_phone,
         created_by: user.id,
         status: "active",
       })
@@ -353,7 +472,8 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResu
       .single();
 
     if (tenantError) {
-      return { success: false, error: `Error al crear sucursal: ${tenantError.message}` };
+      console.error("createTenant:", tenantError);
+      return { success: false, error: "Error al procesar la solicitud" };
     }
 
     // 3. Asignar al creador como 'owner' en tenant_members
@@ -367,7 +487,8 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResu
       });
 
     if (memberError) {
-      return { success: false, error: `Error al asignar rol de dueño: ${memberError.message}` };
+      console.error("createTenant member:", memberError);
+      return { success: false, error: "Error al procesar la solicitud" };
     }
 
     // 4. Asignar plan 'free' inicial (Operación crítica para la integridad)
@@ -388,7 +509,29 @@ export async function createTenant(input: CreateTenantInput): Promise<ActionResu
     });
 
     if (subError) {
-      return { success: false, error: `Error al activar la suscripción gratuita: ${subError.message}` };
+      console.error("createTenant subscription:", subError);
+      return { success: false, error: "Error al procesar la solicitud" };
+    }
+
+    // Notify platform admins about new tenant
+    try {
+      const { data: admins } = await supabase
+        .from("platform_admins")
+        .select("user_id");
+      
+      if (admins) {
+        for (const admin of admins) {
+          await createNotification(
+            admin.user_id,
+            "new_tenant",
+            `Nueva tienda: ${parsed.data.name}`,
+            `@${user.email} creó "${parsed.data.name}" (${parsed.data.slug})`,
+            "/dashboard/admin/users"
+          );
+        }
+      }
+    } catch (e) {
+      console.error("Failed to notify admins about new tenant:", e);
     }
 
     return { success: true, data: tenant as unknown as Tenant };
@@ -419,7 +562,10 @@ export async function getMyTenants(): Promise<ActionResult<Tenant[]>> {
       .eq("created_by", user.id)
       .order("created_at", { ascending: false });
 
-    if (error) return { success: false, error: error.message };
+    if (error) {
+      console.error("getMyTenants:", error);
+      return { success: false, error: "Error al acceder a los datos de la sucursal" };
+    }
     return { success: true, data: data as Tenant[] };
   } catch (error) {
     console.error(error);
@@ -441,6 +587,13 @@ export async function checkSlugAvailability(slug: string): Promise<{
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { available: false, error: "No autorizado" };
 
+    // Rate limiting
+    const clientIp = await getClientIdentifier();
+    const { success: rateLimitOk } = await slugRateLimit.limit(clientIp);
+    if (!rateLimitOk) {
+      return { available: false, error: "Demasiadas solicitudes. Intenta de nuevo en un minuto." };
+    }
+
     const { data, error } = await supabase
       .from("tenants")
       .select("slug")
@@ -459,6 +612,13 @@ export async function checkSlugAvailability(slug: string): Promise<{
 export async function getTenantSubscription(tenantId: string): Promise<ActionResult<TenantSubscription>> {
   try {
     const supabase = await createClient();
+
+    // Auth guard
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { success: false, error: "No autorizado" };
+    }
+
     const { data, error } = await supabase
       .from("tenant_subscriptions")
       .select("id, tenant_id, plans(name, product_limit)")
@@ -466,7 +626,10 @@ export async function getTenantSubscription(tenantId: string): Promise<ActionRes
       .limit(1)
       .single();
 
-    if (error) return { success: false, error: error.message };
+    if (error) {
+      console.error("getTenantSubscription:", error);
+      return { success: false, error: "Error al acceder a los datos de la sucursal" };
+    }
     
     // Transformación segura del resultado de Supabase
     const rawPlans = data.plans as unknown as { name: string; product_limit: number } | null;
@@ -483,5 +646,83 @@ export async function getTenantSubscription(tenantId: string): Promise<ActionRes
   } catch (error) {
     console.error(error);
     return { success: false, error: "Error al obtener suscripción" };
+  }
+}
+
+export async function getColorPalettes(): Promise<ActionResult<ColorPalette[]>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("color_palettes")
+      .select("*")
+      .order("name", { ascending: true });
+
+if (error) {
+      console.error("getColorPalettes:", error);
+      return { success: false, error: "Error al procesar la solicitud" };
+    }
+    return { success: true, data: data as ColorPalette[] };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Error al obtener paletas de colores" };
+  }
+}
+
+export async function getCountries(): Promise<ActionResult<Country[]>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("countries")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("getCountries:", error);
+      return { success: false, error: "Error al procesar la solicitud" };
+    }
+    return { success: true, data: data as Country[] };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Error al obtener países" };
+  }
+}
+
+export async function getProvincesByCountryId(countryId: string): Promise<ActionResult<Province[]>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("provinces")
+      .select("*")
+      .eq("country_id", countryId)
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("getProvincesByCountryId:", error);
+      return { success: false, error: "Error al procesar la solicitud" };
+    }
+    return { success: true, data: data as Province[] };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Error al obtener provincias" };
+  }
+}
+
+export async function getCantonsByProvinceId(provinceId: string): Promise<ActionResult<Canton[]>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("cantons")
+      .select("*")
+      .eq("province_id", provinceId)
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("getCantonsByProvinceId:", error);
+      return { success: false, error: "Error al procesar la solicitud" };
+    }
+    return { success: true, data: data as Canton[] };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Error al obtener cantones" };
   }
 }

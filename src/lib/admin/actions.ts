@@ -1,7 +1,18 @@
 "use server";
 
+import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getUserRoleInfo, ActionResult } from "@/lib/auth/actions";
+
+const updatePlatformRoleSchema = z.object({
+  userId: z.string().uuid("ID de usuario inválido"),
+  role: z.enum(["admin", "merchant"], { message: "Rol inválido. Debe ser 'admin' o 'merchant'" }),
+});
+
+const updateTenantPlanSchema = z.object({
+  tenantId: z.string().uuid("ID de sucursal inválido"),
+  planCode: z.enum(["free", "starter", "pro", "plus"], { message: "Plan inválido" }),
+});
 
 export interface SaaSUser {
   id: string;
@@ -48,7 +59,8 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
       .order("created_at", { ascending: false });
 
     if (profilesError) {
-      return { success: false, error: `Error al obtener perfiles: ${profilesError.message}` };
+      console.error("getSaaSUsers profiles:", profilesError);
+      return { success: false, error: "Error al procesar la solicitud" };
     }
 
     // 2. Obtener los platform_admins para determinar roles
@@ -57,7 +69,8 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
       .select("user_id, role");
 
     if (platformAdminsError) {
-      return { success: false, error: `Error al obtener admins: ${platformAdminsError.message}` };
+      console.error("getSaaSUsers platformAdmins:", platformAdminsError);
+      return { success: false, error: "Error al procesar la solicitud" };
     }
 
     // Crear un mapa de user_id -> role para platform_admins
@@ -149,7 +162,8 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
       `);
 
     if (membersError) {
-      return { success: false, error: `Error al obtener miembros: ${membersError.message}` };
+      console.error("getSaaSUsers members:", membersError);
+      return { success: false, error: "Error al procesar la solicitud" };
     }
 
     // Mapear sucursales por usuario
@@ -208,10 +222,10 @@ export async function getSaaSUsers(): Promise<ActionResult<SaaSUser[]>> {
     const saasUsers: SaaSUser[] = profilesList.map((p) => {
       const platformRole = p.isPlatformAdmin ? "admin" : "merchant";
 
-      // Forzar plan business para administradores
+      // Forzar plan Plus para administradores
       const tenants = userTenantsMap[p.id] || [];
       const normalizedTenants = platformRole === "admin" 
-        ? tenants.map(t => ({ ...t, planName: "Business" }))
+        ? tenants.map(t => ({ ...t, planName: "Plus" }))
         : tenants;
 
       return {
@@ -238,23 +252,47 @@ export async function updatePlatformRole(userId: string, role: "admin" | "mercha
       return { success: false, error: adminCheck.error };
     }
 
+    // Zod validation
+    const parsed = updatePlatformRoleSchema.safeParse({ userId, role });
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+    }
+
     const supabase = await createClient();
 
-    if (role === "admin") {
+    if (parsed.data.role === "admin") {
       // Promover a Admin de Plataforma
       const { error } = await supabase
         .from("platform_admins")
-        .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id" });
+        .upsert({ user_id: parsed.data.userId, role: "admin" }, { onConflict: "user_id" });
 
-      if (error) return { success: false, error: `Error al promover: ${error.message}` };
+      if (error) {
+        console.error("updatePlatformRole promote:", error);
+        return { success: false, error: "Error al procesar la solicitud" };
+      }
     } else {
       // Degradar a merchant (eliminar de platform_admins)
       const { error } = await supabase
         .from("platform_admins")
         .delete()
-        .eq("user_id", userId);
+        .eq("user_id", parsed.data.userId);
 
-      if (error) return { success: false, error: `Error al degradar: ${error.message}` };
+      if (error) {
+        console.error("updatePlatformRole demote:", error);
+        return { success: false, error: "Error al procesar la solicitud" };
+      }
+
+      // Invalidate the demoted user's session so they can't use stale admin privileges
+      try {
+        const adminClient = await createAdminClient();
+        if (adminClient) {
+          await adminClient.auth.admin.signOut(parsed.data.userId);
+        }
+      } catch (signOutErr) {
+        // Non-critical: session invalidation failed, but role was removed from DB.
+        // The user's next request will refresh claims and lose admin access.
+        console.warn("updatePlatformRole: failed to sign out demoted user:", signOutErr);
+      }
     }
 
     return { success: true };
@@ -264,11 +302,17 @@ export async function updatePlatformRole(userId: string, role: "admin" | "mercha
   }
 }
 
-export async function updateTenantPlan(tenantId: string, planCode: "free" | "starter" | "pro" | "business"): Promise<ActionResult<void>> {
+export async function updateTenantPlan(tenantId: string, planCode: "free" | "starter" | "pro" | "plus"): Promise<ActionResult<void>> {
   try {
     const adminCheck = await assertIsAdmin();
     if (!adminCheck.success) {
       return { success: false, error: adminCheck.error };
+    }
+
+    // Zod validation
+    const parsed = updateTenantPlanSchema.safeParse({ tenantId, planCode });
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
     }
 
     const supabase = await createClient();
@@ -277,7 +321,7 @@ export async function updateTenantPlan(tenantId: string, planCode: "free" | "sta
     const { data: plan, error: planError } = await supabase
       .from("plans")
       .select("id")
-      .eq("code", planCode)
+      .eq("code", parsed.data.planCode)
       .single();
 
     if (planError || !plan) {
@@ -288,13 +332,14 @@ export async function updateTenantPlan(tenantId: string, planCode: "free" | "sta
     const { error: subError } = await supabase
       .from("tenant_subscriptions")
       .upsert({
-        tenant_id: tenantId,
+        tenant_id: parsed.data.tenantId,
         plan_id: plan.id,
         status: "active",
       }, { onConflict: "tenant_id" });
 
     if (subError) {
-      return { success: false, error: `Error al actualizar la suscripción: ${subError.message}` };
+      console.error("updateTenantPlan:", subError);
+      return { success: false, error: "Error al procesar la solicitud" };
     }
 
     return { success: true };

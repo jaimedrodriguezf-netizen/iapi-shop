@@ -5,6 +5,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { createClient } from "@/lib/supabase/server";
+import { authRateLimit, getClientIdentifier } from "@/lib/rate-limit";
+import { isBootstrapPlatformAdminEmail, isPlatformAdmin } from "./platform-admins";
+import { isSafeRedirect } from "./url-utils";
+import { createNotification } from "@/lib/notifications/actions";
 
 export type AuthActionState = {
   success: boolean;
@@ -14,14 +18,22 @@ export type AuthActionState = {
 
 const authSchema = z.object({
   email: z.string().trim().email("Ingresa un email válido.").max(255, "El email no puede tener más de 255 caracteres."),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres.").max(72, "La contraseña no puede tener más de 72 caracteres."),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres.")
+    .max(72, "La contraseña no puede tener más de 72 caracteres.")
+    .regex(/[0-9!@#$%^&*(),.?":{}|<>]/, "La contraseña debe incluir al menos un número o carácter especial."),
 });
 
 const registerSchema = z
   .object({
     email: z.string().trim().email("Ingresa un email válido.").max(255, "El email no puede tener más de 255 caracteres."),
-    password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres.").max(72, "La contraseña no puede tener más de 72 caracteres."),
-    confirmPassword: z.string().min(6, "La confirmación es requerida."),
+    password: z
+      .string()
+      .min(8, "La contraseña debe tener al menos 8 caracteres.")
+      .max(72, "La contraseña no puede tener más de 72 caracteres.")
+      .regex(/[0-9!@#$%^&*(),.?":{}|<>]/, "La contraseña debe incluir al menos un número o carácter especial."),
+    confirmPassword: z.string().min(8, "La confirmación es requerida."),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Las contraseñas no coinciden.",
@@ -34,6 +46,13 @@ export async function login(formData: FormData): Promise<AuthActionState> {
 
     if (!parsed.success) {
       return validationError(parsed.error.flatten().fieldErrors);
+    }
+
+    // Rate limiting
+    const clientIp = await getClientIdentifier();
+    const { success: rateLimitOk } = await authRateLimit.limit(clientIp);
+    if (!rateLimitOk) {
+      return { success: false, error: "Demasiados intentos. Intenta de nuevo en unos minutos." };
     }
 
     const captchaToken = formData.get("captchaToken") as string | null;
@@ -51,8 +70,22 @@ export async function login(formData: FormData): Promise<AuthActionState> {
       return { success: false, error: "No pudimos iniciar sesión. Revisa tus credenciales." };
     }
 
+    // Check if user has tenants — if not, send to profile
+    const { data: { user: authedUser } } = await supabase.auth.getUser();
+    const { data: existingTenant } = await supabase
+      .from("tenants")
+      .select("id")
+      .eq("created_by", authedUser!.id)
+      .limit(1)
+      .maybeSingle();
+
     revalidatePath("/", "layout");
-    redirect("/dashboard");
+
+    if (existingTenant) {
+      redirect("/dashboard");
+    } else {
+      redirect("/perfil");
+    }
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Error inesperado.";
     if (errorMsg.includes("NEXT_REDIRECT")) throw err;
@@ -72,9 +105,16 @@ export async function register(formData: FormData): Promise<AuthActionState> {
       return validationError(parsed.error.flatten().fieldErrors);
     }
 
+    // Rate limiting
+    const clientIp = await getClientIdentifier();
+    const { success: rateLimitOk } = await authRateLimit.limit(clientIp);
+    if (!rateLimitOk) {
+      return { success: false, error: "Demasiados intentos. Intenta de nuevo en unos minutos." };
+    }
+
     const captchaToken = formData.get("captchaToken") as string | null;
     const supabase = await createClient();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
@@ -86,8 +126,37 @@ export async function register(formData: FormData): Promise<AuthActionState> {
       return { success: false, error: "No pudimos crear tu cuenta. Intenta con otro email." };
     }
 
+    // Notify platform admins about new user
+    try {
+      const supabaseForNotify = await createClient();
+      const { data: admins } = await supabaseForNotify
+        .from("platform_admins")
+        .select("user_id");
+      
+      if (admins) {
+        for (const admin of admins) {
+          await createNotification(
+            admin.user_id,
+            "new_user",
+            `Nuevo usuario registrado`,
+            `${parsed.data.email} se registró en IAPI Shop`,
+            "/dashboard/admin/users"
+          );
+        }
+      }
+    } catch (e) {
+      console.error("Failed to notify admins about new user:", e);
+    }
+
+    // Redirect to login with confirmation message if email verification is required
+    if (data?.user && !data.user.email_confirmed_at && !data.user.confirmed_at) {
+      revalidatePath("/", "layout");
+      redirect("/login?message=check-email");
+    }
+
+    // New registered users never have tenants yet — send to profile
     revalidatePath("/", "layout");
-    redirect("/dashboard");
+    redirect("/perfil");
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Error inesperado.";
     if (errorMsg.includes("NEXT_REDIRECT")) throw err;
@@ -107,6 +176,29 @@ export async function logout(): Promise<AuthActionState> {
     if (errorMsg.includes("NEXT_REDIRECT")) throw err;
     return { success: false, error: errorMsg };
   }
+}
+
+/**
+ * Thin wrapper for use as a Next.js form action (returns void).
+ * logout() returns AuthActionState, which is incompatible with form action types.
+ */
+export async function logoutAction(): Promise<void> {
+  await logout();
+}
+
+/**
+ * Logout and redirect to the main landing page (not login).
+ * Used by the marketplace header profile popover.
+ */
+export async function logoutToLanding(): Promise<void> {
+  try {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+    revalidatePath("/", "layout");
+  } catch (err: unknown) {
+    console.error("logoutToLanding:", err);
+  }
+  // Client handles redirect to "/"
 }
 
 function parseAuthForm(formData: FormData) {
@@ -138,11 +230,12 @@ export interface ActionResult<T> {
 export async function getUserRoleInfo(): Promise<ActionResult<UserRoleInfo>> {
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.getClaims();
-    if (error) return { success: false, error: error.message };
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) return { success: false, error: "No autorizado" };
 
-    const email = typeof data?.claims?.email === "string" ? data.claims.email : "Usuario registrado";
-    const platformRole = (data?.claims?.email as string)?.endsWith("@iapi.shop") ? "admin" : "merchant";
+    const email = user.email || "";
+    const isAdmin = await isPlatformAdmin(user.id, email);
+    const platformRole = isAdmin ? "admin" : "merchant";
 
     return {
       success: true,
@@ -155,6 +248,10 @@ export async function getUserRoleInfo(): Promise<ActionResult<UserRoleInfo>> {
 }
 
 export async function signInWithGoogle(redirectTo: string): Promise<ActionResult<{ url: string }>> {
+  if (!isSafeRedirect(redirectTo)) {
+    return { success: false, error: "URL de redirección inválida." };
+  }
+
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -165,7 +262,8 @@ export async function signInWithGoogle(redirectTo: string): Promise<ActionResult
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      console.error("signInWithGoogle:", error);
+      return { success: false, error: "Error al procesar la solicitud" };
     }
 
     if (data?.url) {

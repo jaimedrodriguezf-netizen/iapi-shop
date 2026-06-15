@@ -46,3 +46,6 @@ next-env.d.ts
 # Agent Teams Lite
 .atl/
 
+# debug scripts (may log secrets)
+/scratch/
+

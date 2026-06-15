@@ -10,7 +10,7 @@ export interface GenerateQROptions {
 const DEFAULT_OPTIONS: GenerateQROptions = {
   margin: 2,
   width: 512,
-  darkColor: '#7c3aed',
+  darkColor: '#f97316',
   lightColor: '#ffffff',
 };
 
