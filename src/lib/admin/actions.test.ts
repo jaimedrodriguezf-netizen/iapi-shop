@@ -217,3 +217,35 @@ describe("SaaS Admin Actions - getSaaSUsers TDD", () => {
     expect(jaimeUser?.tenants[0].productCount).toBe(12);
   });
 });
+
+describe("Zod input validation", () => {
+  describe("updatePlatformRole", () => {
+    it("rejects non-UUID userId", async () => {
+      const { updatePlatformRole } = await import("./actions");
+      const result = await updatePlatformRole("not-a-uuid", "admin");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("inválido");
+    });
+
+    it("rejects invalid role value", async () => {
+      const { updatePlatformRole } = await import("./actions");
+      const result = await updatePlatformRole("550e8400-e29b-41d4-a716-446655440000", "superadmin" as unknown as "admin" | "merchant");
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("updateTenantPlan", () => {
+    it("rejects non-UUID tenantId", async () => {
+      const { updateTenantPlan } = await import("./actions");
+      const result = await updateTenantPlan("not-a-uuid", "pro");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("inválido");
+    });
+
+    it("rejects invalid planCode", async () => {
+      const { updateTenantPlan } = await import("./actions");
+      const result = await updateTenantPlan("550e8400-e29b-41d4-a716-446655440000", "enterprise" as unknown as "free" | "starter" | "pro" | "plus");
+      expect(result.success).toBe(false);
+    });
+  });
+});

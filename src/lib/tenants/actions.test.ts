@@ -28,6 +28,16 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: () => Promise.resolve(mockSupabase),
 }));
 
+vi.mock("@/lib/rate-limit", () => ({
+  tenantRateLimit: { limit: vi.fn().mockResolvedValue({ success: true, limit: 2, remaining: 1, reset: Date.now() + 60000, pending: Promise.resolve() }) },
+  slugRateLimit: { limit: vi.fn().mockResolvedValue({ success: true, limit: 10, remaining: 9, reset: Date.now() + 60000, pending: Promise.resolve() }) },
+  getClientIdentifier: vi.fn().mockResolvedValue("127.0.0.1"),
+}));
+
+vi.mock("@/lib/auth/guards", () => ({
+  assertTenantMember: vi.fn().mockResolvedValue({ ok: true as const }),
+}));
+
 describe("Merchant Onboarding: createTenant", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -79,7 +89,7 @@ describe("Merchant Onboarding: createTenant", () => {
     expect(result.data?.slug).toBe("tienda-test");
   });
 
-  it("should fail if user already has a tenant and does not have an active business plan", async () => {
+  it("should fail if user already has a tenant and does not have an active plus plan", async () => {
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
     
     const mockExistingTenants = [{ id: "tenant-1" }];
@@ -113,11 +123,11 @@ describe("Merchant Onboarding: createTenant", () => {
     expect(result.error).toContain("El plan actual solo permite tener una sucursal");
   });
 
-  it("should succeed if user already has a tenant but has an active business plan", async () => {
+  it("should succeed if user already has a tenant but has an active plus plan", async () => {
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
     
     const mockExistingTenants = [{ id: "tenant-1" }];
-    const mockSubs = [{ id: "sub-1", plans: { code: "business" } }];
+    const mockSubs = [{ id: "sub-1", plans: { code: "plus" } }];
 
     const fromMock = vi.fn().mockImplementation((table) => {
       if (table === "tenants") {
@@ -277,7 +287,7 @@ describe("Branding: updateTenantSettings", () => {
     const mockUpdatedTenant = {
       id: "tenant-1",
       slug: "mi-tienda",
-      brand_color: "#7c3aed",
+      brand_color: "#f97316",
       secondary_color: "#a78bfa",
       address: { street: "Calle 1", city: "Quito", state: "Pichincha", zip: "170150", country: "Ecuador" },
       social_links: { instagram: "https://instagram.com/example" },
@@ -296,7 +306,7 @@ describe("Branding: updateTenantSettings", () => {
     });
 
     const result = await updateTenantSettings("tenant-1", {
-      brand_color: "#7c3aed",
+      brand_color: "#f97316",
       secondary_color: "#a78bfa",
       address: { street: "Calle 1", city: "Quito", state: "Pichincha", zip: "170150", country: "Ecuador" },
       social_links: { instagram: "https://instagram.com/example" },
@@ -423,7 +433,7 @@ describe("Branding: updateTenantSettings", () => {
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user: null }, error: null });
 
     const result = await updateTenantSettings("tenant-1", {
-      brand_color: "#7c3aed",
+      brand_color: "#f97316",
     });
 
     expect(result.success).toBe(false);
@@ -676,5 +686,51 @@ describe("ensureUserTenant", () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBe("No autorizado");
+  });
+});
+
+describe("Zod input validation", () => {
+  describe("createTenant", () => {
+    beforeEach(() => {
+      vi.restoreAllMocks();
+      vi.clearAllMocks();
+      mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
+    });
+
+    it("rejects empty name", async () => {
+      const result = await createTenant({ name: "", slug: "my-slug" });
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects name longer than 100 characters", async () => {
+      const result = await createTenant({ name: "a".repeat(101), slug: "my-slug" });
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects invalid slug format with uppercase", async () => {
+      const result = await createTenant({ name: "My Store", slug: "My-Store" });
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects slug with underscores", async () => {
+      const result = await createTenant({ name: "My Store", slug: "my_store" });
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects whatsapp_phone longer than 20 characters", async () => {
+      const result = await createTenant({
+        name: "My Store",
+        slug: "my-store",
+        whatsapp_phone: "a".repeat(21),
+      });
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("updateTenantSettings", () => {
+    it("rejects invalid status value", async () => {
+      const result = await updateTenantSettings("tenant-1", { status: "hacked" as unknown as "draft" | "active" | "suspended" });
+      expect(result.success).toBe(false);
+    });
   });
 });
