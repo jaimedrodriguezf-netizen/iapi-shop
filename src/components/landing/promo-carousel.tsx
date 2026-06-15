@@ -36,6 +36,9 @@ export function PromoCarousel({ banners }: PromoCarouselProps) {
   const next = () => setCurrent(c => (c + 1) % banners.length)
   const banner = banners[current]
 
+  const ctaHref = banner.cta_href || "#"
+  const isInternal = ctaHref.startsWith("/")
+
   return (
     <div className="relative w-full overflow-hidden" style={{ minHeight: "240px" }}>
       {/* Background color */}
@@ -66,21 +69,22 @@ export function PromoCarousel({ banners }: PromoCarouselProps) {
             {banner.subtitle}
           </p>
         )}
-        {banner.cta_text && (banner.cta_href?.startsWith("/") ? (
+        {banner.cta_text && isInternal && (
           <Link
-            href={banner.cta_href}
+            href={ctaHref}
             className="inline-flex items-center bg-orange-500 text-white font-bold px-8 py-3.5 rounded-xl text-base sm:text-lg hover:bg-orange-600 transition-colors w-fit shadow-xl"
           >
             {banner.cta_text}
           </Link>
-        ) : (
+        )}
+        {banner.cta_text && !isInternal && (
           <a
-            href={banner.cta_href || "#"}
+            href={ctaHref}
             className="inline-flex items-center bg-orange-500 text-white font-bold px-8 py-3.5 rounded-xl text-base sm:text-lg hover:bg-orange-600 transition-colors w-fit shadow-xl"
           >
             {banner.cta_text}
           </a>
-        ))}
+        )}
       </div>
 
       {/* Navigation arrows */}

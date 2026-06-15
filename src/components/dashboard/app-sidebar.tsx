@@ -153,7 +153,7 @@ export function AppSidebar({
               return true
             })
             .map((item) => (
-<SidebarMenuItem key={item.url}>
+<SidebarMenuItem key={`${item.url}-${item.title}`)}>
                 <SidebarMenuButton tooltip={item.title} render={<Link href={item.url} onClick={handleNavItemClick} />}>
                   <item.icon className="h-5 w-5" />
                   <span className="font-bold">{item.title}</span>
