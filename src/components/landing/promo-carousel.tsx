@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import Image from "next/image"
 
@@ -36,7 +37,7 @@ export function PromoCarousel({ banners }: PromoCarouselProps) {
   const banner = banners[current]
 
   return (
-    <div className="relative w-full overflow-hidden" style={{ minHeight: "200px" }}>
+    <div className="relative w-full overflow-hidden" style={{ minHeight: "240px" }}>
       {/* Background color */}
       <div
         className="absolute inset-0 transition-colors duration-500"
@@ -55,24 +56,31 @@ export function PromoCarousel({ banners }: PromoCarouselProps) {
         />
       )}
 
-      {/* Content */}
-      <div className="relative px-6 sm:px-12 lg:px-20 py-10 sm:py-16 lg:py-20 flex flex-col justify-center min-h-[200px] sm:min-h-[320px] lg:min-h-[380px] max-w-7xl mx-auto">
-        <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white mb-2 drop-shadow-sm">
+      {/* Content — Temu-style: oversized typography, full feel */}
+      <div className="relative px-6 sm:px-12 lg:px-20 py-12 sm:py-20 lg:py-24 flex flex-col justify-center min-h-[240px] sm:min-h-[360px] lg:min-h-[440px] max-w-7xl mx-auto">
+        <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-3 drop-shadow-md max-w-2xl">
           {banner.title}
         </h2>
         {banner.subtitle && (
-          <p className="text-sm sm:text-lg text-white/85 mb-5 max-w-lg drop-shadow-sm">
+          <p className="text-base sm:text-xl lg:text-2xl text-white/90 mb-6 max-w-xl drop-shadow-sm">
             {banner.subtitle}
           </p>
         )}
-        {banner.cta_text && (
+        {banner.cta_text && (banner.cta_href?.startsWith("/") ? (
+          <Link
+            href={banner.cta_href}
+            className="inline-flex items-center bg-orange-500 text-white font-bold px-8 py-3.5 rounded-xl text-base sm:text-lg hover:bg-orange-600 transition-colors w-fit shadow-xl"
+          >
+            {banner.cta_text}
+          </Link>
+        ) : (
           <a
             href={banner.cta_href || "#"}
-            className="inline-flex items-center bg-white text-zinc-800 font-bold px-6 py-3 rounded-full text-sm hover:bg-zinc-50 transition-colors w-fit shadow-lg"
+            className="inline-flex items-center bg-orange-500 text-white font-bold px-8 py-3.5 rounded-xl text-base sm:text-lg hover:bg-orange-600 transition-colors w-fit shadow-xl"
           >
             {banner.cta_text}
           </a>
-        )}
+        ))}
       </div>
 
       {/* Navigation arrows */}
