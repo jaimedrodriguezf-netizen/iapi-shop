@@ -79,7 +79,7 @@ const navItems = [
     icon: Megaphone,
   },
   {
-    title: "Secciones",
+    title: "Secciones Marketplace",
     url: "/dashboard/admin/sections",
     icon: LayoutGrid,
   },
