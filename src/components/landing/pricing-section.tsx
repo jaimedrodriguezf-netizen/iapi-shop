@@ -3,6 +3,7 @@
 import React from "react";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export interface PricingFeature {
   text: string;
@@ -73,24 +74,7 @@ const PLANS: PricingPlan[] = [
     popular: false,
     comingSoon: true,
   },
-  {
-    name: "Business",
-    desc: "Para cadenas de comercios y operaciones multi-sucursal.",
-    price: "Próximamente",
-    period: "",
-    features: [
-      { text: "Todo lo del Plan Pro", included: true },
-      { text: "Hasta 2000 productos activos", included: true },
-      { text: "Hasta 10 fotos por producto", included: true },
-      { text: "Gestión de sucursales y empleados", included: true },
-      { text: "Acceso multi-usuario", included: true },
-      { text: "Soporte dedicado", included: true },
-    ],
-    buttonText: "Próximamente",
-    popular: false,
-    comingSoon: true,
-  },
-];
+  ];
 
 export function PricingSection() {
 
@@ -108,7 +92,7 @@ export function PricingSection() {
 
           {/* Billing Switch Toggle */}
           <div className="flex items-center justify-center pt-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-accent/10 px-3 py-1 text-xs font-bold text-violet-accent border border-violet-accent/20 dark:bg-violet-950/40 dark:text-violet-350">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-accent/10 px-3 py-1 text-xs font-bold text-orange-accent border border-orange-accent/20 dark:bg-orange-950/40 dark:text-orange-350">
               Solo facturación anual disponible
             </span>
           </div>
@@ -123,12 +107,12 @@ export function PricingSection() {
                 className={cn(
                   "rounded-3xl border p-6 sm:p-8 flex flex-col justify-between relative transition-all duration-300 hover:shadow-xl",
                   plan.popular
-                    ? "border-violet-accent bg-gradient-to-b from-violet-accent/5 to-white dark:from-violet-accent/10 dark:to-zinc-900 shadow-lg md:scale-105 z-10"
+                    ? "border-orange-accent bg-gradient-to-b from-orange-accent/5 to-white dark:from-orange-accent/10 dark:to-zinc-900 shadow-lg md:scale-105 z-10"
                     : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
                 )}
               >
                 {plan.popular && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-violet-accent text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-xl shadow-md">
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-orange-accent text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-xl shadow-md">
                     Más Popular
                   </span>
                 )}
@@ -151,7 +135,7 @@ export function PricingSection() {
                       )}
                     </div>
                     {plan.name === "Plus" && (
-                      <span className="text-[10px] font-bold text-violet-accent">IVA incluido</span>
+                      <span className="text-[10px] font-bold text-orange-accent">IVA incluido</span>
                     )}
                   </div>
 
@@ -163,7 +147,7 @@ export function PricingSection() {
                     {plan.features.map((feat) => (
                       <li key={feat.text} className="flex items-start gap-3 text-sm">
                         {feat.included ? (
-                          <Check className="h-5 w-5 text-violet-accent shrink-0" />
+                          <Check className="h-5 w-5 text-orange-accent shrink-0" />
                         ) : (
                           <X className="h-5 w-5 text-zinc-300 dark:text-zinc-700 shrink-0" />
                         )}
@@ -176,20 +160,31 @@ export function PricingSection() {
                 </div>
 
                 {/* CTA Button */}
-                <button
-                  type="button"
-                  disabled={plan.comingSoon}
-                  className={cn(
-                    "w-full rounded-xl py-4 text-center text-sm font-black transition-all shadow-sm",
-                    plan.comingSoon
-                      ? "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600 cursor-not-allowed"
-                      : plan.popular
-                        ? "bg-violet-accent hover:bg-violet-accent-hover text-white hover:shadow-md cursor-pointer active:scale-[0.98]"
-                        : "border border-zinc-200 bg-white hover:bg-zinc-50 text-slate-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white cursor-pointer active:scale-[0.98]"
-                  )}
-                >
-                  {plan.buttonText}
-                </button>
+                {plan.name === "Plus" ? (
+                  <a
+                    href="https://wa.me/593987274146?text=Hola!%20Me%20interesa%20adquirir%20el%20Plan%20Plus%20para%20mi%20tienda%20en%20IAPI%20Shop."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full rounded-xl py-4 text-center text-sm font-black transition-all shadow-sm bg-orange-accent hover:bg-orange-accent-hover text-white hover:shadow-md cursor-pointer active:scale-[0.98]"
+                  >
+                    {plan.buttonText}
+                  </a>
+                ) : plan.name === "Free" ? (
+                  <Link
+                    href="/register"
+                    className="block w-full rounded-xl py-4 text-center text-sm font-black transition-all shadow-sm border border-zinc-200 bg-white hover:bg-zinc-50 text-slate-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white cursor-pointer active:scale-[0.98]"
+                  >
+                    {plan.buttonText}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={plan.comingSoon}
+                    className="w-full rounded-xl py-4 text-center text-sm font-black transition-all shadow-sm bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600 cursor-not-allowed"
+                  >
+                    {plan.buttonText}
+                  </button>
+                )}
               </div>
             );
           })}

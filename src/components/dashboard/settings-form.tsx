@@ -5,9 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { toast } from "sonner"
-import { Check, MapPin, Palette, Share2, AlertTriangle, Building, Globe } from "lucide-react"
+import { Check, MapPin, Palette, Share2, AlertTriangle, Building, Globe, ShoppingBag } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { StorefrontHeader } from "@/components/storefront/storefront-header"
+import { StorefrontProductGrid } from "@/components/storefront/storefront-product-grid"
 import {
   Card,
   CardContent,
@@ -24,7 +26,26 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { updateTenantSettings, type Tenant, type Address, type SocialLinks } from "@/lib/tenants/actions"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  updateTenantSettings,
+  checkSlugAvailability,
+  type Tenant,
+  type Address,
+  type SocialLinks,
+  type ColorPalette,
+  type Country,
+  type Province,
+  type Canton,
+  getProvincesByCountryId,
+  getCantonsByProvinceId,
+} from "@/lib/tenants/actions"
 import { cn } from "@/lib/utils"
 
 // WCAG AA contrast check: calculates relative luminance contrast ratio
@@ -54,7 +75,7 @@ const brandingSchema = z.object({
   name: z.string().min(2, "El nombre de la tienda debe tener al menos 2 caracteres"),
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Formato de slug inválido. Solo minúsculas, números y guiones"),
   status: z.enum(["active", "draft"]),
-  brand_color: z.string().regex(/^#[0-9A-F]{6}$/i, "Formato HEX inválido (ej: #7c3aed)").or(z.literal("")),
+  brand_color: z.string().regex(/^#[0-9A-F]{6}$/i, "Formato HEX inválido (ej: #f97316)").or(z.literal("")),
   secondary_color: z.string().regex(/^#[0-9A-F]{6}$/i, "Formato HEX inválido").or(z.literal("")),
   street: z.string().optional().or(z.literal("")),
   city: z.string().optional().or(z.literal("")),
@@ -69,19 +90,25 @@ const brandingSchema = z.object({
   show_social_links: z.boolean(),
 })
 
-const PRESET_COLORS = [
-  { name: "IAPI Violet", value: "#7c3aed" },
-  { name: "Ocean Blue", value: "#0284c7" },
-  { name: "Emerald", value: "#059669" },
-  { name: "Royal Purple", value: "#6d28d9" },
-  { name: "Rose", value: "#e11d48" },
-  { name: "Slate", value: "#475569" },
-]
-
 function parseAddress(tenant: Tenant): { street: string; city: string; state: string; zip: string; country: string } {
   if (!tenant.address) return { street: "", city: "", state: "", zip: "", country: "" }
   if (typeof tenant.address === "string") {
-    return { street: tenant.address, city: "", state: "", zip: "", country: "" }
+    const trimmed = tenant.address.trim()
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+      try {
+        const parsed = JSON.parse(trimmed) as Address
+        return {
+          street: parsed.street || "",
+          city: parsed.city || "",
+          state: parsed.state || "",
+          zip: parsed.zip || "",
+          country: parsed.country || "",
+        }
+      } catch (e) {
+        // Fall back to treating it as street
+      }
+    }
+    return { street: trimmed, city: "", state: "", zip: "", country: "" }
   }
   const addr = tenant.address as Address
   return {
@@ -93,8 +120,67 @@ function parseAddress(tenant: Tenant): { street: string; city: string; state: st
   }
 }
 
-export function SettingsForm({ tenant }: { tenant: Tenant }) {
+interface Product {
+  id: string
+  name: string
+  description?: string
+  price: number
+  image_urls?: string[]
+  category_id?: string
+}
+
+interface SettingsFormProps {
+  tenant: Tenant
+  initialProducts?: Product[]
+  planName?: string
+  palettes: ColorPalette[]
+  countries?: Country[]
+}
+
+const DEFAULT_MOCK_PRODUCTS = [
+  {
+    id: "mock-prod-1",
+    name: "Hamburguesa Premium Doble",
+    description: "Doble carne de res premium, queso cheddar fundido, tocino crujiente y salsa especial.",
+    price: 9.99,
+    image_urls: [],
+    category_id: "mock-cat-1"
+  },
+  {
+    id: "mock-prod-2",
+    name: "Papas Fritas Rústicas",
+    description: "Papas cortadas a mano sazonadas con finas hierbas y un toque de sal marina.",
+    price: 3.50,
+    image_urls: [],
+    category_id: "mock-cat-1"
+  },
+  {
+    id: "mock-prod-3",
+    name: "Gaseosa Cola Helada",
+    description: "Vaso de 500ml con abundante hielo y limón.",
+    price: 1.50,
+    image_urls: [],
+    category_id: "mock-cat-2"
+  },
+  {
+    id: "mock-prod-4",
+    name: "Copa Helada de Oreo",
+    description: "Cremoso helado de vainilla batido con trozos de galletas Oreo.",
+    price: 4.20,
+    image_urls: [],
+    category_id: "mock-cat-3"
+  }
+]
+
+export function SettingsForm({ tenant, initialProducts = [], planName = "Free", palettes, countries = [] }: SettingsFormProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const brandColorInputRef = React.useRef<HTMLInputElement>(null)
+  const secondaryColorInputRef = React.useRef<HTMLInputElement>(null)
+
+  const [provinces, setProvinces] = React.useState<Province[]>([])
+  const [cantons, setCantons] = React.useState<Canton[]>([])
+  const [isLoadingProvinces, setIsLoadingProvinces] = React.useState(false)
+  const [isLoadingCantons, setIsLoadingCantons] = React.useState(false)
 
   const parsedAddress = parseAddress(tenant)
 
@@ -104,7 +190,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
       name: tenant.name || "",
       slug: tenant.slug || "",
       status: (tenant.status as "active" | "draft") || "draft",
-      brand_color: tenant.brand_color || "#7c3aed",
+      brand_color: tenant.brand_color || "#f97316",
       secondary_color: tenant.secondary_color || "",
       street: parsedAddress.street,
       city: parsedAddress.city,
@@ -121,9 +207,106 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
   })
 
   const currentBrandColor = form.watch("brand_color")
+  const currentSecondaryColor = form.watch("secondary_color")
   const watchName = form.watch("name")
   const watchSlug = form.watch("slug")
+  const watchCountry = form.watch("country")
+  const watchState = form.watch("state")
   const cannotPublish = watchName === "Mi Tienda" || (watchSlug ? watchSlug.startsWith("tienda-") : false)
+
+  const isFreePlan = planName.toLowerCase() === "free"
+
+  const [isGeneratingSlug, setIsGeneratingSlug] = React.useState(false)
+
+  React.useEffect(() => {
+    if (watchCountry === "Ecuador") {
+      const ecuador = countries.find(c => c.name.toLowerCase() === "ecuador")
+      if (ecuador) {
+        setIsLoadingProvinces(true)
+        getProvincesByCountryId(ecuador.id)
+          .then((res) => {
+            if (res.success && res.data) {
+              setProvinces(res.data)
+            }
+          })
+          .finally(() => setIsLoadingProvinces(false))
+      }
+    } else {
+      setProvinces([])
+      setCantons([])
+    }
+  }, [watchCountry, countries])
+
+  React.useEffect(() => {
+    if (watchCountry === "Ecuador" && watchState) {
+      const provinceObj = provinces.find(p => p.name.toLowerCase() === watchState.toLowerCase())
+      if (provinceObj) {
+        setIsLoadingCantons(true)
+        getCantonsByProvinceId(provinceObj.id)
+          .then((res) => {
+            if (res.success && res.data) {
+              setCantons(res.data)
+            }
+          })
+          .finally(() => setIsLoadingCantons(false))
+      } else {
+        setCantons([])
+      }
+    } else {
+      setCantons([])
+    }
+  }, [watchCountry, watchState, provinces])
+
+  const generateAndCheckSlug = async () => {
+    const storeName = form.getValues("name")
+    if (!storeName || storeName === "Mi Tienda") {
+      toast.error("Por favor, ingresa un nombre personalizado para tu tienda primero.")
+      return
+    }
+
+    const baseSlug = storeName
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Remove accents/diacritics
+      .replace(/[^a-z0-9\s-]/g, "") // Remove non-alphanumeric except space/hyphen
+      .trim()
+      .replace(/[\s-]+/g, "-") // Replace spaces/hyphens with single hyphen
+
+    if (baseSlug.length < 2) {
+      toast.error("El nombre de la tienda es demasiado corto para generar un slug válido.")
+      return
+    }
+
+    setIsGeneratingSlug(true)
+    let checkVal = baseSlug
+    let count = 0
+    let isAvailable = false
+
+    while (count < 10) {
+      const candidate = count === 0 ? baseSlug : `${baseSlug}-${count}`
+      if (candidate === tenant.slug) {
+        checkVal = candidate
+        isAvailable = true
+        break
+      }
+      
+      const res = await checkSlugAvailability(candidate)
+      if (res.available) {
+        checkVal = candidate
+        isAvailable = true
+        break
+      }
+      count++
+    }
+
+    setIsGeneratingSlug(false)
+    if (isAvailable) {
+      form.setValue("slug", checkVal, { shouldValidate: true })
+      toast.success(`Slug sugerido y disponible: ${checkVal}`)
+    } else {
+      toast.error("No se pudo generar un slug único disponible. Escribe uno manualmente.")
+    }
+  }
 
   React.useEffect(() => {
     if (cannotPublish && form.getValues("status") === "active") {
@@ -179,7 +362,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <Card className="rounded-3xl border-none shadow-sm bg-background">
               <CardHeader>
-                <div className="flex items-center gap-2 text-violet-600 mb-2">
+                <div className="flex items-center gap-2 text-orange-500 mb-2">
                   <Globe className="h-5 w-5" />
                   <span className="text-xs font-black uppercase tracking-widest">Ajustes Generales</span>
                 </div>
@@ -210,9 +393,20 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                     <FormItem>
                       <FormLabel htmlFor="store-slug" className="font-bold">Dirección Web (slug)</FormLabel>
                       <FormControl>
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground text-sm font-medium">iapi.shop/</span>
-                          <Input id="store-slug" placeholder="mi-tienda" {...field} className="rounded-xl h-12" />
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground text-sm font-medium shrink-0">iapi.shop/</span>
+                            <Input id="store-slug" placeholder="mi-tienda" {...field} className="rounded-xl h-12 flex-1" />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={generateAndCheckSlug}
+                              disabled={isGeneratingSlug}
+                              className="rounded-xl h-12 shrink-0 border-orange-200 hover:bg-orange-50 font-bold text-orange-700 transition-all active:scale-95 shadow-sm"
+                            >
+                              {isGeneratingSlug ? "Verificando..." : "Sugerir Slug"}
+                            </Button>
+                          </div>
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -228,7 +422,13 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                       <FormLabel htmlFor="status-toggle" className="font-bold">Publicar Tienda</FormLabel>
                       <div className="flex items-center gap-3">
                         <FormControl>
-                          <div className="relative inline-flex items-center">
+                          <label
+                            htmlFor="status-toggle"
+                            className={cn(
+                              "relative inline-flex items-center",
+                              cannotPublish ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                            )}
+                          >
                             <input
                               type="checkbox"
                               id="status-toggle"
@@ -238,13 +438,21 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                               disabled={cannotPublish}
                               onChange={(e) => field.onChange(e.target.checked ? "active" : "draft")}
                             />
-                            <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-violet-600"></div>
+                            <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-orange-500"></div>
                             <span className="ml-3 text-sm font-medium text-zinc-950 dark:text-zinc-50">
                               {field.value === "active" ? "Pública (Activa)" : "Borrador (Construcción)"}
                             </span>
-                          </div>
+                          </label>
                         </FormControl>
                       </div>
+                      {isFreePlan && (
+                        <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400 text-sm font-medium bg-amber-50 dark:bg-amber-950/30 px-4 py-3 rounded-xl mt-2">
+                          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                          <span>
+                            En el <strong>Plan Free</strong> puedes publicar tu tienda, pero con las siguientes limitaciones: máximo 10 productos visibles, colores de marca predeterminados y marca de agua de IAPI Shop en tu tienda.
+                          </span>
+                        </div>
+                      )}
                       {cannotPublish && (
                         <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400 text-sm font-medium bg-amber-50 dark:bg-amber-950/30 px-4 py-3 rounded-xl mt-2">
                           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
@@ -261,64 +469,185 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
             </Card>
             <Card className="rounded-3xl border-none shadow-sm bg-background">
               <CardHeader>
-                <div className="flex items-center gap-2 text-violet-600 mb-2">
-                  <Palette className="h-5 w-5" />
-                  <span className="text-xs font-black uppercase tracking-widest">Identidad Visual</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-orange-500 mb-2">
+                    <Palette className="h-5 w-5" />
+                    <span className="text-xs font-black uppercase tracking-widest">Identidad Visual</span>
+                  </div>
                 </div>
                 <CardTitle className="text-2xl font-black">Colores de Marca</CardTitle>
                 <CardDescription>
-                  Personaliza el color principal que verán tus clientes en el catálogo.
+                  Personaliza los colores que verán tus clientes en el catálogo.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="brand_color"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel className="font-bold">Color Primario</FormLabel>
-                      <FormControl>
-                        <div className="flex flex-wrap gap-3">
-                          {PRESET_COLORS.map((color) => (
-                            <button
-                              key={color.value}
-                              type="button"
-                              className={cn(
-                                "h-12 w-12 rounded-xl border-4 transition-all relative flex items-center justify-center",
-                                field.value === color.value ? "border-foreground scale-110 shadow-md" : "border-transparent hover:scale-105"
-                              )}
-                              style={{ backgroundColor: color.value }}
-                              onClick={() => field.onChange(color.value)}
-                              title={color.name}
-                            >
-                              {field.value === color.value && <Check className="h-6 w-6 text-white drop-shadow-md" />}
-                            </button>
-                          ))}
-                          <div className="flex items-center gap-2 ml-2">
-                            <Input 
-                              {...field} 
-                              className="w-28 font-mono uppercase rounded-xl h-12"
-                              placeholder="#HEX"
-                            />
+              <CardContent className="space-y-8">
+                <div className="space-y-3">
+                  <FormLabel className="font-bold text-sm">Paletas de Colores Sugeridas</FormLabel>
+                  <div className="flex flex-wrap gap-3">
+                    {palettes.map((palette) => {
+                      const isSelected = form.watch("brand_color") === palette.brand_color && 
+                                         form.watch("secondary_color") === palette.secondary_color;
+                      return (
+                        <button
+                          key={palette.id}
+                          type="button"
+                          className={cn(
+                            "h-14 w-28 rounded-2xl border-4 transition-all duration-300 relative flex items-center justify-between shadow-sm overflow-hidden p-0",
+                            isSelected
+                              ? "scale-110 shadow-md rotate-3 border-orange-600"
+                              : "border-zinc-200 dark:border-zinc-800 hover:scale-105 hover:shadow-md hover:rotate-[-2deg]"
+                          )}
+                          style={{
+                            borderColor: isSelected ? "var(--brand-color)" : "transparent"
+                          }}
+                          onClick={() => {
+                            form.setValue("brand_color", palette.brand_color, { shouldValidate: true });
+                            form.setValue("secondary_color", palette.secondary_color, { shouldValidate: true });
+                          }}
+                          title={palette.name}
+                        >
+                          {/* Split Colors */}
+                          <div className="h-full w-1/2" style={{ backgroundColor: palette.brand_color }} />
+                          <div className="h-full w-1/2" style={{ backgroundColor: palette.secondary_color }} />
+                          
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors">
+                            <span className="text-[10px] font-black text-white drop-shadow-md tracking-wider uppercase">{palette.name}</span>
                           </div>
-                        </div>
-                      </FormControl>
-                      {showContrastWarning && (
-                        <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm font-medium bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-xl">
-                          <AlertTriangle className="h-4 w-4 shrink-0" />
-                          Este color tiene bajo contraste. Puede ser difícil de leer sobre fondos claros u oscuros.
-                        </div>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                          
+                          {isSelected && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-orange-500/20">
+                              <Check className="h-5 w-5 text-white stroke-[3.5px] drop-shadow-sm animate-in zoom-in-50 duration-200" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="brand_color"
+                    render={({ field }) => {
+                      return (
+                        <FormItem className="space-y-3">
+                          <FormLabel className="font-bold">Color Primario Personalizado</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                ref={brandColorInputRef}
+                                className="sr-only"
+                                value={field.value || "#f97316"}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                aria-label="Selector de Color Primario"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => brandColorInputRef.current?.click()}
+                                className={cn(
+                                  "h-12 w-12 rounded-2xl border-4 transition-all duration-300 relative flex items-center justify-center shadow-sm overflow-hidden shrink-0",
+                                  !palettes.some(p => p.brand_color === field.value) && field.value
+                                    ? "scale-110 shadow-md rotate-3"
+                                    : "border-zinc-200 dark:border-zinc-800 hover:scale-105 hover:shadow-md hover:rotate-[-2deg]"
+                                )}
+                                style={{
+                                  borderColor: !palettes.some(p => p.brand_color === field.value) && field.value ? "var(--brand-color)" : "transparent"
+                                }}
+                                title="Color Primario Personalizado"
+                              >
+                                <div 
+                                  className="absolute inset-0 transition-all duration-300"
+                                  style={{
+                                    background: field.value || "linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)"
+                                  }}
+                                />
+                                {field.value && (
+                                  <Check className="h-5 w-5 text-white stroke-[3.5px] drop-shadow-sm relative z-10 animate-in zoom-in-50 duration-200" />
+                                )}
+                              </button>
+                              <Input 
+                                {...field} 
+                                aria-label="Hex Color Primario"
+                                className="w-full font-mono uppercase rounded-xl h-12"
+                                placeholder="#HEX"
+                              />
+                            </div>
+                          </FormControl>
+                          {showContrastWarning && (
+                            <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm font-medium bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-xl">
+                              <AlertTriangle className="h-4 w-4 shrink-0" />
+                              Este color tiene bajo contraste. Puede ser difícil de leer sobre fondos claros u oscuros.
+                            </div>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )
+                    }}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="secondary_color"
+                    render={({ field }) => {
+                      return (
+                        <FormItem className="space-y-3">
+                          <FormLabel className="font-bold">Color Secundario Personalizado</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                ref={secondaryColorInputRef}
+                                className="sr-only"
+                                value={field.value || "#bae6fd"}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                aria-label="Selector de Color Secundario"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => secondaryColorInputRef.current?.click()}
+                                className={cn(
+                                  "h-12 w-12 rounded-2xl border-4 transition-all duration-300 relative flex items-center justify-center shadow-sm overflow-hidden shrink-0",
+                                  !palettes.some(p => p.secondary_color === field.value) && field.value
+                                    ? "scale-110 shadow-md rotate-3"
+                                    : "border-zinc-200 dark:border-zinc-800 hover:scale-105 hover:shadow-md hover:rotate-[-2deg]"
+                                )}
+                                style={{
+                                  borderColor: !palettes.some(p => p.secondary_color === field.value) && field.value ? "var(--brand-color)" : "transparent"
+                                }}
+                                title="Color Secundario Personalizado"
+                              >
+                                <div 
+                                  className="absolute inset-0 transition-all duration-300"
+                                  style={{
+                                    background: field.value || "linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff)"
+                                  }}
+                                />
+                                {field.value && (
+                                  <Check className="h-5 w-5 text-white stroke-[3.5px] drop-shadow-sm relative z-10 animate-in zoom-in-50 duration-200" />
+                                )}
+                              </button>
+                              <Input 
+                                {...field} 
+                                aria-label="Hex Color Secundario"
+                                className="w-full font-mono uppercase rounded-xl h-12"
+                                placeholder="#HEX"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )
+                    }}
+                  />
+                </div>
               </CardContent>
             </Card>
 
             <Card className="rounded-3xl border-none shadow-sm bg-background">
               <CardHeader>
-                <div className="flex items-center gap-2 text-violet-600 mb-2">
+                <div className="flex items-center gap-2 text-orange-500 mb-2">
                   <Building className="h-5 w-5" />
                   <span className="text-xs font-black uppercase tracking-widest">Dirección del Negocio</span>
                 </div>
@@ -333,11 +662,11 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                   name="street"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-bold">Calle y Número</FormLabel>
+                      <FormLabel htmlFor="address-street" className="font-bold">Calle y Número</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="Av. Amazonas 123" {...field} className="pl-10 rounded-xl h-12" />
+                          <Input id="address-street" placeholder="Av. Amazonas 123" {...field} className="pl-10 rounded-xl h-12" />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -345,32 +674,103 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                   )}
                 />
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs font-black uppercase text-muted-foreground">Ciudad</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Quito" {...field} className="rounded-xl" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="state"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs font-black uppercase text-muted-foreground">Provincia / Estado</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Pichincha" {...field} className="rounded-xl" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {watchCountry === "Ecuador" ? (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="state"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel htmlFor="address-state" className="text-xs font-black uppercase text-muted-foreground">Provincia</FormLabel>
+                            <FormControl>
+                              <Select
+                                onValueChange={(val) => {
+                                  field.onChange(val)
+                                  form.setValue("city", "")
+                                  setCantons([])
+                                }}
+                                value={field.value || ""}
+                                disabled={isLoadingProvinces}
+                              >
+                                <SelectTrigger id="address-state" className="rounded-xl h-12 w-full">
+                                  <SelectValue placeholder={isLoadingProvinces ? "Cargando..." : "Elige una provincia"}>
+                                    {field.value || "Elige una provincia"}
+                                  </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  {provinces.map((p) => (
+                                    <SelectItem key={p.id} value={p.name}>
+                                      {p.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel htmlFor="address-city" className="text-xs font-black uppercase text-muted-foreground">Cantón</FormLabel>
+                            <FormControl>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value || ""}
+                                disabled={isLoadingCantons || !watchState}
+                              >
+                                <SelectTrigger id="address-city" className="rounded-xl h-12 w-full">
+                                  <SelectValue placeholder={isLoadingCantons ? "Cargando..." : "Elige un cantón"}>
+                                    {field.value || "Elige un cantón"}
+                                  </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  {cantons.map((c) => (
+                                    <SelectItem key={c.id} value={c.name}>
+                                      {c.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel htmlFor="address-city" className="text-xs font-black uppercase text-muted-foreground">Ciudad</FormLabel>
+                            <FormControl>
+                              <Input id="address-city" placeholder="Quito" {...field} className="rounded-xl h-12" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="state"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel htmlFor="address-state" className="text-xs font-black uppercase text-muted-foreground">Provincia / Estado</FormLabel>
+                            <FormControl>
+                              <Input id="address-state" placeholder="Pichincha" {...field} className="rounded-xl h-12" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
@@ -378,9 +778,9 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                     name="zip"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs font-black uppercase text-muted-foreground">Código Postal</FormLabel>
+                        <FormLabel htmlFor="address-zip" className="text-xs font-black uppercase text-muted-foreground">Código Postal</FormLabel>
                         <FormControl>
-                          <Input placeholder="170150" {...field} className="rounded-xl" />
+                          <Input id="address-zip" placeholder="170150" {...field} className="rounded-xl h-12" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -391,11 +791,34 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                     name="country"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs font-black uppercase text-muted-foreground">País</FormLabel>
+                        <FormLabel htmlFor="address-country" className="text-xs font-black uppercase text-muted-foreground">País</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Ecuador" {...field} className="pl-10 rounded-xl" />
+                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                            <Select
+                              onValueChange={(val) => {
+                                field.onChange(val)
+                                // State cleanup & cascading reset:
+                                form.setValue("state", "")
+                                form.setValue("city", "")
+                                setProvinces([])
+                                setCantons([])
+                              }}
+                              value={field.value || ""}
+                            >
+                              <SelectTrigger id="address-country" className="pl-10 rounded-xl h-12 w-full">
+                                <SelectValue placeholder="Elige un país">
+                                  {field.value || "Elige un país"}
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent className="rounded-xl">
+                                {countries.map((c) => (
+                                  <SelectItem key={c.id} value={c.name}>
+                                    {c.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -408,7 +831,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
 
             <Card className="rounded-3xl border-none shadow-sm bg-background">
               <CardHeader>
-                <div className="flex items-center gap-2 text-violet-600 mb-2">
+                <div className="flex items-center gap-2 text-orange-500 mb-2">
                   <Share2 className="h-5 w-5" />
                   <span className="text-xs font-black uppercase tracking-widest">Contacto y Redes</span>
                 </div>
@@ -473,7 +896,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
 
             <Card className="rounded-3xl border-none shadow-sm bg-background">
               <CardHeader>
-                <div className="flex items-center gap-2 text-violet-600 mb-2">
+                <div className="flex items-center gap-2 text-orange-500 mb-2">
                   <AlertTriangle className="h-5 w-5" />
                   <span className="text-xs font-black uppercase tracking-widest">Privacidad en Catálogo</span>
                 </div>
@@ -504,7 +927,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                             checked={field.value}
                             onChange={(e) => field.onChange(e.target.checked)}
                           />
-                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-violet-600"></div>
+                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-orange-500"></div>
                         </div>
                       </FormControl>
                     </FormItem>
@@ -532,7 +955,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                             checked={field.value}
                             onChange={(e) => field.onChange(e.target.checked)}
                           />
-                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-violet-600"></div>
+                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-orange-500"></div>
                         </div>
                       </FormControl>
                     </FormItem>
@@ -560,7 +983,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
                             checked={field.value}
                             onChange={(e) => field.onChange(e.target.checked)}
                           />
-                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-violet-600"></div>
+                          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-orange-500"></div>
                         </div>
                       </FormControl>
                     </FormItem>
@@ -571,7 +994,7 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
 
             <Button 
               type="submit" 
-              className="w-full lg:w-fit rounded-xl font-black px-12 py-7 bg-violet-600 hover:bg-violet-700 text-lg shadow-xl"
+              className="w-full lg:w-fit rounded-xl font-black px-12 py-7 bg-orange-500 hover:bg-orange-600 text-lg shadow-xl"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Guardando..." : "Guardar Cambios"}
@@ -584,33 +1007,57 @@ export function SettingsForm({ tenant }: { tenant: Tenant }) {
         <div className="sticky top-4">
           <div className="flex items-center gap-2 text-muted-foreground mb-4">
             <Check className="h-4 w-4" />
-            <span className="text-xs font-bold uppercase tracking-widest text-violet-600">Vista Previa en Vivo</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-orange-500">Vista Previa en Vivo</span>
           </div>
-          <div className="rounded-[40px] border-8 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black p-4 aspect-[9/19] shadow-2xl overflow-hidden pointer-events-none select-none relative">
-            <div className="h-20 w-full rounded-b-2xl bg-white dark:bg-zinc-900 border-b flex flex-col items-center justify-center p-4">
-               <div className="h-10 w-10 rounded-xl bg-muted animate-pulse" />
-               <div className="h-3 w-20 bg-muted rounded-full mt-2 animate-pulse" />
+          
+          {/* Live Phone Preview container rendering the actual storefront layout */}
+          <div 
+            className="rounded-[40px] border-8 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black aspect-[9/19] h-[640px] shadow-2xl overflow-hidden relative select-none"
+            style={{
+              "--brand-color": currentBrandColor || "#f97316",
+              "--secondary-color": currentSecondaryColor || "#bae6fd",
+            } as React.CSSProperties}
+          >
+            <div className="h-full w-full overflow-y-auto no-scrollbar pb-24 bg-zinc-50 dark:bg-black text-left">
+              {/* 1. Header component populated with dynamic form values */}
+              <StorefrontHeader 
+                tenantName={watchName || tenant.name || "Mi Tienda"}
+                tenantId={tenant.id}
+                brandColor={currentBrandColor || "#f97316"}
+              />
+              
+{/* 2. Product grid with live preview */}
+              <StorefrontProductGrid
+                products={initialProducts.length > 0 ? initialProducts : DEFAULT_MOCK_PRODUCTS}
+                tenantId={tenant.id}
+                brandColor={currentBrandColor || "#f97316"}
+                favoriteIds={[]}
+                onToggleFavorite={() => {}}
+                isAuthenticated={false}
+              />
+
+              {/* 3. Static Footer component */}
+              <footer className="bg-white dark:bg-zinc-900 border-t py-6 px-4 text-center mt-6">
+                <p className="text-[10px] text-muted-foreground font-medium">
+                  © {new Date().getFullYear()} {watchName || tenant.name || "Mi Tienda"}.
+                </p>
+                <div className="text-[8px] text-muted-foreground uppercase font-black tracking-widest mt-1 opacity-70">
+                  Potenciado por IAPI Shop
+                </div>
+              </footer>
             </div>
-            <div className="p-4 space-y-4">
-               <div className="h-4 w-2/3 bg-muted rounded-full animate-pulse" />
-               <div className="grid grid-cols-2 gap-3">
-                  {[1,2,3,4].map(i => (
-                    <div key={i} className="aspect-square bg-white dark:bg-zinc-900 rounded-xl border p-2 flex flex-col justify-end gap-2">
-                       <div className="h-2 w-full bg-muted rounded-full" />
-                       <div className="flex justify-between items-center">
-                          <div className="h-3 w-10 rounded-full" style={{ backgroundColor: currentBrandColor }} />
-                          <div className="h-6 w-6 rounded-lg" style={{ backgroundColor: currentBrandColor }} />
-                       </div>
-                    </div>
-                  ))}
-               </div>
-            </div>
-            <div className="absolute bottom-6 right-6 h-12 w-12 rounded-xl shadow-xl flex items-center justify-center text-white" style={{ backgroundColor: currentBrandColor }}>
-               <Check className="h-6 w-6" />
+
+            {/* Absolute Floating Shopping Bag visual mock */}
+            <div 
+              className="absolute bottom-6 right-6 h-14 w-14 rounded-2xl shadow-xl flex items-center justify-center text-white cursor-default select-none transition-all duration-300" 
+              style={{ backgroundColor: currentBrandColor || "#f97316" }}
+            >
+              <ShoppingBag className="h-6 w-6" />
             </div>
           </div>
+          
           <p className="text-center text-[10px] text-muted-foreground mt-4 italic">
-            Así es como tus clientes verán el catálogo en su celular.
+            Así es como tus clientes verán el catálogo en su celular. Es completamente interactiva.
           </p>
         </div>
       </div>

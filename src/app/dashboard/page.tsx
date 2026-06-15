@@ -4,6 +4,8 @@ import { ShopSummaryTable, ShopSummary } from "@/components/dashboard/shop-summa
 import { getTenantOrders } from "@/lib/orders/actions";
 import { getMyTenants, getTenantSubscription, ensureUserTenant, type Tenant } from "@/lib/tenants/actions";
 import { getUserRoleInfo } from "@/lib/auth/actions";
+import { OnboardingChecklistWidget, PremiumBenefitsWidget, UsageLimitsWidget } from "@/components/dashboard/free-plan-widgets";
+import { checkProductLimit } from "@/lib/products/actions";
 
 export default async function DashboardPage() {
   // 1. Obtener datos del usuario delegando a Server Action (GGA Compliance)
@@ -83,16 +85,30 @@ export default async function DashboardPage() {
   let planName = (subResult.success && subResult.data) ? subResult.data.plans?.name || "N/A" : "N/A";
 
   if (platformRole === "admin") {
-    planName = "Business";
+    planName = "Plus";
   }
 
   const isFreePlan = planName.toLowerCase() === "free";
 
+  // Fetch shopCount via getMyTenants()
+  const myTenantsResult = await getMyTenants();
+  const shopCount = myTenantsResult.success && myTenantsResult.data ? myTenantsResult.data.length : 0;
+
+  // Fetch productCount and productLimit via checkProductLimit(activeTenantId)
+  let productCount = 0;
+  let productLimit = 10;
+  const activeTenant = tenants[0];
+  if (activeTenantId) {
+    const limitCheck = await checkProductLimit(activeTenantId);
+    productCount = limitCheck.current;
+    productLimit = limitCheck.limit;
+  }
+
   return (
     <section className="space-y-6 py-6">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Link href="/onboarding" className="group flex flex-col justify-center rounded-3xl border bg-background p-6 shadow-sm hover:border-violet-500 transition-all">
-          <span className="text-sm font-bold text-violet-600">Primeros pasos</span>
+        <Link href="/onboarding" className="group flex flex-col justify-center rounded-3xl border bg-background p-6 shadow-sm hover:border-orange-500 transition-all">
+          <span className="text-sm font-bold text-orange-500">Primeros pasos</span>
           <h2 className="text-xl font-black mt-1 group-hover:translate-x-1 transition-transform">Crear sucursal →</h2>
         </Link>
         <div className="rounded-3xl border bg-background p-6 shadow-sm">
@@ -105,26 +121,46 @@ export default async function DashboardPage() {
         </div>
         <div className="rounded-3xl border bg-background p-6 shadow-sm">
           <span className="text-sm font-bold text-muted-foreground">Plan Actual</span>
-          <p className="text-3xl font-black mt-1 text-violet-600 uppercase text-lg">{planName}</p>
+          <p className="text-orange-500 uppercase text-lg">{planName}</p>
         </div>
       </div>
 
       {platformRole === "admin" && (
-        <div className="bg-violet-50 border border-violet-200 p-4 rounded-3xl">
-          <p className="text-xs font-bold text-violet-800 uppercase tracking-tight">Acceso Administrador de Plataforma</p>
+        <div className="bg-orange-50 border border-orange-200 p-4 rounded-3xl">
+          <p className="text-xs font-bold text-orange-700 uppercase tracking-tight">Acceso Administrador de Plataforma</p>
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <div className={isFreePlan ? "lg:col-span-7" : "lg:col-span-4"}>
-          <SampleSalesChart data={chartData} />
+      {isFreePlan ? (
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="space-y-6">
+            <OnboardingChecklistWidget
+              storeName={activeTenant?.name}
+              storeSlug={activeTenant?.slug}
+              whatsappPhone={activeTenant?.whatsapp_phone}
+              productCount={productCount}
+            />
+            <PremiumBenefitsWidget />
+          </div>
+          <div>
+            <UsageLimitsWidget
+              currentProducts={productCount}
+              productLimit={productLimit}
+              currentShops={shopCount}
+              shopLimit={1}
+            />
+          </div>
         </div>
-        {!isFreePlan && (
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+          <div className="lg:col-span-4">
+            <SampleSalesChart data={chartData} />
+          </div>
           <div className="lg:col-span-3">
             <ShopSummaryTable data={sucursales} />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="mt-8 flex justify-between items-center text-xs text-muted-foreground border-t pt-4">
         <span>IAPI Shop © {new Date().getFullYear()}</span>

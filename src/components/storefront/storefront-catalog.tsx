@@ -2,15 +2,15 @@
 
 import { useState, useMemo, useCallback } from "react"
 import Image from "next/image"
-import { Package, MessageCircle } from "lucide-react"
+import { Package } from "lucide-react"
 import { AddToCartButton } from "@/components/storefront/add-to-cart-button"
-import { buildWhatsAppUrl } from "@/lib/utils/whatsapp"
 
 interface Product {
   id: string
   name: string
   description?: string
   price: number
+  compare_at_price?: number | null
   image_urls?: string[]
   category_id?: string
 }
@@ -26,7 +26,11 @@ interface StorefrontCatalogProps {
   products: Product[]
   tenantId: string
   brandColor: string
+  secondaryColor?: string
   whatsappPhone?: string
+  favoriteIds: string[]
+  onToggleFavorite: (productId: string) => void
+  isAuthenticated: boolean
 }
 
 function getCategoryDescendants(categories: Category[], catId: string): string[] {
@@ -43,7 +47,10 @@ export function StorefrontCatalog({
   products,
   tenantId,
   brandColor,
-  whatsappPhone,
+  secondaryColor,
+  whatsappPhone: _whatsappPhone,
+  favoriteIds,
+  onToggleFavorite,
 }: StorefrontCatalogProps) {
   const [selectedL1, setSelectedL1] = useState<string | null>(null)
   const [selectedL2, setSelectedL2] = useState<string | null>(null)
@@ -95,22 +102,27 @@ export function StorefrontCatalog({
   }, [categories, activeCategoryId]);
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      {/* Category filter chips (3 levels cascading) */}
+    <div 
+      className="max-w-4xl mx-auto px-4 py-8"
+      style={{
+        "--secondary-color": secondaryColor || "#bae6fd"
+      } as React.CSSProperties}
+    >
+      {/* Category filter chips - horizontal scroll */}
       {(visibleL1Categories.length > 1 || (visibleL1Categories.length === 1 && visibleL2Categories.length > 0)) && (
-        <div className="space-y-4 mb-8">
-          {/* L1 Categories */}
-          <div className="flex flex-wrap gap-2">
+        <div className="space-y-3 mb-6">
+          {/* L1 Categories - horizontal scroll */}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <button
               onClick={() => {
                 setSelectedL1(null)
                 setSelectedL2(null)
                 setSelectedL3(null)
               }}
-              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+              className={`shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all border ${
                 selectedL1 === null
-                  ? "text-white shadow-md border-transparent"
-                  : "bg-white dark:bg-zinc-900 text-muted-foreground hover:text-[var(--brand-color)] hover:border-[var(--brand-color)]"
+                  ? "text-white shadow-sm border-transparent"
+                  : "bg-white dark:bg-zinc-900 text-muted-foreground hover:text-[var(--secondary-color)] hover:border-[var(--secondary-color)]"
               }`}
               style={
                 selectedL1 === null
@@ -128,10 +140,10 @@ export function StorefrontCatalog({
                   setSelectedL2(null)
                   setSelectedL3(null)
                 }}
-                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                className={`shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all border ${
                   selectedL1 === category.id
-                    ? "text-white shadow-md border-transparent"
-                    : "bg-white dark:bg-zinc-900 text-muted-foreground hover:text-[var(--brand-color)] hover:border-[var(--brand-color)]"
+                    ? "text-white shadow-sm border-transparent"
+                    : "bg-white dark:bg-zinc-900 text-muted-foreground hover:text-[var(--secondary-color)] hover:border-[var(--secondary-color)]"
                 }`}
                 style={
                   selectedL1 === category.id
@@ -144,18 +156,18 @@ export function StorefrontCatalog({
             ))}
           </div>
 
-          {/* L2 Categories */}
+          {/* L2 Categories - horizontal scroll */}
           {selectedL1 && visibleL2Categories.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-zinc-800">
+            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
               <button
                 onClick={() => {
                   setSelectedL2(null)
                   setSelectedL3(null)
                 }}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                className={`shrink-0 px-3 py-1 rounded-md text-[11px] font-bold transition-all border ${
                   selectedL2 === null
-                    ? "text-white shadow-sm border-transparent"
-                    : "bg-slate-50 dark:bg-zinc-950 text-muted-foreground hover:text-[var(--brand-color)] hover:border-[var(--brand-color)]"
+                    ? "text-white border-transparent"
+                    : "bg-zinc-50 dark:bg-zinc-950 text-muted-foreground hover:text-[var(--secondary-color)] hover:border-[var(--secondary-color)]"
                 }`}
                 style={
                   selectedL2 === null
@@ -163,7 +175,7 @@ export function StorefrontCatalog({
                     : undefined
                 }
               >
-                Todos en {categories.find(c => c.id === selectedL1)?.name}
+                Todos
               </button>
               {visibleL2Categories.map((category) => (
                 <button
@@ -172,10 +184,10 @@ export function StorefrontCatalog({
                     setSelectedL2(category.id)
                     setSelectedL3(null)
                   }}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                  className={`shrink-0 px-3 py-1 rounded-md text-[11px] font-bold transition-all border ${
                     selectedL2 === category.id
-                      ? "text-white shadow-sm border-transparent"
-                      : "bg-slate-50 dark:bg-zinc-950 text-muted-foreground hover:text-[var(--brand-color)] hover:border-[var(--brand-color)]"
+                      ? "text-white border-transparent"
+                      : "bg-zinc-50 dark:bg-zinc-950 text-muted-foreground hover:text-[var(--secondary-color)] hover:border-[var(--secondary-color)]"
                   }`}
                   style={
                     selectedL2 === category.id
@@ -189,17 +201,17 @@ export function StorefrontCatalog({
             </div>
           )}
 
-          {/* L3 Categories */}
-          {selectedL2 && selectedL2 !== "none" && visibleL3Categories.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1">
+          {/* L3 Categories - horizontal scroll */}
+          {selectedL2 && visibleL3Categories.length > 0 && (
+            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
               <button
                 onClick={() => {
                   setSelectedL3(null)
                 }}
-                className={`px-3 py-1 rounded-md text-[11px] font-bold transition-all border ${
+                className={`shrink-0 px-2.5 py-0.5 rounded text-[10px] font-bold transition-all border ${
                   selectedL3 === null
                     ? "text-white border-transparent"
-                    : "bg-zinc-100 dark:bg-zinc-900 text-muted-foreground hover:text-[var(--brand-color)] hover:border-[var(--brand-color)]"
+                    : "bg-zinc-100 dark:bg-zinc-900 text-muted-foreground hover:text-[var(--secondary-color)] hover:border-[var(--secondary-color)]"
                 }`}
                 style={
                   selectedL3 === null
@@ -207,7 +219,7 @@ export function StorefrontCatalog({
                     : undefined
                 }
               >
-                Todos en {categories.find(c => c.id === selectedL2)?.name}
+                Todos
               </button>
               {visibleL3Categories.map((category) => (
                 <button
@@ -215,10 +227,10 @@ export function StorefrontCatalog({
                   onClick={() => {
                     setSelectedL3(category.id)
                   }}
-                  className={`px-3 py-1 rounded-md text-[11px] font-bold transition-all border ${
+                  className={`shrink-0 px-2.5 py-0.5 rounded text-[10px] font-bold transition-all border ${
                     selectedL3 === category.id
                       ? "text-white border-transparent"
-                      : "bg-zinc-100 dark:bg-zinc-900 text-muted-foreground hover:text-[var(--brand-color)] hover:border-[var(--brand-color)]"
+                      : "bg-zinc-100 dark:bg-zinc-900 text-muted-foreground hover:text-[var(--secondary-color)] hover:border-[var(--secondary-color)]"
                   }`}
                   style={
                     selectedL3 === category.id
@@ -236,20 +248,21 @@ export function StorefrontCatalog({
 
       {/* Product grid */}
       {activeCategoryId ? (
-        <section className="mb-12">
+        <section className="mb-10">
           <h2
-            className="text-xl font-black uppercase tracking-widest mb-6 border-l-4 pl-4 text-pretty"
+            className="text-lg font-black uppercase tracking-widest mb-4 border-l-4 pl-3"
             style={{ color: brandColor, borderColor: brandColor }}
           >
             {activeCategoryName}
           </h2>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
                 tenantId={tenantId}
-                whatsappPhone={whatsappPhone}
+                isFavorited={favoriteIds.includes(product.id)}
+                onToggleFavorite={onToggleFavorite}
               />
             ))}
           </div>
@@ -262,20 +275,21 @@ export function StorefrontCatalog({
               const catProducts = products.filter((p) => p.category_id && allowedIds.includes(p.category_id));
               if (catProducts.length === 0) return null;
               return (
-                <section key={category.id} className="mb-12">
+                <section key={category.id} className="mb-10">
                   <h2
-                    className="text-xl font-black uppercase tracking-widest mb-6 border-l-4 pl-4 text-pretty"
+                    className="text-lg font-black uppercase tracking-widest mb-4 border-l-4 pl-3"
                     style={{ color: brandColor, borderColor: brandColor }}
                   >
                     {category.name}
                   </h2>
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4">
                     {catProducts.map((product) => (
                       <ProductCard
                         key={product.id}
                         product={product}
                         tenantId={tenantId}
-                        whatsappPhone={whatsappPhone}
+                        isFavorited={favoriteIds.includes(product.id)}
+                        onToggleFavorite={onToggleFavorite}
                       />
                     ))}
                   </div>
@@ -283,13 +297,14 @@ export function StorefrontCatalog({
               );
             })
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4">
               {products.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
                   tenantId={tenantId}
-                  whatsappPhone={whatsappPhone}
+                  isFavorited={favoriteIds.includes(product.id)}
+                  onToggleFavorite={onToggleFavorite}
                 />
               ))}
             </div>
@@ -299,10 +314,13 @@ export function StorefrontCatalog({
 
       {/* Empty state */}
       {(!products || products.length === 0) && (
-        <div className="text-center py-24 bg-white dark:bg-zinc-900 rounded-3xl border border-dashed text-[var(--brand-color)]">
-          <p className="font-medium opacity-80">
-            Esta sucursal aún no tiene productos disponibles.
-          </p>
+        <div className="text-center py-20 bg-white dark:bg-zinc-900 rounded-2xl border border-dashed">
+          <div className="flex flex-col items-center gap-3 opacity-40">
+            <Package className="h-10 w-10" />
+            <p className="font-medium">
+              Esta sucursal aún no tiene productos disponibles.
+            </p>
+          </div>
         </div>
       )}
     </div>
@@ -312,136 +330,83 @@ export function StorefrontCatalog({
 function ProductCard({
   product,
   tenantId,
-  whatsappPhone,
+  isFavorited,
+  onToggleFavorite,
 }: {
-  product: Product
+  product: Product & { compare_at_price?: number | null }
   tenantId: string
-  whatsappPhone?: string
+  isFavorited: boolean
+  onToggleFavorite: (productId: string) => void
 }) {
-  // Deterministic mock data to create a lively Temu-style layout
-  const hash = product.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-  
-  // Mock discount: 30%, 40%, 50%, or 60%
-  const discountPercent = 30 + (hash % 4) * 10 // 30%, 40%, 50%, 60%
-  const originalPrice = product.price / (1 - discountPercent / 100)
-  
-  // Mock sales count: e.g. 100+ to 9k+
-  const salesCount = hash % 2 === 0 
-    ? `${(hash % 9) + 1}k+ vendidos` 
-    : `${(hash % 450) + 50}+ vendidos`
-    
-  // Mock rating: e.g. 4.6 to 4.9
-  const rating = (4.6 + (hash % 4) * 0.1).toFixed(1)
-  const reviewsCount = (hash % 180) + 12
-
-  // Mock badge type
-  const showFireBadge = hash % 3 === 0
-  const showTopRated = hash % 3 === 1
+  const hasDiscount = product.compare_at_price && product.compare_at_price > product.price;
+  const discountPercent = hasDiscount 
+    ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100) 
+    : 0;
 
   return (
-    <article className="flex flex-col bg-white dark:bg-zinc-900 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm hover:shadow-md hover:border-violet-300 dark:hover:border-violet-850 transition-all duration-300 overflow-hidden group relative">
-      {/* Top badges (Overlay on image) */}
-      <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 pointer-events-none">
-        <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm tracking-wide uppercase">
-          -{discountPercent}%
-        </span>
-        {showFireBadge && (
-          <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-lg shadow-sm flex items-center gap-0.5 uppercase tracking-wide">
-            🔥 Caliente
-          </span>
-        )}
-        {showTopRated && (
-          <span className="bg-violet-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-lg shadow-sm flex items-center gap-0.5 uppercase tracking-wide">
-            ⭐ Top
-          </span>
-        )}
-      </div>
-
-      {/* Image container */}
-      <div className="aspect-[4/5] bg-muted overflow-hidden relative border-b border-slate-100 dark:border-zinc-800 shrink-0">
+    <article className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 overflow-hidden group hover:shadow-sm transition-shadow">
+      {/* Image container with overlay buttons */}
+      <div className="aspect-square bg-muted relative overflow-hidden">
         {product.image_urls?.[0] ? (
           <Image
             src={product.image_urls[0]}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-muted-foreground bg-slate-50 dark:bg-zinc-950">
-            <Package className="h-8 w-8 opacity-40" />
+          <div className="flex h-full w-full items-center justify-center text-muted-foreground bg-zinc-50 dark:bg-zinc-950">
+            <Package className="h-8 w-8 opacity-30" />
           </div>
         )}
-        {/* Shipping badge */}
-        <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
-          Envío gratis
-        </div>
+        
+        {/* Heart/favorite button - top right */}
+        <button
+          onClick={(e) => { e.preventDefault(); onToggleFavorite(product.id); }}
+          className="absolute top-1.5 right-1.5 h-7 w-7 rounded-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white dark:hover:bg-zinc-900 transition-all z-10"
+          aria-label={isFavorited ? "Quitar de favoritos" : "Agregar a favoritos"}
+        >
+          {isFavorited ? (
+            <svg className="h-4 w-4 text-red-500 fill-red-500" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          ) : (
+            <svg className="h-4 w-4 text-zinc-500 hover:text-red-500 transition-colors" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+          )}
+        </button>
+
+        {/* Add to cart button - bottom right */}
+        <AddToCartButton
+          product={{
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image_url: product.image_urls?.[0],
+            tenant_id: tenantId,
+          }}
+          className="absolute bottom-1.5 right-1.5"
+        />
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col flex-1 p-3 justify-between">
-        <div className="space-y-1">
-          {/* Rating and Reviews */}
-          <div className="flex items-center gap-1 text-[11px]">
-            <span className="text-amber-500 font-bold">★</span>
-            <span className="font-bold text-slate-700 dark:text-zinc-300">{rating}</span>
-            <span className="text-muted-foreground text-[10px]">({reviewsCount})</span>
-            <span className="text-zinc-300 dark:text-zinc-700">•</span>
-            <span className="text-slate-500 dark:text-zinc-400 text-[10px] font-medium">{salesCount}</span>
-          </div>
+      {/* Product info - compact */}
+      <div className="p-2 space-y-0.5">
+        {/* Name - 1 line */}
+        <h3 className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-100 line-clamp-1 leading-tight">
+          {product.name}
+        </h3>
+        
+        {/* Price */}
+        <p className="text-sm font-bold" style={{ color: "var(--brand-color)" }}>
+          ${Number(product.price).toFixed(2)}
+        </p>
 
-          {/* Product Name */}
-          <h3 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-zinc-100 leading-snug group-hover:text-[var(--brand-color)] transition-colors line-clamp-2 min-h-[2.5rem]">
-            {product.name}
-          </h3>
-
-          {/* Description */}
-          {product.description && (
-            <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1">
-              {product.description}
-            </p>
-          )}
-        </div>
-
-        {/* Pricing and Actions */}
-        <div className="mt-3 pt-2 border-t border-slate-50 dark:border-zinc-800/50">
-          {/* Price line-through */}
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-            <span className="line-through">${originalPrice.toFixed(2)}</span>
-            <span className="text-red-500 font-bold text-[9px]">Ahorras ${(originalPrice - product.price).toFixed(2)}</span>
-          </div>
-
-          <div className="flex items-center justify-between mt-1 gap-2">
-            {/* Promo Price */}
-            <span className="font-black text-sm sm:text-base tracking-tight text-red-500 dark:text-red-400">
-              ${Number(product.price).toFixed(2)}
-            </span>
-
-            {/* Action buttons */}
-            <div className="flex items-center gap-1">
-              {whatsappPhone && (
-                <a
-                  href={buildWhatsAppUrl(whatsappPhone, product.name)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-8 w-8 rounded-lg bg-green-500 hover:bg-green-600 text-white shadow-xs shrink-0 active:scale-95 transition-transform flex items-center justify-center"
-                  aria-label={`Pedir ${product.name} por WhatsApp`}
-                >
-                  <MessageCircle className="h-4 w-4" />
-                </a>
-              )}
-              <AddToCartButton
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  price: product.price,
-                  image_url: product.image_urls?.[0],
-                  tenant_id: tenantId,
-                }}
-              />
-            </div>
-          </div>
-        </div>
+        {/* Discount - only if real compare_at_price exists */}
+        {hasDiscount && (
+          <p className="text-[11px] text-muted-foreground">
+            <span className="line-through">${Number(product.compare_at_price).toFixed(2)}</span>
+            {" "}
+            <span className="text-red-500 font-bold">-{discountPercent}%</span>
+          </p>
+        )}
       </div>
     </article>
   )

@@ -2,9 +2,11 @@ import { getStorefrontData } from "@/lib/storefront/actions";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
-import { StorefrontCatalog } from "@/components/storefront/storefront-catalog";
-import { StorefrontHeader } from "@/components/storefront/storefront-header";
+import { StorefrontFavoritesWrapper } from "@/components/storefront/storefront-favorites-wrapper";
+import { getMyFavoriteIds } from "@/lib/storefront/favorites-actions";
+import { createClient } from "@/lib/supabase/server";
 import type { Address } from "@/lib/tenants/actions";
+import { getTenantSections } from "@/lib/sections/actions";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -39,6 +41,10 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
 
   const { tenant, categories = [], products = [] } = data;
 
+  // Fetch tenant sections for dynamic tabs
+  const sectionsResult = await getTenantSections(tenant.id)
+  const tenantSections = sectionsResult.success && sectionsResult.data ? sectionsResult.data : []
+
   if (tenant.status === "draft") {
     return (
       <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center p-6">
@@ -64,11 +70,32 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
     );
   }
 
-  const whatsappUrl = tenant.whatsapp_phone 
-    ? `https://wa.me/${tenant.whatsapp_phone.replace(/\+/g, "")}?text=${encodeURIComponent("Hola! Vengo de tu catálogo digital y me gustaría hacer una consulta.")}`
-    : "#";
+  const isFreePlan = tenant.plan_name ? tenant.plan_name.toLowerCase().includes("free") : false;
+  const brandColor = tenant.brand_color || "#f97316";
+  const secondaryColor = tenant.secondary_color || "#bae6fd";
+  const displayedProducts = isFreePlan ? products.slice(0, 10) : products;
 
-  const brandColor = tenant.brand_color || "#7c3aed";
+  // Fetch favorites for authenticated users
+  const supabaseForFavs = await createClient();
+  const { data: { user } } = await supabaseForFavs.auth.getUser();
+  let favoriteIds: string[] = [];
+  let userFavorites: Array<{ id: string; name: string; price: number; image_url?: string }> = [];
+  if (user) {
+    const favResult = await getMyFavoriteIds(tenant.id);
+    if (favResult.success) {
+      favoriteIds = favResult.data || [];
+    }
+    // Get favorite product details
+    if (favoriteIds.length > 0) {
+      const favProducts = displayedProducts.filter((p: { id: string }) => favoriteIds.includes(p.id));
+      userFavorites = favProducts.map((p: { id: string; name: string; price: number; image_urls?: string[] }) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        image_url: p.image_urls?.[0],
+      }));
+    }
+  }
 
   // Format structured address for display
   const formatAddress = (addr: Address | string | null | undefined): string | null => {
@@ -78,47 +105,106 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
       if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
         try {
           const parsed = JSON.parse(trimmed) as Address;
-          const parts = [parsed.street, parsed.city, parsed.state, parsed.zip, parsed.country].filter(Boolean);
+          const parts = [parsed.street, parsed.city, parsed.state, parsed.country].map(p => p?.trim()).filter(Boolean);
           return parts.length > 0 ? parts.join(", ") : null;
-        } catch (e) {
-          // Fall back to treating it as a raw string if parsing fails
-        }
+} catch {
+            // Fall back to treating it as a raw string if parsing fails
+            }
       }
       return trimmed || null;
     }
-    const parts = [addr.street, addr.city, addr.state, addr.zip, addr.country].filter(Boolean);
+    const parts = [addr.street, addr.city, addr.state, addr.country].map(p => p?.trim()).filter(Boolean);
     return parts.length > 0 ? parts.join(", ") : null;
   };
 
   const formattedAddress = formatAddress(tenant.address as Address | string | null | undefined);
 
+  // Build tenantInfo for the Información básica tab
+  const tenantInfo = {
+    name: tenant.name,
+    whatsapp_phone: tenant.whatsapp_phone,
+    address: formattedAddress,
+    social_links: tenant.social_links,
+    public_settings: tenant.public_settings,
+  };
+
   return (
     <main 
       className="min-h-screen bg-zinc-50 dark:bg-black pb-24"
-      style={{ "--brand-color": brandColor } as React.CSSProperties}
+      style={{
+        "--brand-color": brandColor,
+        "--secondary-color": secondaryColor,
+      } as React.CSSProperties}
     >
-      {/* Header / Hero */}
-      <StorefrontHeader 
-        tenant={tenant}
-        formattedAddress={formattedAddress}
-        whatsappUrl={whatsappUrl}
-      />
+      {/* Header is now rendered inside StorefrontFavoritesWrapper to share category state */}
 
-      {/* Catalog with category filtering */}
-      <StorefrontCatalog
+      {/* Catalog with tabs and favorites */}
+      <StorefrontFavoritesWrapper
         categories={categories}
-        products={products}
+        sellerHero={{
+          tenantName: tenant.name,
+          description: `Tu tienda de confianza en ${formattedAddress || "Ecuador"}`,
+          address: formattedAddress,
+          logoUrl: tenant.logo_url || null,
+          bannerUrl: null,
+          stats: {
+            rating: "4.7",
+            ratingCount: "1.1 mil",
+            sales: "5.1 mil",
+            age: "2.5 años",
+          },
+          lastActive: "Activo hoy",
+        }}
+        products={displayedProducts}
         tenantId={tenant.id}
         brandColor={brandColor}
+        secondaryColor={secondaryColor}
         whatsappPhone={tenant.whatsapp_phone}
+        initialFavoriteIds={favoriteIds}
+        initialFavoriteProducts={userFavorites}
+        tenantName={tenant.name}
+        isAuthenticated={!!user}
+        tenantInfo={tenantInfo}
+        sections={tenantSections}
       />
+
+      {/* Conversion Banner (Growth Loop) for Free Plan */}
+      {isFreePlan && (
+        <div className="max-w-4xl mx-auto px-4 mt-12">
+          <div className="bg-gradient-to-r from-orange-500 to-orange-700 rounded-3xl p-8 text-white shadow-xl text-center space-y-4 md:space-y-0 md:flex md:items-center md:justify-between md:text-left gap-6">
+            <div className="space-y-2 max-w-xl">
+              <h3 className="text-xl md:text-2xl font-black tracking-tight">
+                ¿Quieres vender por WhatsApp como esta tienda?
+              </h3>
+              <p className="text-orange-100 text-sm md:text-base font-medium">
+                Crea tu propio catálogo digital gratis con IAPI Shop en minutos.
+              </p>
+            </div>
+            <a
+              href="https://iapi.shop"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center bg-white text-orange-600 font-bold px-6 py-3.5 rounded-2xl hover:bg-orange-50 transition-all active:scale-95 shadow-lg whitespace-nowrap"
+            >
+              Comenzar gratis
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-white dark:bg-zinc-900 border-t py-8 mt-12 px-6">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-          <p className="text-xs text-muted-foreground font-medium">
-            © {new Date().getFullYear()} {tenant.name}. Todos los derechos reservados.
-          </p>
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground font-medium">
+              © {new Date().getFullYear()} {tenant.name}. Todos los derechos reservados.
+            </p>
+            {tenant.public_settings?.show_address !== false && formattedAddress && (
+              <p className="text-xs text-muted-foreground font-medium">
+                Dirección: {formattedAddress}
+              </p>
+            )}
+          </div>
           <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-70">
             Potenciado por IAPI Shop
           </div>
@@ -131,12 +217,13 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
   );
 }
 
-// Re-export Product type for the StorefrontCatalog component
+// Re-export Product type for downstream components
 export interface Product {
   id: string;
   name: string;
   description?: string;
   price: number;
+  compare_at_price?: number;
   image_urls?: string[];
   category_id?: string;
 }

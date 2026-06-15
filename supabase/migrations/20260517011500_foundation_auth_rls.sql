@@ -311,7 +311,7 @@ values
   ('free', 'Free', 0, 10, 1, 20, 5, false),
   ('starter', 'Starter', 9.99, 50, 2, 100, 20, true),
   ('pro', 'Pro', 29.99, 300, 5, 500, 100, true),
-  ('business', 'Business', 79.99, 2000, 10, 2000, 500, true)
+  ('plus', 'Plus', 79.99, 2000, 10, 2000, 500, true)
 on conflict (code) do update set
   name = excluded.name,
   price_monthly = excluded.price_monthly,

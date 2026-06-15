@@ -15,8 +15,11 @@ export default async function AdminPage() {
   return (
     <main className="min-h-screen bg-muted px-6 py-8">
       <section className="mx-auto max-w-5xl rounded-3xl border bg-background p-6 shadow-sm">
-        <p className="text-sm font-bold text-violet-600">Admin global</p>
-        <h1 className="mt-2 text-3xl font-black tracking-tight">Panel administrativo IAPI Shop</h1>
+        <p className="text-sm font-bold text-orange-500">Admin global</p>
+        <h1 className="mt-2 text-3xl font-black tracking-tight">
+          Panel administrativo <span className="text-orange-500">IAPI</span>
+          <span className="text-orange-400 text-sm font-black tracking-[0.2em] uppercase ml-1">shop</span>
+        </h1>
         <p className="mt-3 text-sm text-muted-foreground">
           {email} tiene rol <strong>{role}</strong>. Este acceso bootstrap será migrado a `platform_admins` con RLS.
         </p>

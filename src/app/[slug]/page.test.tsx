@@ -95,7 +95,7 @@ describe("StorefrontPage component tests", () => {
     render(pageElement);
 
     // Should find the formatted address
-    expect(screen.getByText("Address: Calle Principal 123, Quito, Pichincha, 170150, Ecuador")).toBeInTheDocument();
+    expect(screen.getByText("Address: Calle Principal 123, Quito, Pichincha, Ecuador")).toBeInTheDocument();
     // Social section should be hidden (since social_links is null)
     expect(screen.queryByText("Síguenos")).not.toBeInTheDocument();
   });

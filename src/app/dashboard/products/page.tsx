@@ -18,7 +18,7 @@ export default async function ProductsPage() {
   let productLimit = (subResult.success && subResult.data) ? subResult.data.plans?.product_limit || 5 : 5
 
   if (platformRole === "admin") {
-    planName = "Business"
+    planName = "Plus"
     productLimit = 2000
   }
 

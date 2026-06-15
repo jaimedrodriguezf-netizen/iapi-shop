@@ -57,7 +57,7 @@ export function OrderListClient({ initialOrders, tenantId }: { initialOrders: Or
     {
       accessorKey: "total_amount",
       header: "Total",
-      cell: ({ row }) => <span className="font-black text-violet-600">${Number(row.getValue("total_amount")).toFixed(2)}</span>,
+      cell: ({ row }) => <span className="font-black text-orange-500">${Number(row.getValue("total_amount")).toFixed(2)}</span>,
     },
     {
       accessorKey: "status",

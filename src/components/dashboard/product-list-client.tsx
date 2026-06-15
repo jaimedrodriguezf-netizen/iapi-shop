@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { ProductFormModal } from "./product-form-modal"
-import { getProducts, deleteProduct } from "@/lib/products/actions"
+import { getProducts, deleteProduct, toggleMarketplaceApproval } from "@/lib/products/actions"
 import { toast } from "sonner"
 import Image from "next/image"
 
@@ -36,6 +36,7 @@ export type Product = {
   name: string
   price: number
   is_active: boolean
+  approved_for_marketplace?: boolean
   created_at: string
   category_id?: string
   description?: string
@@ -111,6 +112,16 @@ export function ProductListClient({
     }
   }
 
+  async function handleToggleApproval(productId: string) {
+    const res = await toggleMarketplaceApproval(productId, tenantId)
+    if (res.success) {
+      toast.success(res.approved ? "Producto aprobado para marketplace" : "Producto desaprobado del marketplace")
+      fetchProducts()
+    } else {
+      toast.error(res.error || "Error al actualizar aprobación")
+    }
+  }
+
   const columns: ColumnDef<ProductWithCategory>[] = [
     {
       accessorKey: "name",
@@ -131,7 +142,7 @@ export function ProductListClient({
             <div className="flex flex-col">
               <span className="font-bold">{String(row.getValue("name"))}</span>
               {product.categories?.name && (
-                <span className="text-[10px] uppercase font-black text-violet-600">{product.categories.name}</span>
+                <span className="text-[10px] uppercase font-black text-orange-500">{product.categories.name}</span>
               )}
             </div>
           </div>
@@ -142,7 +153,7 @@ export function ProductListClient({
       accessorKey: "price",
       header: "Precio",
       cell: ({ row }) => (
-        <span className="font-mono font-bold text-violet-600">
+        <span className="font-mono font-bold text-orange-500">
           ${Number(row.getValue("price")).toFixed(2)}
         </span>
       ),
@@ -156,6 +167,27 @@ export function ProductListClient({
         </Badge>
       ),
     },
+    ...(platformRole === "admin"
+      ? [
+          {
+            id: "approved_for_marketplace" as const,
+            header: "Marketplace",
+            cell: ({ row }: { row: { original: ProductWithCategory; getValue: (key: string) => unknown } }) => {
+              const product = row.original
+              return (
+                <Button
+                  size="sm"
+                  variant={product.approved_for_marketplace ? "default" : "outline"}
+                  className={`text-xs rounded-lg ${product.approved_for_marketplace ? "bg-green-600 hover:bg-green-700" : ""}`}
+                  onClick={() => handleToggleApproval(product.id)}
+                >
+                  {product.approved_for_marketplace ? "✓ Aprobado" : "Aprobar"}
+                </Button>
+              )
+            },
+          } satisfies ColumnDef<ProductWithCategory>,
+        ]
+      : []),
     {
       id: "actions",
       cell: ({ row }) => {
@@ -218,10 +250,10 @@ export function ProductListClient({
           {/* Contador de Productos */}
           <div className="flex items-center gap-3 border bg-muted/30 rounded-xl px-3.5 py-1.5 text-xs font-semibold w-fit">
             <span className="text-muted-foreground">Productos ({planName}):</span>
-            <span className="font-black text-violet-600 font-mono">{products.length} / {productLimit}</span>
+            <span className="font-black text-orange-500 font-mono">{products.length} / {productLimit}</span>
             <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
               <div 
-                className={`h-full rounded-full transition-all duration-300 ${products.length >= productLimit ? 'bg-red-500' : 'bg-violet-600'}`}
+                className={`h-full rounded-full transition-all duration-300 ${products.length >= productLimit ? 'bg-red-500' : 'bg-orange-500'}`}
                 style={{ width: `${Math.min(100, (products.length / productLimit) * 100)}%` }}
               />
             </div>
@@ -239,7 +271,7 @@ export function ProductListClient({
             setIsModalOpen(true)
           }}
           disabled={products.length >= productLimit}
-          className="rounded-xl font-bold bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-xl font-bold bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="mr-2 h-4 w-4" /> Agregar Producto
         </Button>
@@ -281,7 +313,7 @@ export function ProductListClient({
 
       {loading ? (
         <div className="flex h-64 items-center justify-center rounded-3xl border border-dashed">
-          <p className="text-sm text-muted-foreground animate-pulse font-medium text-violet-600">Actualizando catálogo...</p>
+          <p className="text-sm text-muted-foreground animate-pulse font-medium text-orange-500">Actualizando catálogo...</p>
         </div>
       ) : (
         <DataTable columns={columns} data={filteredProducts} />

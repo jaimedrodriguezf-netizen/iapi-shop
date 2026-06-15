@@ -44,6 +44,7 @@ const baseProductSchema = z.object({
   price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
     message: "Ingresa un precio válido.",
   }),
+  compare_at_price: z.string().optional(),
   category_id: z.string().optional(),
   description: z.string().optional(),
   image_urls: z.array(z.string()),
@@ -63,6 +64,7 @@ interface ProductFormModalProps {
     id: string;
     name: string;
     price: number;
+    compare_at_price?: number | null;
     category_id?: string;
     description?: string;
     image_urls?: string[];
@@ -111,7 +113,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
 
   const maxImages = React.useMemo(() => {
     const plan = planName.toLowerCase()
-    if (plan === "business") return 6
+    if (plan === "plus") return 6
     if (plan === "pro") return 3
     if (plan === "starter") return 3
     return 1
@@ -126,6 +128,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
     defaultValues: {
       name: "",
       price: "0",
+      compare_at_price: "",
       category_id: "",
       description: "",
       image_urls: [],
@@ -179,6 +182,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
         form.reset({
           name: product.name,
           price: product.price.toString(),
+          compare_at_price: product.compare_at_price?.toString() || "",
           category_id: product.category_id || "",
           description: product.description || "",
           image_urls: product.image_urls || [],
@@ -187,6 +191,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
         form.reset({
           name: "",
           price: "0",
+          compare_at_price: "",
           category_id: "",
           description: "",
           image_urls: [],
@@ -253,12 +258,17 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
 
   async function onSubmit(values: z.infer<typeof baseProductSchema>) {
     try {
+      const compareAtPrice = values.compare_at_price && values.compare_at_price.trim() !== "" 
+        ? Number(values.compare_at_price) 
+        : null;
+
       const payload = {
         tenant_id: tenantId,
         category_id: values.category_id,
         name: values.name,
         description: values.description,
         price: Number(values.price),
+        compare_at_price: compareAtPrice,
         image_urls: values.image_urls,
       }
 
@@ -323,7 +333,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] rounded-3xl overflow-hidden p-0 gap-0">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-2xl font-black text-violet-600">
+          <DialogTitle className="text-2xl font-black text-orange-500">
             {isEditing ? "Editar Producto" : "Nuevo Producto"}
           </DialogTitle>
           <DialogDescription>
@@ -335,11 +345,11 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Tabs defaultValue="general" className="w-full">
               <TabsList className="w-full justify-start rounded-none border-b bg-transparent px-6 h-12">
-                <TabsTrigger value="general" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-500 rounded-none h-full">General</TabsTrigger>
-                <TabsTrigger value="media" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-500 rounded-none h-full">
+                <TabsTrigger value="general" className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none h-full">General</TabsTrigger>
+                <TabsTrigger value="media" className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none h-full">
                   Fotos ({form.watch("image_urls")?.length || 0}/{maxImages})
                 </TabsTrigger>
-                <TabsTrigger value="category" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-500 rounded-none h-full">Categoría</TabsTrigger>
+                <TabsTrigger value="category" className="data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none h-full">Categoría</TabsTrigger>
               </TabsList>
               
               <div className="p-6 pt-4 max-h-[50vh] overflow-y-auto">
@@ -372,6 +382,29 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                   />
                   <FormField
                     control={form.control}
+                    name="compare_at_price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold">Precio original (opcional)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            step="0.01"
+                            placeholder="Mayor al precio actual para mostrar descuento" 
+                            {...field} 
+                            value={field.value ?? ""}
+                            className="rounded-xl" 
+                          />
+                        </FormControl>
+                        <FormDescription className="text-[11px]">
+                          Dejalo vacío si no hay descuento. Debe ser mayor al precio actual.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name="description"
                     render={({ field }) => (
                       <FormItem>
@@ -385,7 +418,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="rounded-xl text-violet-600 border-violet-200 hover:bg-violet-50 hover:text-violet-700"
+                              className="rounded-xl text-orange-500 border-orange-200 hover:bg-orange-50 hover:text-orange-600"
                               onClick={handleGenerateDescription}
                               disabled={isGeneratingAI || !form.watch("name") || form.watch("name").length < 2}
                             >
@@ -417,7 +450,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                       return (
                         <div 
                           key={i} 
-                          className="aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center relative group bg-muted/30 overflow-hidden hover:border-violet-400 transition-colors"
+                          className="aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center relative group bg-muted/30 overflow-hidden hover:border-orange-400 transition-colors"
                         >
                           {url ? (
                             <>
@@ -438,7 +471,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                             </>
                           ) : uploadingIndex === i ? (
                             <div className="flex flex-col items-center gap-2">
-                              <span className="h-5 w-5 animate-spin rounded-full border-2 border-violet-600 border-t-transparent" />
+                              <span className="h-5 w-5 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
                               <span className="text-[9px] text-muted-foreground font-bold uppercase">Subiendo...</span>
                             </div>
                           ) : (
@@ -449,8 +482,8 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                                 className="hidden" 
                                 onChange={(e) => handleFileChange(e, i)}
                               />
-                              <ImagePlus className="h-6 w-6 text-muted-foreground group-hover:text-violet-500 transition-colors" />
-                              <span className="text-[10px] text-muted-foreground group-hover:text-violet-550 transition-colors font-bold uppercase">Subir Foto {i+1}</span>
+                              <ImagePlus className="h-6 w-6 text-muted-foreground group-hover:text-orange-500 transition-colors" />
+                              <span className="text-[10px] text-muted-foreground group-hover:text-orange-550 transition-colors font-bold uppercase">Subir Foto {i+1}</span>
                             </label>
                           )}
                         </div>
@@ -610,7 +643,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
             </Tabs>
 
             <DialogFooter className="p-6 pt-0">
-              <Button type="submit" className="w-full rounded-xl font-bold py-6 bg-violet-600 hover:bg-violet-700 shadow-md" disabled={form.formState.isSubmitting}>
+              <Button type="submit" className="w-full rounded-xl font-bold py-6 bg-orange-500 hover:bg-orange-600 shadow-md" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? "Guardando…" : isEditing ? "Actualizar Producto" : "Finalizar Producto"}
               </Button>
             </DialogFooter>

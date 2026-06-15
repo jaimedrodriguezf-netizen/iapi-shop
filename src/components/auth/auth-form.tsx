@@ -163,10 +163,10 @@ export function AuthForm({
   return (
     <main className="flex min-h-screen flex-col md:flex-row bg-zinc-50 dark:bg-zinc-950">
       {/* Left Panel (Emotional/Branding) */}
-      <section className="hidden md:flex md:w-1/2 flex-col justify-between p-12 bg-gradient-to-br from-violet-100 via-violet-50 to-white dark:from-violet-950 dark:via-zinc-900 dark:to-zinc-950 text-slate-900 dark:text-zinc-150 relative overflow-hidden">
+      <section className="hidden md:flex md:w-1/2 flex-col justify-between p-12 bg-gradient-to-br from-orange-100 via-orange-50 to-white dark:from-orange-950 dark:via-zinc-900 dark:to-zinc-950 text-slate-900 dark:text-zinc-150 relative overflow-hidden">
         {/* Ambient lighting / background blur glow */}
-        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-violet-300/30 dark:bg-violet-500/20 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-300/20 dark:bg-indigo-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-orange-300/30 dark:bg-orange-500/20 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-sky-300/20 dark:bg-sky-500/10 blur-3xl pointer-events-none" />
 
         {/* Top brand logo */}
         <Link href="/" className="z-10 flex items-center gap-3 cursor-pointer group">
@@ -177,7 +177,7 @@ export function AuthForm({
             height={48}
             className="w-12 h-12 object-contain group-hover:scale-105 transition-transform"
           />
-          <span className="text-2xl font-black tracking-wider bg-gradient-to-r from-violet-600 to-indigo-500 dark:from-violet-400 dark:to-indigo-300 bg-clip-text text-transparent">IAPI</span>
+          <span className="text-2xl font-black tracking-wider bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-400 dark:to-orange-300 bg-clip-text text-transparent">IAPI</span>
         </Link>
 
         {/* Middle emotional copy and dashboard mockup */}
@@ -192,7 +192,7 @@ export function AuthForm({
           </div>
 
           {/* Dashboard Mockup card */}
-          <div className="rounded-3xl border border-violet-100/80 bg-white/80 dark:border-white/10 dark:bg-white/5 p-6 backdrop-blur-xl shadow-2xl space-y-6">
+          <div className="rounded-3xl border border-orange-100/80 bg-white/80 dark:border-white/10 dark:bg-white/5 p-6 backdrop-blur-xl shadow-2xl space-y-6">
             {/* Mockup Header */}
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-4">
               <div className="flex items-center space-x-2">
@@ -223,7 +223,7 @@ export function AuthForm({
                 <div className="flex items-end space-x-1.5 h-8 mt-2">
                   <div className="w-full bg-slate-200 dark:bg-zinc-700 rounded-t h-4" />
                   <div className="w-full bg-slate-200 dark:bg-zinc-700 rounded-t h-6" />
-                  <div className="w-full bg-violet-600 dark:bg-violet-500/80 rounded-t h-8" />
+                  <div className="w-full bg-orange-500 dark:bg-orange-500/80 rounded-t h-8" />
                   <div className="w-full bg-slate-200 dark:bg-zinc-700 rounded-t h-5" />
                 </div>
               </div>
@@ -233,17 +233,17 @@ export function AuthForm({
             <div className="rounded-xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-4 shadow-sm space-y-3">
               <div className="flex justify-between items-center">
                 <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400">Actividad Semanal</p>
-                <span className="text-[10px] text-violet-600 dark:text-violet-400 font-bold">En vivo</span>
+                <span className="text-[10px] text-orange-500 dark:text-orange-400 font-bold">En vivo</span>
               </div>
               <div className="h-10 flex items-end justify-between px-1">
                 {/* Visual SVG line */}
-                <svg className="w-full h-full text-violet-500/20 dark:text-violet-400/30 overflow-visible" viewBox="0 0 100 30" fill="none" preserveAspectRatio="none">
+                <svg className="w-full h-full text-orange-500/20 dark:text-orange-400/30 overflow-visible" viewBox="0 0 100 30" fill="none" preserveAspectRatio="none">
                   <path d="M0 25 C10 20, 20 5, 30 15 C40 25, 50 10, 60 2 C70 -5, 80 12, 90 8 C100 4, 100 4, 100 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M0 25 C10 20, 20 5, 30 15 C40 25, 50 10, 60 2 C70 -5, 80 12, 90 8 C100 4, 100 4, 100 4 L100 30 L0 30 Z" fill="url(#violet-gradient)" />
+                  <path d="M0 25 C10 20, 20 5, 30 15 C40 25, 50 10, 60 2 C70 -5, 80 12, 90 8 C100 4, 100 4, 100 4 L100 30 L0 30 Z" fill="url(#orange-gradient)" />
                   <defs>
-                    <linearGradient id="violet-gradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="rgb(124, 58, 237)" stopOpacity="0.2"/>
-                      <stop offset="100%" stopColor="rgb(124, 58, 237)" stopOpacity="0"/>
+                    <linearGradient id="orange-gradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="rgb(249, 115, 22)" stopOpacity="0.2"/>
+                      <stop offset="100%" stopColor="rgb(249, 115, 22)" stopOpacity="0"/>
                     </linearGradient>
                   </defs>
                 </svg>
@@ -270,7 +270,7 @@ export function AuthForm({
                 height={64}
                 className="w-16 h-16 object-contain group-hover:scale-105 transition-transform"
               />
-              <span className="text-sm font-bold text-violet-accent tracking-wider">IAPI</span>
+              <span className="text-sm font-bold text-orange-accent tracking-wider">IAPI</span>
             </Link>
             <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">{currentTitle}</h1>
             <p className="text-sm leading-6 text-muted-foreground">{currentDescription}</p>
@@ -288,7 +288,7 @@ export function AuthForm({
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <input
-                  className="h-11 w-full rounded-xl border border-zinc-200 bg-background pl-10 pr-3 text-base outline-none transition focus:border-violet-accent focus:ring-4 focus:ring-violet-accent/10 dark:border-zinc-800 dark:focus:border-violet-accent dark:focus:ring-violet-accent/20 text-slate-900 dark:text-white"
+                  className="h-11 w-full rounded-xl border border-zinc-200 bg-background pl-10 pr-3 text-base outline-none transition focus:border-orange-accent focus:ring-4 focus:ring-orange-accent/10 dark:border-zinc-800 dark:focus:border-orange-accent dark:focus:ring-orange-accent/20 text-slate-900 dark:text-white"
                   name="email"
                   type="email"
                   autoComplete="email"
@@ -309,7 +309,7 @@ export function AuthForm({
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <input
                   ref={passwordRef}
-                  className="h-11 w-full rounded-xl border border-zinc-200 bg-background pl-10 pr-10 text-base outline-none transition focus:border-violet-accent focus:ring-4 focus:ring-violet-accent/10 dark:border-zinc-800 dark:focus:border-violet-accent dark:focus:ring-violet-accent/20 text-slate-900 dark:text-white"
+                  className="h-11 w-full rounded-xl border border-zinc-200 bg-background pl-10 pr-10 text-base outline-none transition focus:border-orange-accent focus:ring-4 focus:ring-orange-accent/10 dark:border-zinc-800 dark:focus:border-orange-accent dark:focus:ring-orange-accent/20 text-slate-900 dark:text-white"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete={isRegisterMode ? "new-password" : "current-password"}
@@ -340,7 +340,7 @@ export function AuthForm({
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <input
                     ref={confirmPasswordRef}
-                    className="h-11 w-full rounded-xl border border-zinc-200 bg-background pl-10 pr-10 text-base outline-none transition focus:border-violet-accent focus:ring-4 focus:ring-violet-accent/10 dark:border-zinc-800 dark:focus:border-violet-accent dark:focus:ring-violet-accent/20 text-slate-900 dark:text-white"
+                    className="h-11 w-full rounded-xl border border-zinc-200 bg-background pl-10 pr-10 text-base outline-none transition focus:border-orange-accent focus:ring-4 focus:ring-orange-accent/10 dark:border-zinc-800 dark:focus:border-orange-accent dark:focus:ring-orange-accent/20 text-slate-900 dark:text-white"
                     name="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     autoComplete="new-password"
@@ -371,13 +371,13 @@ export function AuthForm({
                   <input
                     type="checkbox"
                     name="remember"
-                    className="h-4 w-4 rounded border-zinc-300 dark:border-zinc-700 text-violet-accent focus:ring-violet-accent/20 accent-violet-500"
+                    className="h-4 w-4 rounded border-zinc-300 dark:border-zinc-700 text-orange-accent focus:ring-orange-accent/20 accent-orange-500"
                   />
                   <span>Recordarme</span>
                 </label>
                 <Link
                   href="#"
-                  className="font-bold text-violet-accent hover:text-violet-accent-hover dark:text-violet-400 dark:hover:text-violet-300 hover:underline underline-offset-4"
+                  className="font-bold text-orange-accent hover:text-orange-accent-hover dark:text-orange-400 dark:hover:text-orange-300 hover:underline underline-offset-4"
                 >
                   ¿Olvidaste tu contraseña?
                 </Link>
@@ -392,7 +392,7 @@ export function AuthForm({
             )}
 
             <button
-              className="h-11 w-full rounded-xl bg-violet-accent hover:bg-violet-accent-hover disabled:bg-violet-accent/50 text-sm font-black text-white transition active:scale-95 shadow-md shadow-violet-accent/10 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center"
+              className="h-11 w-full rounded-xl bg-orange-accent hover:bg-orange-accent-hover disabled:bg-orange-accent/50 text-sm font-black text-white transition active:scale-95 shadow-md shadow-orange-accent/10 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center"
               type="submit"
               disabled={isPending || (!!siteKey && !captchaToken)}
             >
@@ -435,7 +435,7 @@ export function AuthForm({
               type="button"
               onClick={handleToggleMode}
               disabled={isPending}
-              className="font-bold text-violet-accent hover:text-violet-accent-hover dark:text-violet-400 dark:hover:text-violet-300 underline-offset-4 hover:underline cursor-pointer bg-transparent border-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="font-bold text-orange-accent hover:text-orange-accent-hover dark:text-orange-400 dark:hover:text-orange-300 underline-offset-4 hover:underline cursor-pointer bg-transparent border-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {currentSwitchLabel}
             </button>

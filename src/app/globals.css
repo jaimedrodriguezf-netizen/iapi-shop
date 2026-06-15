@@ -6,8 +6,8 @@
 
 @theme inline {
   --color-background: var(--background);
-  --color-violet-accent: oklch(0.602 0.218 275.52);
-  --color-violet-accent-hover: oklch(0.55 0.218 275.52);
+  --color-orange-accent: oklch(0.65 0.22 50);
+  --color-orange-accent-hover: oklch(0.55 0.20 45);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
@@ -111,7 +111,7 @@
   --chart-5: oklch(0.269 0 0);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary: oklch(0.55 0.22 40);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);

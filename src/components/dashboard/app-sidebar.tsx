@@ -2,15 +2,18 @@
 
 import * as React from "react"
 import Link from "next/link"
-import Image from "next/image"
 import {
+  CreditCard,
+  Heart,
   LayoutDashboard,
+  LayoutGrid,
   LogOut,
+  Megaphone,
   Package,
   QrCode,
   Settings,
+  ShoppingBag,
   Store,
-  User,
   Users,
 } from "lucide-react"
 
@@ -36,9 +39,9 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Mis Sucursales",
-    url: "/dashboard/stores",
-    icon: Store,
+    title: "Pedidos",
+    url: "/dashboard/orders",
+    icon: ShoppingBag,
   },
   {
     title: "Productos",
@@ -46,14 +49,44 @@ const navItems = [
     icon: Package,
   },
   {
+    title: "Secciones",
+    url: "/dashboard/sections",
+    icon: LayoutGrid,
+  },
+  {
     title: "Códigos QR",
     url: "/dashboard/qr",
     icon: QrCode,
   },
   {
+    title: "Favoritos",
+    url: "/dashboard/analytics",
+    icon: Heart,
+  },
+  {
+    title: "Mis Sucursales",
+    url: "/dashboard",
+    icon: Store,
+  },
+  {
     title: "Usuarios SaaS",
     url: "/dashboard/admin/users",
     icon: Users,
+  },
+  {
+    title: "Banners",
+    url: "/dashboard/admin/banners",
+    icon: Megaphone,
+  },
+  {
+    title: "Secciones",
+    url: "/dashboard/admin/sections",
+    icon: LayoutGrid,
+  },
+  {
+    title: "Suscripciones",
+    url: "/dashboard/admin/subscriptions",
+    icon: CreditCard,
   },
 ]
 
@@ -65,7 +98,19 @@ const footerItems = [
   },
 ]
 
-export function AppSidebar({ email, planName, platformRole = "merchant" }: { email: string; planName: string; platformRole?: string }) {
+export function AppSidebar({
+  email,
+  planName,
+  platformRole = "merchant",
+  activeTenantName,
+  activeTenantColor,
+}: {
+  email: string;
+  planName: string;
+  platformRole?: string;
+  activeTenantName?: string;
+  activeTenantColor?: string;
+}) {
   const { setOpenMobile, isMobile } = useSidebar()
 
   const handleNavItemClick = () => {
@@ -78,32 +123,37 @@ export function AppSidebar({ email, planName, platformRole = "merchant" }: { ema
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b px-6 py-4">
         <Link href="/" className="flex items-center gap-2 cursor-pointer group">
-          <Image
-            src="/logo.png"
-            alt="IAPI Logo"
-            width={40}
-            height={40}
-            className="h-10 w-10 object-contain group-hover:scale-105 transition-transform"
-          />
-          <span className="font-black tracking-tight text-xl group-data-[collapsible=icon]:hidden">
-            IAPI Shop
+          <span className="leading-none text-center shrink-0">
+            <span className="block font-black text-lg text-orange-500">IAPI</span>
+            <span className="block font-black text-[8px] text-orange-400 tracking-[0.2em] uppercase text-center -mt-1">shop</span>
           </span>
         </Link>
+        {activeTenantName && (
+          <div className="mt-2 flex items-center gap-2 px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+            <span
+              className="h-2.5 w-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: activeTenantColor || "#f97316" }}
+            />
+            <span className="text-xs font-medium text-muted-foreground truncate group-data-[collapsible=icon]:hidden">
+              {activeTenantName}
+            </span>
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu className="px-2 py-4">
           {navItems
             .filter((item) => {
-              if (item.url === "/dashboard/stores") {
-                return planName.toLowerCase() === "business" || platformRole === "admin"
+              if (item.title === "Mis Sucursales") {
+                return planName.toLowerCase() === "plus" || platformRole === "admin"
               }
-              if (item.url === "/dashboard/admin/users") {
+              if (item.url === "/dashboard/admin/users" || item.url === "/dashboard/admin/banners" || item.url === "/dashboard/admin/sections" || item.url === "/dashboard/admin/subscriptions") {
                 return platformRole === "admin"
               }
               return true
             })
             .map((item) => (
-              <SidebarMenuItem key={item.title}>
+<SidebarMenuItem key={item.url}>
                 <SidebarMenuButton tooltip={item.title} render={<Link href={item.url} onClick={handleNavItemClick} />}>
                   <item.icon className="h-5 w-5" />
                   <span className="font-bold">{item.title}</span>
@@ -122,28 +172,7 @@ export function AppSidebar({ email, planName, platformRole = "merchant" }: { ema
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
-          <SidebarMenuItem>
-            <div className="mt-4 flex items-center gap-3 px-4 py-2 group-data-[collapsible=icon]:px-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                <User className="h-4 w-4" />
-              </div>
-              <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="text-xs font-bold truncate max-w-[120px]">{email}</span>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold">
-                    {platformRole === "admin" ? "Administrador" : "Vendedor"}
-                  </span>
-                  <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase tracking-wider ${
-                    planName.toLowerCase() === "business" 
-                      ? "bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400 border border-violet-200/50 dark:border-violet-900/50" 
-                      : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-                  }`}>
-                    {planName}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </SidebarMenuItem>
+
           <SidebarMenuItem>
             <form action={async () => {
               const toastId = toast.loading("Cerrando sesión...");

@@ -1,8 +1,10 @@
+import { redirect } from "next/navigation"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { Separator } from "@/components/ui/separator"
 import { getMyTenants, getTenantSubscription } from "@/lib/tenants/actions"
 import { getUserRoleInfo } from "@/lib/auth/actions"
+import { User } from "lucide-react"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,7 +25,12 @@ export default async function DashboardLayout({
 
   const tenantsResult = await getMyTenants()
   const tenants = tenantsResult.success && tenantsResult.data ? tenantsResult.data : []
-  
+
+  // If user has no tenants, redirect to profile
+  if (tenants.length === 0 && platformRole !== "admin") {
+    redirect("/perfil")
+  }
+
   let planName = "Free"
   if (tenants.length > 0) {
     const activeTenantId = tenants[0].id
@@ -34,12 +41,22 @@ export default async function DashboardLayout({
   }
 
   if (platformRole === "admin") {
-    planName = "Business"
+    planName = "Plus"
   }
+
+  const activeTenant = tenants[0]
+  const activeTenantName = activeTenant?.name
+  const activeTenantColor = activeTenant?.brand_color || undefined
 
   return (
     <SidebarProvider>
-      <AppSidebar email={email} planName={planName} platformRole={platformRole} />
+      <AppSidebar
+        email={email}
+        planName={planName}
+        platformRole={platformRole}
+        activeTenantName={activeTenantName}
+        activeTenantColor={activeTenantColor}
+      />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -49,7 +66,10 @@ export default async function DashboardLayout({
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="/dashboard">
-                    IAPI Shop
+                    <span className="leading-none text-center">
+                      <span className="font-black text-sm text-orange-500">IAPI</span>
+                      <span className="font-black text-[7px] text-orange-400 tracking-[0.2em] uppercase -mt-0.5 block text-center">shop</span>
+                    </span>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
@@ -60,13 +80,19 @@ export default async function DashboardLayout({
             </Breadcrumb>
           </div>
           <div className="flex items-center gap-3 px-4">
-            <span className={`text-xs px-2.5 py-1 rounded-full font-black uppercase tracking-wider ${
-              planName.toLowerCase() === "business" 
-                ? "bg-violet-accent/10 text-violet-accent border border-violet-accent/20" 
-                : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-transparent"
-            }`}>
-              Plan {planName}
-            </span>
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col text-right hidden sm:flex">
+                <span className="text-xs font-bold text-foreground">
+                  {activeTenantName || "Mi Tienda"}
+                </span>
+                <span className="text-[10px] text-muted-foreground uppercase font-black tracking-wider">
+                  Plan {planName}
+                </span>
+              </div>
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted border shadow-sm">
+                <User className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

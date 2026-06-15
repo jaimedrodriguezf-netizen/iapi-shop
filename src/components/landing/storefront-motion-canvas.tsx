@@ -81,7 +81,7 @@ export function StorefrontMotionCanvas() {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-[10px] font-black tracking-widest text-violet-600 dark:text-violet-400 uppercase">
+                <span className="text-[10px] font-black tracking-widest text-orange-500 dark:text-orange-400 uppercase">
                   {prod.category}
                 </span>
                 <h4 className="font-bold text-sm text-slate-800 dark:text-zinc-200 truncate">{prod.name}</h4>
@@ -89,7 +89,7 @@ export function StorefrontMotionCanvas() {
                   ${prod.price.toFixed(2)}
                 </p>
               </div>
-              <div className="h-8 w-8 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-orange-500 dark:text-orange-400 flex items-center justify-center">
                 <Plus className="h-4 w-4" />
               </div>
             </div>
@@ -98,10 +98,10 @@ export function StorefrontMotionCanvas() {
       </div>
 
       {/* 2. Interactive Storefront Mockup Canvas */}
-      <div className="mx-auto max-w-lg rounded-3xl border border-white bg-white/60 p-4 sm:p-6 shadow-2xl shadow-violet-950/5 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/60 relative">
+      <div className="mx-auto max-w-lg rounded-3xl border border-white bg-white/60 p-4 sm:p-6 shadow-2xl shadow-orange-950/5 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/60 relative">
         
         {/* Glow backdrop */}
-        <div className="absolute -inset-4 bg-gradient-to-tr from-violet-500/10 via-transparent to-transparent rounded-3xl blur-2xl -z-10" />
+        <div className="absolute -inset-4 bg-gradient-to-tr from-orange-500/10 via-transparent to-transparent rounded-3xl blur-2xl -z-10" />
 
         {/* Mobile Phone Mockup */}
         <div className="rounded-3xl border-8 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black aspect-[9/18] shadow-2xl overflow-hidden relative flex flex-col justify-between">
@@ -116,7 +116,7 @@ export function StorefrontMotionCanvas() {
           {/* Shop Header */}
           <div className="bg-white dark:bg-zinc-900 border-b p-4 flex justify-between items-center relative z-20">
             <div>
-              <span className="text-[9px] font-black uppercase tracking-widest text-violet-600 dark:text-violet-400">
+              <span className="text-[9px] font-black uppercase tracking-widest text-orange-500 dark:text-orange-400">
                 Catálogo Digital
               </span>
               <h3 className="font-black text-sm text-slate-900 dark:text-white truncate max-w-[120px] sm:max-w-none">UrbanStreet S.A.</h3>
@@ -128,7 +128,7 @@ export function StorefrontMotionCanvas() {
               <span
                 data-testid="cart-badge"
                 className={cn(
-                  "absolute -top-1.5 -right-1.5 bg-violet-600 text-white text-[9px] font-black h-4.5 w-4.5 rounded-full flex items-center justify-center border border-white transition-all duration-300",
+                  "absolute -top-1.5 -right-1.5 bg-orange-500 text-white text-[9px] font-black h-4.5 w-4.5 rounded-full flex items-center justify-center border border-white transition-all duration-300",
                   cartCount > 0 ? "scale-100 animate-bounce" : "scale-100"
                 )}
               >
@@ -160,10 +160,10 @@ export function StorefrontMotionCanvas() {
                 {/* Flying particle visual element */}
                 {flyEffect && (
                   <div
-                    className="absolute h-10 w-10 bg-violet-600 rounded-full flex items-center justify-center text-white border border-white"
+                    className="absolute h-10 w-10 bg-orange-500 rounded-full flex items-center justify-center text-white border border-white"
                     style={{
                       animation: "flyToCart 0.6s cubic-bezier(0.25, 1, 0.50, 1) forwards",
-                      boxShadow: "0 10px 20px rgba(124, 58, 237, 0.4)",
+                      boxShadow: "0 10px 20px rgba(249, 115, 22, 0.4)",
                     }}
                   >
                     <Plus className="h-5 w-5" />
@@ -186,7 +186,7 @@ export function StorefrontMotionCanvas() {
                   aria-label="Agregar al carrito"
                   onClick={handleAddToCart}
                   disabled={isAdding}
-                  className="rounded-xl px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-black shadow-lg shadow-violet-500/20 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="rounded-xl px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-black shadow-lg shadow-orange-500/20 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Plus className="h-3.5 w-3.5" /> Comprar
                 </button>
@@ -203,8 +203,8 @@ export function StorefrontMotionCanvas() {
         {/* Instructions Caption below the Phone */}
         <div className="text-center mt-4 px-2">
           <p className="text-xs text-muted-foreground font-semibold">
-            <Sparkles className="h-3.5 w-3.5 text-violet-500 inline-block mr-1.5 align-text-bottom" />
-            Hacé clic en <span className="text-violet-600 dark:text-violet-400 font-extrabold">Comprar</span> para ver la simulación del flujo de pedido.
+            <Sparkles className="h-3.5 w-3.5 text-orange-500 inline-block mr-1.5 align-text-bottom" />
+            Hacé clic en <span className="text-orange-500 dark:text-orange-400 font-extrabold">Comprar</span> para ver la simulación del flujo de pedido.
           </p>
         </div>
       </div>

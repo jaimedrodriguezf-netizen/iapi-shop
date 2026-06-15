@@ -86,8 +86,8 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
             <ShoppingBag className="h-7 w-7" />
             {itemCount > 0 && (
               <span 
-                className="absolute -top-3 -right-3 bg-white text-[10px] font-black h-5 w-5 rounded-xl flex items-center justify-center border-2 animate-in zoom-in"
-                style={{ color: "var(--brand-color)", borderColor: "var(--brand-color)" }}
+                className="absolute -top-3 -right-3 text-[10px] font-black h-5 w-5 rounded-xl flex items-center justify-center border-2 animate-in zoom-in"
+                style={{ backgroundColor: "var(--secondary-color)", color: "#ffffff", borderColor: "var(--secondary-color)" }}
               >
                 {itemCount}
               </span>
@@ -123,7 +123,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
                       {item.image_url ? (
                         <Image src={item.image_url} alt={item.name} fill className="object-cover" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-muted-foreground bg-violet-50">
+                        <div className="flex h-full w-full items-center justify-center text-muted-foreground bg-orange-50">
                           <ShoppingBag className="h-4 w-4" />
                         </div>
                       )}
@@ -176,7 +176,7 @@ export function CartDrawer({ whatsapp, tenantName, tenantId }: { whatsapp?: stri
               <span className="text-muted-foreground font-medium uppercase text-xs tracking-widest">Total Estimado</span>
               <span 
                 className="text-3xl font-black tabular-nums"
-                style={{ color: "var(--brand-color)" }}
+                style={{ color: "var(--secondary-color)" }}
               >${total.toFixed(2)}</span>
             </div>
             <Button 

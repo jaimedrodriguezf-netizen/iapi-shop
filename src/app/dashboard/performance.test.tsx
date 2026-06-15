@@ -27,7 +27,7 @@ vi.mock("@/lib/tenants/actions", () => ({
       id: "tenant-123",
       name: "Shop Gourmet",
       slug: "gourmet",
-      brand_color: "#7c3aed",
+      brand_color: "#f97316",
       status: "active",
       created_at: "2026-06-01",
     },
@@ -38,7 +38,7 @@ vi.mock("@/lib/tenants/actions", () => ({
       id: "tenant-123",
       name: "Shop Gourmet",
       slug: "gourmet",
-      brand_color: "#7c3aed",
+      brand_color: "#f97316",
       status: "active",
       created_at: "2026-06-01",
     },
@@ -50,7 +50,7 @@ vi.mock("@/lib/tenants/actions", () => ({
         id: "tenant-123",
         name: "Shop Gourmet",
         slug: "gourmet",
-        brand_color: "#7c3aed",
+        brand_color: "#f97316",
         status: "active",
         created_at: "2026-06-01",
       },
@@ -63,6 +63,16 @@ vi.mock("@/lib/tenants/actions", () => ({
         name: "Plan Premium",
       },
     },
+  }),
+  getColorPalettes: vi.fn().mockResolvedValue({
+    success: true,
+    data: [
+      { id: "p1", name: "Pastel", brand_color: "#fbcfe8", secondary_color: "#bae6fd", created_at: "2026-06-09T00:00:00Z" }
+    ],
+  }),
+  getCountries: vi.fn().mockResolvedValue({
+    success: true,
+    data: [],
   }),
 }));
 
@@ -88,6 +98,14 @@ vi.mock("@/lib/auth/actions", () => ({
 vi.mock("@/lib/utils/qr", () => ({
   generateQRCodeDataURL: vi.fn().mockResolvedValue("data:image/png;base64,mock"),
   generateQR: vi.fn().mockResolvedValue("data:image/png;base64,mock"),
+}));
+
+vi.mock("@/lib/products/actions", () => ({
+  checkProductLimit: vi.fn().mockResolvedValue({
+    allowed: true,
+    current: 3,
+    limit: 10,
+  }),
 }));
 
 // Mock slow/external charting/form components
@@ -176,5 +194,74 @@ describe("Dashboard Menu Sections Performance Profiling", () => {
     for (const res of results) {
       expect(res.avg).toBeLessThan(25);
     }
+  });
+});
+
+describe("Dashboard Page Layout Plan Restrictions", () => {
+  it("does not render monthly performance chart or branch table on the Free plan, but renders checklist, limits, and premium benefits", async () => {
+    const { getTenantSubscription } = await import("@/lib/tenants/actions");
+    vi.mocked(getTenantSubscription).mockResolvedValueOnce({
+      success: true,
+      data: {
+        id: "sub-1",
+        tenant_id: "tenant-123",
+        plans: {
+          name: "Free",
+          product_limit: 10,
+        },
+      },
+    });
+
+    const page = await DashboardPage();
+    const { queryByTestId, getByText, queryByText, queryByTestId: queryByTestIdDirect } = render(page);
+
+    // SampleSalesChart should not be rendered
+    expect(queryByTestId("mock-chart")).toBeNull();
+
+    // ShopSummaryTable should not be rendered either
+    expect(queryByText(/resumen de sucursales/i)).toBeNull();
+    
+    // Plan Actual should show FREE
+    expect(getByText(/free/i)).toBeDefined();
+
+    // Free plan widgets should be rendered
+    expect(getByText(/Pasos Iniciales/i)).toBeDefined();
+    expect(getByText(/Límites de Uso/i)).toBeDefined();
+    expect(getByText(/Desbloquea el Potencial/i)).toBeDefined();
+    expect(queryByTestIdDirect("onboarding-progress-bar")).not.toBeNull();
+    expect(queryByTestIdDirect("product-progress-bar")).not.toBeNull();
+    expect(queryByTestIdDirect("shop-progress-bar")).not.toBeNull();
+  });
+
+  it("renders monthly performance chart and branch table on the Premium plan, but not checklist, limits, or premium benefits", async () => {
+    const { getTenantSubscription } = await import("@/lib/tenants/actions");
+    vi.mocked(getTenantSubscription).mockResolvedValueOnce({
+      success: true,
+      data: {
+        id: "sub-2",
+        tenant_id: "tenant-123",
+        plans: {
+          name: "Premium",
+          product_limit: 300,
+        },
+      },
+    });
+
+    const page = await DashboardPage();
+    const { queryByTestId, getByText, getByText: getByTextDirect, queryByText } = render(page);
+
+    // SampleSalesChart should be rendered
+    expect(queryByTestId("mock-chart")).not.toBeNull();
+
+    // ShopSummaryTable should be rendered
+    expect(getByTextDirect(/resumen de sucursales/i)).toBeDefined();
+    
+    // Plan Actual should show PREMIUM
+    expect(getByText(/premium/i)).toBeDefined();
+
+    // Free plan widgets should NOT be rendered
+    expect(queryByText(/Pasos Iniciales/i)).toBeNull();
+    expect(queryByText(/Límites de Uso/i)).toBeNull();
+    expect(queryByText(/Desbloquea el Potencial/i)).toBeNull();
   });
 });

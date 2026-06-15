@@ -42,7 +42,7 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
     tenantName: string;
     currentPlan: string;
   } | null>(null);
-  const [newPlanCode, setNewPlanCode] = useState<"free" | "starter" | "pro" | "business">("free");
+  const [newPlanCode, setNewPlanCode] = useState<"free" | "starter" | "pro" | "plus">("free");
 
   // Filtrar en memoria
   const filteredUsers = initialUsers.filter((user) => {
@@ -146,7 +146,7 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
                           variant={user.platformRole === "admin" ? "default" : "secondary"}
                           className={`rounded-full px-2.5 py-0.5 font-bold uppercase text-[10px] tracking-wider ${
                             user.platformRole === "admin"
-                              ? "bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400 border border-violet-200/40 dark:border-violet-900/50"
+                              ? "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400 border border-orange-200/40 dark:border-orange-900/50"
                               : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
                           }`}
                         >
@@ -167,14 +167,14 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
                               className="flex flex-wrap items-center gap-x-3 gap-y-1.5 p-2 rounded-xl bg-muted/40 border text-xs"
                             >
                               <div className="flex items-center gap-1 font-bold text-slate-800 dark:text-zinc-200">
-                                <Store className="h-3.5 w-3.5 text-violet-500" />
+                                <Store className="h-3.5 w-3.5 text-orange-500" />
                                 {t.name}
                               </div>
                               
                               <Badge
                                 className={`rounded-full font-black text-[9px] uppercase tracking-wider ${
-                                  t.planName.toLowerCase() === "business"
-                                    ? "bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400 border border-violet-200/50 dark:border-violet-900/50"
+                                  t.planName.toLowerCase() === "plus"
+                                    ? "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400 border border-orange-200/50 dark:border-orange-900/50"
                                     : t.planName.toLowerCase() === "pro"
                                     ? "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/50"
                                     : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
@@ -201,11 +201,11 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
                                     const codeMap: Record<string, string> = {
                                       Starter: "starter",
                                       Pro: "pro",
-                                      Business: "business",
+                                      Plus: "plus",
                                     };
-                                    setNewPlanCode((codeMap[t.planName] || "starter") as "starter" | "pro" | "business");
+                                    setNewPlanCode((codeMap[t.planName] || "starter") as "starter" | "pro" | "plus");
                                   }}
-                                  className="ml-auto text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 font-bold hover:underline cursor-pointer"
+                                  className="ml-auto text-orange-500 hover:text-orange-600 dark:text-orange-400 dark:hover:text-orange-300 font-bold hover:underline cursor-pointer"
                                 >
                                   Editar Plan
                                 </button>
@@ -248,7 +248,7 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
       <Dialog open={!!editingRoleUser} onOpenChange={(open) => !open && setEditingRoleUser(null)}>
         <DialogContent className="rounded-3xl sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black text-violet-600">Cambiar Rol SaaS</DialogTitle>
+            <DialogTitle className="text-2xl font-black text-orange-500">Cambiar Rol SaaS</DialogTitle>
             <DialogDescription>
               Modifica los privilegios globales de <span className="font-bold text-foreground">{editingRoleUser?.email}</span> en la plataforma.
             </DialogDescription>
@@ -281,7 +281,7 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
             </Button>
             <Button
               onClick={handleUpdateRole}
-              className="rounded-xl font-bold bg-violet-600 hover:bg-violet-700 text-white cursor-pointer"
+              className="rounded-xl font-bold bg-orange-500 hover:bg-orange-600 text-white cursor-pointer"
               disabled={isPending}
             >
               {isPending ? "Guardando…" : "Actualizar Rol"}
@@ -294,7 +294,7 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
       <Dialog open={!!editingPlanTenant} onOpenChange={(open) => !open && setEditingPlanTenant(null)}>
         <DialogContent className="rounded-3xl sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black text-violet-600">Cambiar Plan de Sucursal</DialogTitle>
+            <DialogTitle className="text-2xl font-black text-orange-500">Cambiar Plan de Sucursal</DialogTitle>
             <DialogDescription>
               Asigna un plan de suscripción para la sucursal <span className="font-bold text-foreground">{editingPlanTenant?.tenantName}</span>.
             </DialogDescription>
@@ -304,7 +304,7 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
             <label className="text-sm font-bold block mb-1">Plan de Suscripción</label>
             <Select
               value={newPlanCode}
-              onValueChange={(val) => setNewPlanCode(val as "free" | "starter" | "pro" | "business")}
+              onValueChange={(val) => setNewPlanCode(val as "free" | "starter" | "pro" | "plus")}
             >
               <SelectTrigger className="rounded-xl">
                 <SelectValue placeholder="Selecciona un plan" />
@@ -313,7 +313,7 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
                 <SelectItem value="free">Free (5 prod, 1 foto, 1 sucursal)</SelectItem>
                 <SelectItem value="starter">Starter (50 prod, 3 fotos, 1 sucursal)</SelectItem>
                 <SelectItem value="pro">Pro (300 prod, 3 fotos, 1 sucursal)</SelectItem>
-                <SelectItem value="business">Business (2000 prod, 6 fotos, multi-sucursal)</SelectItem>
+                <SelectItem value="plus">Plus (2000 prod, 6 fotos, multi-sucursal)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -329,7 +329,7 @@ export function AdminUsersClient({ initialUsers }: AdminUsersClientProps) {
             </Button>
             <Button
               onClick={handleUpdatePlan}
-              className="rounded-xl font-bold bg-violet-600 hover:bg-violet-700 text-white cursor-pointer"
+              className="rounded-xl font-bold bg-orange-500 hover:bg-orange-600 text-white cursor-pointer"
               disabled={isPending}
             >
               {isPending ? "Guardando…" : "Actualizar Plan"}

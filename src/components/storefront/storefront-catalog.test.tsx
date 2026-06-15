@@ -46,15 +46,20 @@ const mockProducts = [
   },
 ];
 
+const defaultProps = {
+  categories: mockCategories,
+  products: mockProducts,
+  tenantId: "t1",
+  brandColor: "#f97316",
+  favoriteIds: [] as string[],
+  onToggleFavorite: () => {},
+  isAuthenticated: false,
+};
+
 describe("StorefrontCatalog", () => {
   it("should render all products when no category filter is active", () => {
     render(
-      <StorefrontCatalog
-        categories={mockCategories}
-        products={mockProducts}
-        tenantId="t1"
-        brandColor="#7c3aed"
-      />
+      <StorefrontCatalog {...defaultProps} />
     );
 
     expect(screen.getByText("Coca-Cola 500ml")).toBeDefined();
@@ -64,12 +69,7 @@ describe("StorefrontCatalog", () => {
 
   it("should filter products by category when a chip is selected", () => {
     render(
-      <StorefrontCatalog
-        categories={mockCategories}
-        products={mockProducts}
-        tenantId="t1"
-        brandColor="#7c3aed"
-      />
+      <StorefrontCatalog {...defaultProps} />
     );
 
     // Click "Bebidas" filter chip (button element, not the h2 section heading)
@@ -85,40 +85,6 @@ describe("StorefrontCatalog", () => {
     expect(screen.queryByText("Papas Fritas")).toBeNull();
   });
 
-  it("should show WhatsApp button on product cards when phone is provided", () => {
-    render(
-      <StorefrontCatalog
-        categories={mockCategories}
-        products={mockProducts}
-        tenantId="t1"
-        brandColor="#7c3aed"
-        whatsappPhone="+593987654321"
-      />
-    );
-
-    const whatsappButtons = screen.getAllByRole("link");
-    const waLinks = whatsappButtons.filter((el) =>
-      (el as HTMLAnchorElement).href?.includes("wa.me")
-    );
-    expect(waLinks.length).toBeGreaterThan(0);
-    expect(waLinks[0].getAttribute("href")).toContain("593987654321");
-  });
-
-  it("should not show WhatsApp button when phone is not provided", () => {
-    render(
-      <StorefrontCatalog
-        categories={mockCategories}
-        products={mockProducts}
-        tenantId="t1"
-        brandColor="#7c3aed"
-      />
-    );
-
-    const waLinks = screen.queryAllByRole("link").filter((el) =>
-      (el as HTMLAnchorElement).href?.includes("wa.me")
-    );
-    expect(waLinks.length).toBe(0);
-  });
 
   it("should show empty state when products array is empty", () => {
     render(
@@ -126,7 +92,10 @@ describe("StorefrontCatalog", () => {
         categories={[]}
         products={[]}
         tenantId="t1"
-        brandColor="#7c3aed"
+        brandColor="#f97316"
+        favoriteIds={[]}
+        onToggleFavorite={() => {}}
+        isAuthenticated={false}
       />
     );
 
@@ -144,7 +113,10 @@ describe("StorefrontCatalog", () => {
         categories={oneCat}
         products={oneProduct}
         tenantId="t1"
-        brandColor="#7c3aed"
+        brandColor="#f97316"
+        favoriteIds={[]}
+        onToggleFavorite={() => {}}
+        isAuthenticated={false}
       />
     );
 
@@ -172,7 +144,10 @@ describe("StorefrontCatalog", () => {
         categories={hierarchicalCategories}
         products={hierarchicalProducts}
         tenantId="t1"
-        brandColor="#7c3aed"
+        brandColor="#f97316"
+        favoriteIds={[]}
+        onToggleFavorite={() => {}}
+        isAuthenticated={false}
       />
     );
 

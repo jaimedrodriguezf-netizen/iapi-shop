@@ -2,7 +2,6 @@
 
 import { Plus } from "lucide-react"
 import { useCart } from "@/lib/storefront/cart-store"
-import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
 interface AddToCartButtonProps {
@@ -13,30 +12,34 @@ interface AddToCartButtonProps {
     image_url?: string
     tenant_id: string
   }
+  className?: string
 }
 
-export function AddToCartButton({ product }: AddToCartButtonProps) {
+export function AddToCartButton({ product, className }: AddToCartButtonProps) {
   const addItem = useCart((state) => state.addItem)
 
   return (
-    <Button 
-      size="icon"
-      className="rounded-xl text-white shadow-sm transition-all hover:opacity-90 active:scale-95"
-      style={{ backgroundColor: "var(--brand-color)" }}
-      onClick={() => {
+    <button
+      className={`h-7 w-7 rounded-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white dark:hover:bg-zinc-900 hover:shadow transition-all ${className ?? ""}`}
+      style={{ color: "var(--brand-color)" }}
+      aria-label={`Agregar ${product.name} al carrito`}
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
         addItem(product.tenant_id, {
           id: product.id,
           name: product.name,
           price: product.price,
           image_url: product.image_url
         })
-        toast.success(`${product.name} agregado al carrito`, {
-          duration: 2000,
-          position: "bottom-center"
+        toast.success(`${product.name} agregado`, {
+          duration: 1500,
+          position: "bottom-center",
+          className: "text-xs font-bold",
         })
       }}
     >
-      <Plus className="h-5 w-5" />
-    </Button>
+      <Plus className="h-4 w-4" />
+    </button>
   )
 }

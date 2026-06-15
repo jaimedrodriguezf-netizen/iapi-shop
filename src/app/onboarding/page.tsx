@@ -33,7 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { createTenant, checkSlugAvailability } from "@/lib/tenants/actions"
+import { createTenant, checkSlugAvailability, getMyTenants, getTenantSubscription } from "@/lib/tenants/actions"
 import { useDebounce } from "@/hooks/use-debounce"
 
 const countries = [
@@ -68,9 +68,31 @@ type SlugAvailability = {
 export default function OnboardingPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [canCreateStore, setCanCreateStore] = React.useState(true)
+  const [limitMessage, setLimitMessage] = React.useState("")
   const [slugAvailability, setSlugAvailability] = React.useState<SlugAvailability>({
     status: "idle",
   })
+
+  React.useEffect(() => {
+    async function checkExisting() {
+      const tenantsResult = await getMyTenants()
+      if (tenantsResult.success && tenantsResult.data && tenantsResult.data.length > 0) {
+        // Check if any tenant has plus plan
+        const subChecks = await Promise.all(
+          tenantsResult.data.map(t => getTenantSubscription(t.id))
+        )
+        const hasPlus = subChecks.some(
+          s => s.success && s.data?.plans?.name?.toLowerCase() === "plus"
+        )
+        if (!hasPlus) {
+          setCanCreateStore(false)
+          setLimitMessage("Tu plan actual solo permite 1 sucursal. Actualizá a Plus para crear más.")
+        }
+      }
+    }
+    checkExisting()
+  }, [])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -178,6 +200,11 @@ export default function OnboardingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {!canCreateStore && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm font-medium mb-4">
+              {limitMessage}
+            </div>
+          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -201,7 +228,7 @@ export default function OnboardingPage() {
                     <FormLabel className="font-bold">URL de la sucursal (Slug)</FormLabel>
                     <FormControl>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-violet-600 bg-violet-50 px-3 py-2 rounded-lg">iapi.shop/</span>
+                        <span className="text-sm font-bold text-orange-500 bg-orange-50 px-3 py-2 rounded-lg">iapi.shop/</span>
                         <div className="relative flex-1">
                           <Input
                             placeholder="mi-sucursal"
@@ -282,8 +309,8 @@ export default function OnboardingPage() {
               </div>
               <Button
                 type="submit"
-                className="w-full rounded-xl font-bold py-6 bg-violet-500 hover:bg-violet-600 shadow-sm"
-                disabled={isSubmitDisabled}
+                className="w-full rounded-xl font-bold py-6 bg-orange-500 hover:bg-orange-600 shadow-sm"
+                disabled={isSubmitDisabled || !canCreateStore}
               >
                 {isSubmitting ? (
                   <>
