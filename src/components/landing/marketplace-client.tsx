@@ -127,7 +127,7 @@ export function MarketplaceClient({ products, tenantCount, categories = [], sele
     <div>
       {/* Active category chip (shown in content area when category is selected) */}
       {selectedCategory && (
-        <div className="max-w-4xl mx-auto px-3 sm:px-4 pt-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2">
           <button
             onClick={() => handleCategorySelect(null)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors"
@@ -140,7 +140,7 @@ export function MarketplaceClient({ products, tenantCount, categories = [], sele
 
       {/* Tabs */}
       <div className="border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 sticky top-[53px] z-20">
-        <div className="max-w-4xl mx-auto px-4 flex gap-0 overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-0 overflow-x-auto">
           {allTabs.map((tab) => (
             <button
               key={tab.key}
@@ -158,7 +158,7 @@ export function MarketplaceClient({ products, tenantCount, categories = [], sele
       </div>
 
       {/* Tab content */}
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {activeTab === "todos" && (
           <div>
             {/* Search */}
@@ -169,14 +169,14 @@ export function MarketplaceClient({ products, tenantCount, categories = [], sele
               onFilterChange={setActiveFilter}
             />
 
-            {/* Product grid */}
+            {/* Product grid — Temu-style responsive: 2 cols mobile → 6 cols on wide desktop */}
             {filteredProducts.length === 0 ? (
               <div className="py-16 text-center">
                 <Search className="h-10 w-10 text-zinc-300 mx-auto mb-3" />
                 <p className="text-zinc-400 font-medium">No se encontraron productos</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 sm:gap-3 p-2 sm:p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 py-3 sm:py-4">
                 {filteredProducts.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -225,7 +225,7 @@ export function MarketplaceClient({ products, tenantCount, categories = [], sele
                 <p className="text-zinc-400 font-medium">No se encontraron productos</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 sm:gap-3 p-2 sm:p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 py-3 sm:py-4">
                 {displayProducts.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -243,7 +243,7 @@ export function MarketplaceClient({ products, tenantCount, categories = [], sele
 
       {/* Footer */}
       <footer className="border-t py-8 mt-12 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto text-center">
           <p className="text-xs text-zinc-400 font-medium">
             © {new Date().getFullYear()} IAPI Shop — Marketplace de tiendas ecuatorianas
           </p>

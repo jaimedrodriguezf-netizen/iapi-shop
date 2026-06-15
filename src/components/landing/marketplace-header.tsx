@@ -89,7 +89,7 @@ export function MarketplaceHeader({
 
   return (
     <header className="sticky top-0 z-30 bg-white dark:bg-zinc-950 border-b shadow-sm">
-      <div className="max-w-4xl mx-auto px-3 py-2.5 flex items-center gap-2.5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center gap-3">
         {/* ☰ Categorías */}
         <button onClick={() => setCatOpen(true)} className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 shrink-0 ${searchOpen ? 'hidden sm:block' : ''}`} aria-label="Categorías">
           <Menu className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />

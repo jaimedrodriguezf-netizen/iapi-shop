@@ -56,7 +56,7 @@ export function PromoCarousel({ banners }: PromoCarouselProps) {
       )}
 
       {/* Content */}
-      <div className="relative px-6 sm:px-12 py-10 sm:py-16 flex flex-col justify-center min-h-[200px] sm:min-h-[280px] max-w-4xl mx-auto">
+      <div className="relative px-6 sm:px-12 lg:px-20 py-10 sm:py-16 lg:py-20 flex flex-col justify-center min-h-[200px] sm:min-h-[320px] lg:min-h-[380px] max-w-7xl mx-auto">
         <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white mb-2 drop-shadow-sm">
           {banner.title}
         </h2>
