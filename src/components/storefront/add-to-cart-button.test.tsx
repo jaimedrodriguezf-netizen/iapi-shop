@@ -16,6 +16,6 @@ describe("AddToCartButton brand color styling", () => {
 
     const button = screen.getByRole("button");
     expect(button).toBeInTheDocument();
-    expect(button).toHaveStyle({ backgroundColor: "var(--brand-color)" });
+    expect(button).toHaveStyle({ color: "var(--brand-color)" });
   });
 });

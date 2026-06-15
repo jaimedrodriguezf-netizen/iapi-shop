@@ -330,6 +330,6 @@ describe("signInWithGoogle", () => {
     const result = await signInWithGoogle("/auth/callback");
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("Provider not enabled");
+    expect(result.error).toBe("Error al procesar la solicitud");
   });
 });

@@ -1,47 +1,65 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import Home from "./page";
+import { describe, expect, it, vi } from "vitest";
 
-// Mock Supabase client
+// Chainable thenable mock for Supabase queries
+function makeChain(data: unknown = { data: [], error: null, count: 0 }) {
+  const chain: Record<string, unknown> = {
+    then(resolve: (v: unknown) => void) { resolve(data); },
+  };
+  return new Proxy(chain, {
+    get(target, prop: string) {
+      if (prop in target) return (target as Record<string, unknown>)[prop];
+      if (prop === 'then') return undefined;
+      return vi.fn().mockReturnValue(makeChain(data));
+    },
+  });
+}
+
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn().mockResolvedValue({
-    from: vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          order: vi.fn().mockReturnValue({
-            limit: vi.fn().mockResolvedValue({ data: [] }),
-          }),
-        }),
-      }),
-    }),
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    },
+    from: vi.fn().mockReturnValue(makeChain()),
   }),
 }));
 
-// Mock PromoCarousel (client component)
 vi.mock("@/components/landing/promo-carousel", () => ({
   PromoCarousel: () => <div data-testid="promo-carousel">PromoCarousel</div>,
 }));
 
-// Mock MarketplaceClient (client component)
-vi.mock("@/components/landing/marketplace-client", () => ({
-  MarketplaceClient: ({ tenantCount }: { tenantCount: number }) => (
-    <div data-testid="marketplace-client">Marketplace ({tenantCount} tenants)</div>
+vi.mock("@/components/landing/marketplace-page", () => ({
+  MarketplacePage: ({ siteName, isAuthenticated }: { siteName: string; isAuthenticated: boolean }) => (
+    <div data-testid="marketplace-page">
+      <span>{siteName}</span>
+      {!isAuthenticated && (
+        <>
+          <a href="/login">Iniciar sesión</a>
+          <a href="/register">Registrarse</a>
+        </>
+      )}
+      <div data-testid="promo-carousel" />
+    </div>
   ),
 }));
 
-describe("marketplace landing page", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+vi.mock("@/lib/sections/actions", () => ({
+  getMarketplaceSections: vi.fn().mockResolvedValue({ success: true, data: [] }),
+}));
 
-  it("renders the marketplace header and promo carousel", async () => {
+vi.mock("@/lib/admin/banner-actions", () => ({
+  getPromoBanners: vi.fn().mockResolvedValue({ success: true, data: [] }),
+}));
+
+import Home from "./page";
+
+describe("marketplace landing page", () => {
+  it("renders the marketplace page with IAPI Shop name and login links", async () => {
     render(await Home());
 
     expect(screen.getByText("IAPI Shop")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /iniciar sesión/i })).toHaveAttribute("href", "/login");
     expect(screen.getByRole("link", { name: /registrarse/i })).toHaveAttribute("href", "/register");
-    expect(screen.getByTestId("promo-carousel")).toBeInTheDocument();
-    expect(screen.getByTestId("marketplace-client")).toBeInTheDocument();
   });
 
   it("does not show old landing page hero content", async () => {

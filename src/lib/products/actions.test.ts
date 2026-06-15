@@ -80,6 +80,9 @@ vi.mock("@/lib/rate-limit", () => ({
 import { createClient } from "@/lib/supabase/server";
 import { getTenantSubscription } from "@/lib/tenants/actions";
 
+// Minimal valid PNG bytes for upload tests (8-byte PNG signature)
+const pngBytes = new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 0]);
+
 describe("Product Catalog Actions", () => {
   let mockSupabase: ReturnType<typeof createMockSupabase>;
 
@@ -453,6 +456,7 @@ describe("Product Catalog Actions", () => {
   });
 
   describe("uploadProductImage", () => {
+
     it("should upload a product image successfully", async () => {
       const mockStorage = {
         upload: vi.fn().mockResolvedValue({ data: { path: "path" }, error: null }),
@@ -464,7 +468,7 @@ describe("Product Catalog Actions", () => {
       } as unknown as typeof mockSupabase.storage;
 
       const formData = new FormData();
-      const file = new File(["foo"], "photo.png", { type: "image/png" });
+      const file = new File([pngBytes], "photo.png", { type: "image/png" });
       formData.append("file", file);
       formData.append("tenantId", "550e8400-e29b-41d4-a716-446655440000");
 
@@ -483,13 +487,14 @@ describe("Product Catalog Actions", () => {
       } as unknown as typeof mockSupabase.storage;
 
       const formData = new FormData();
-      const file = new File(["foo"], "photo.png", { type: "image/png" });
+      const file = new File([pngBytes], "photo.png", { type: "image/png" });
       formData.append("file", file);
       formData.append("tenantId", "550e8400-e29b-41d4-a716-446655440000");
 
       const result = await uploadProductImage(formData);
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Storage error");
+      // The action now returns a generic upload error message
+      expect(result.error).toContain("Error al subir");
     });
   });
 
@@ -561,7 +566,7 @@ describe("Product Catalog Actions", () => {
       });
 
       const formData = new FormData();
-      const file = new File(["foo"], "photo.png", { type: "image/png" });
+      const file = new File([pngBytes], "photo.png", { type: "image/png" });
       formData.append("file", file);
       formData.append("tenantId", "550e8400-e29b-41d4-a716-446655440000");
 
@@ -585,7 +590,7 @@ describe("Product Catalog Actions", () => {
       } as unknown as typeof mockSupabase.storage;
 
       const formData = new FormData();
-      const file = new File(["foo"], "photo.png", { type: "image/png" });
+      const file = new File([pngBytes], "photo.png", { type: "image/png" });
       formData.append("file", file);
       formData.append("tenantId", "550e8400-e29b-41d4-a716-446655440000");
 

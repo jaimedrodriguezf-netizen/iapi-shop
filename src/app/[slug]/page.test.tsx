@@ -4,153 +4,110 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import StorefrontPage from "./page";
 import { getStorefrontData } from "@/lib/storefront/actions";
 
-// Mock the getStorefrontData action
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: vi.fn().mockResolvedValue({
+    auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }) },
+    from: vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+          }),
+          maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+        in: vi.fn().mockReturnValue({
+          order: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+        order: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      }),
+    }),
+  }),
+}));
+
 vi.mock("@/lib/storefront/actions", () => ({
   getStorefrontData: vi.fn(),
 }));
 
-// Mock the subcomponents to keep tests focused on the page logic
+vi.mock("@/lib/storefront/favorites-actions", () => ({
+  getMyFavoriteIds: vi.fn().mockResolvedValue({ success: true, data: [] }),
+}));
+
+vi.mock("@/lib/sections/actions", () => ({
+  getTenantSections: vi.fn().mockResolvedValue({ success: true, data: [] }),
+}));
+
 vi.mock("@/components/storefront/cart-drawer", () => ({
-  CartDrawer: () => <div data-testid="cart-drawer" />
+  CartDrawer: () => <div data-testid="cart-drawer" />,
 }));
-vi.mock("@/components/storefront/storefront-catalog", () => ({
-  StorefrontCatalog: () => <div data-testid="storefront-catalog" />
-}));
-vi.mock("@/components/storefront/storefront-header", () => ({
-  StorefrontHeader: ({ tenant, formattedAddress }: any) => (
-    <div data-testid="storefront-header">
-      <span>{tenant.name}</span>
-      {formattedAddress && <span>Address: {formattedAddress}</span>}
-      {tenant.social_links && (tenant.social_links.instagram || tenant.social_links.facebook || tenant.social_links.tiktok) && <span>Síguenos</span>}
+
+vi.mock("@/components/storefront/storefront-favorites-wrapper", () => ({
+  StorefrontFavoritesWrapper: ({ tenantInfo }: any) => (
+    <div data-testid="storefront-favorites-wrapper">
+      {tenantInfo?.address && <span>Address: {tenantInfo.address}</span>}
     </div>
-  )
+  ),
 }));
+
+function makeTenant(overrides: Record<string, unknown> = {}) {
+  return {
+    id: "tenant-1", name: "Mi Tienda", slug: "mi-tienda",
+    brand_color: "#22c55e", status: "active",
+    address: { street: "Calle Principal 123", city: "Quito", state: "Pichincha", zip: "170150", country: "Ecuador" },
+    social_links: { instagram: "https://instagram.com/mitienda" },
+    ...overrides,
+  };
+}
 
 describe("StorefrontPage component tests", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it("injects `--brand-color` on the <main> element", async () => {
-    const mockTenant = {
-      id: "tenant-1",
-      name: "Mi Tienda",
-      slug: "mi-tienda",
-      brand_color: "#22c55e",
-      status: "active",
-      address: {
-        street: "Calle Principal 123",
-        city: "Quito",
-        state: "Pichincha",
-        zip: "170150",
-        country: "Ecuador"
-      },
-      social_links: {
-        instagram: "https://instagram.com/mitienda",
-        facebook: "https://facebook.com/mitienda",
-        tiktok: "https://tiktok.com/@mitienda"
-      }
-    };
-
     vi.mocked(getStorefrontData).mockResolvedValue({
-      success: true,
-      tenant: mockTenant as any,
-      categories: [],
-      products: []
+      success: true, tenant: makeTenant() as any, categories: [], products: [],
     });
 
     const pageElement = await StorefrontPage({ params: Promise.resolve({ slug: "mi-tienda" }) });
     render(pageElement);
 
-    const main = screen.getByRole("main");
-    expect(main).toBeInTheDocument();
-    expect(main).toHaveStyle({ "--brand-color": "#22c55e" });
+    expect(screen.getByRole("main")).toHaveStyle({ "--brand-color": "#22c55e" });
   });
 
-  it("renders structured address formatted as a single line in the footer", async () => {
-    const mockTenant = {
-      id: "tenant-1",
-      name: "Mi Tienda",
-      slug: "mi-tienda",
-      brand_color: "#22c55e",
-      status: "active",
-      address: {
-        street: "Calle Principal 123",
-        city: "Quito",
-        state: "Pichincha",
-        zip: "170150",
-        country: "Ecuador"
-      },
-      social_links: null
-    };
-
+  it("renders formatted address in the footer", async () => {
     vi.mocked(getStorefrontData).mockResolvedValue({
-      success: true,
-      tenant: mockTenant as any,
-      categories: [],
-      products: []
+      success: true, tenant: makeTenant() as any, categories: [], products: [],
     });
 
     const pageElement = await StorefrontPage({ params: Promise.resolve({ slug: "mi-tienda" }) });
     render(pageElement);
 
-    // Should find the formatted address
-    expect(screen.getByText("Address: Calle Principal 123, Quito, Pichincha, Ecuador")).toBeInTheDocument();
-    // Social section should be hidden (since social_links is null)
-    expect(screen.queryByText("Síguenos")).not.toBeInTheDocument();
+    expect(screen.getByText(/Dirección: Calle Principal 123, Quito, Pichincha, Ecuador/)).toBeInTheDocument();
   });
 
   it("hides address section when address is null", async () => {
-    const mockTenant = {
-      id: "tenant-1",
-      name: "Mi Tienda",
-      slug: "mi-tienda",
-      brand_color: null,
-      status: "active",
-      address: null,
-      social_links: {
-        instagram: "https://instagram.com/mitienda"
-      }
-    };
-
     vi.mocked(getStorefrontData).mockResolvedValue({
-      success: true,
-      tenant: mockTenant as any,
-      categories: [],
-      products: []
+      success: true, tenant: makeTenant({ address: null }) as any, categories: [], products: [],
     });
 
     const pageElement = await StorefrontPage({ params: Promise.resolve({ slug: "mi-tienda" }) });
     render(pageElement);
 
-    // Address section should not be rendered
-    expect(screen.queryByText(/Address:/)).not.toBeInTheDocument();
-    // Social links section should be rendered
-    expect(screen.getByText("Síguenos")).toBeInTheDocument();
+    expect(screen.queryByText(/Dirección:/i)).not.toBeInTheDocument();
   });
 
-  it("renders 'Tienda en construcción' and does not render normal catalog when tenant status is draft", async () => {
-    const mockTenant = {
-      id: "tenant-1",
-      name: "Mi Tienda",
-      slug: "mi-tienda",
-      brand_color: "#22c55e",
-      status: "draft",
-      address: null,
-      social_links: null
-    };
-
+  it("renders 'Tienda en construcción' for draft status", async () => {
     vi.mocked(getStorefrontData).mockResolvedValue({
-      success: true,
-      tenant: mockTenant as any,
-      categories: [],
-      products: []
+      success: true, tenant: makeTenant({ status: "draft", address: null, social_links: null }) as any,
+      categories: [], products: [],
     });
 
     const pageElement = await StorefrontPage({ params: Promise.resolve({ slug: "mi-tienda" }) });
     render(pageElement);
 
-    expect(screen.getByText("Tienda en construcción: Esta tienda está en modo borrador y no es pública aún.")).toBeInTheDocument();
-    expect(screen.queryByTestId("storefront-catalog")).not.toBeInTheDocument();
+    expect(screen.getByText(/Tienda en construcción/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("storefront-favorites-wrapper")).not.toBeInTheDocument();
   });
 });

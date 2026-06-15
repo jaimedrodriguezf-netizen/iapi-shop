@@ -14,7 +14,7 @@ describe("PricingSection Component", () => {
     // 2. Check prices
     expect(screen.getByText(/\$0/i)).toBeInTheDocument();
     expect(screen.getByText(/\$49.99/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Próximamente/i)).toHaveLength(1);
+    expect(screen.getAllByText(/Próximamente/i)).toHaveLength(2);
 
     // 3. Verify features
     expect(screen.getByText(/Hasta 10 productos activos/i)).toBeInTheDocument();
