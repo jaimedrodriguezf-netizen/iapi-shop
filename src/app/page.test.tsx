@@ -24,9 +24,9 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
-vi.mock("@/components/landing/promo-carousel", () => ({
-  PromoCarousel: () => <div data-testid="promo-carousel">PromoCarousel</div>,
-}));
+// vi.mock("@/components/landing/promo-carousel", () => ({
+//   PromoCarousel: () => <div data-testid="promo-carousel">PromoCarousel</div>,
+// })); // Desactivado — carrusel comentado
 
 vi.mock("@/components/landing/marketplace-page", () => ({
   MarketplacePage: ({ siteName, isAuthenticated }: { siteName: string; isAuthenticated: boolean }) => (
@@ -38,7 +38,7 @@ vi.mock("@/components/landing/marketplace-page", () => ({
           <a href="/register">Registrarse</a>
         </>
       )}
-      <div data-testid="promo-carousel" />
+      {/* <div data-testid="promo-carousel" /> Desactivado — carrusel comentado */}
     </div>
   ),
 }));

@@ -3,7 +3,7 @@
 import * as React from "react"
 import { MarketplaceHeader } from "@/components/landing/marketplace-header"
 import { MarketplaceClient } from "@/components/landing/marketplace-client"
-import { PromoCarousel } from "@/components/landing/promo-carousel"
+// import { PromoCarousel } from "@/components/landing/promo-carousel" // Desactivado por ahora
 import { Section } from "@/lib/sections/actions"
 
 interface Banner {
@@ -74,7 +74,7 @@ export function MarketplacePage({ siteLogo, siteName, banners, products, tenantC
         avatarUrl={avatarUrl}
         isAdmin={isAdmin}
       />
-      <PromoCarousel banners={banners} />
+      {/* <PromoCarousel banners={banners} /> Desactivado por ahora */}
       <MarketplaceClient
         products={products}
         tenantCount={tenantCount}
