@@ -4,11 +4,12 @@ import { login } from "@/lib/auth/actions";
 export default function LoginPage() {
   return (
     <AuthForm
-      title="Ingresar al panel"
-      description="Accede con tu cuenta registrada para gestionar tu tienda, productos, QR e IA."
+      mode="customer"
+      title="Bienvenido de vuelta"
+      description="Iniciá sesión para seguir tus pedidos, guardar favoritos y comprar más rápido."
       submitLabel="Iniciar sesión"
       switchHref="/register"
-      switchLabel="¿No tienes cuenta? Regístrate"
+      switchLabel="¿No tienes cuenta? Registrate gratis"
       action={login}
     />
   );

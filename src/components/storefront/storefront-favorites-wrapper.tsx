@@ -83,6 +83,7 @@ export function StorefrontFavoritesWrapper({
   const [searchQuery, setSearchQuery] = React.useState("")
   const [activeFilter, setActiveFilter] = React.useState("todos")
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null)
+  const pendingToggles = React.useRef(new Set<string>())
 
   // Filter and search products
   const filteredProducts = React.useMemo(() => {
@@ -117,10 +118,8 @@ export function StorefrontFavoritesWrapper({
   }, [products, categories, searchQuery, activeFilter, selectedCategory])
 
   const handleToggleFavorite = async (productId: string) => {
-    if (!isAuthenticated) {
-      toast.error("Inicia sesion para guardar favoritos")
-      return
-    }
+    if (pendingToggles.current.has(productId)) return
+    pendingToggles.current.add(productId)
 
     const isCurrentlyFav = favoriteIds.includes(productId)
     setFavoriteIds(prev => isCurrentlyFav ? prev.filter(id => id !== productId) : [...prev, productId])
@@ -134,7 +133,13 @@ export function StorefrontFavoritesWrapper({
       setFavoriteProducts(prev => prev.filter(p => p.id !== productId))
     }
 
-    const result = await toggleFavorite(productId, tenantId)
+    let result = await toggleFavorite(productId, tenantId)
+
+    if (!result.success && result.errorCode === "AUTH_REQUIRED") {
+      await new Promise(resolve => setTimeout(resolve, 300))
+      result = await toggleFavorite(productId, tenantId)
+    }
+
     if (!result.success) {
       setFavoriteIds(prev => isCurrentlyFav ? [...prev, productId] : prev.filter(id => id !== productId))
       if (!isCurrentlyFav) {
@@ -145,6 +150,8 @@ export function StorefrontFavoritesWrapper({
       }
       toast.error(result.error || "Error al actualizar favorito")
     }
+
+    pendingToggles.current.delete(productId)
   }
 
   // Only show categories that have products (directly or in descendant categories)

@@ -70,22 +70,10 @@ export async function login(formData: FormData): Promise<AuthActionState> {
       return { success: false, error: "No pudimos iniciar sesión. Revisa tus credenciales." };
     }
 
-    // Check if user has tenants — if not, send to profile
-    const { data: { user: authedUser } } = await supabase.auth.getUser();
-    const { data: existingTenant } = await supabase
-      .from("tenants")
-      .select("id")
-      .eq("created_by", authedUser!.id)
-      .limit(1)
-      .maybeSingle();
-
     revalidatePath("/", "layout");
 
-    if (existingTenant) {
-      redirect("/dashboard");
-    } else {
-      redirect("/perfil");
-    }
+    // Always redirect to the main marketplace after login
+    redirect("/");
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Error inesperado.";
     if (errorMsg.includes("NEXT_REDIRECT")) throw err;
@@ -169,7 +157,7 @@ export async function logout(): Promise<AuthActionState> {
     const supabase = await createClient();
     await supabase.auth.signOut();
     revalidatePath("/", "layout");
-    redirect("/login");
+    redirect("/");
     return { success: true };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Error inesperado.";

@@ -18,6 +18,7 @@ interface Banner {
 
 interface MarketplaceProduct {
   id: string
+  tenant_id?: string
   name: string
   price: number
   compare_at_price?: number | null
@@ -46,9 +47,11 @@ interface MarketplacePageProps {
   canCreateStore?: boolean
   tenantSlug?: string
   avatarUrl?: string | null
+  isAdmin?: boolean
+  initialFavoriteIds?: string[]
 }
 
-export function MarketplacePage({ siteLogo, siteName, banners, products, tenantCount, categories, sections, isAuthenticated, hasTenant, userEmail, canCreateStore, tenantSlug, avatarUrl }: MarketplacePageProps) {
+export function MarketplacePage({ siteLogo, siteName, banners, products, tenantCount, categories, sections, isAuthenticated, hasTenant, userEmail, canCreateStore, tenantSlug, avatarUrl, isAdmin, initialFavoriteIds }: MarketplacePageProps) {
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null)
   const [country, setCountry] = React.useState("EC")
 
@@ -69,6 +72,7 @@ export function MarketplacePage({ siteLogo, siteName, banners, products, tenantC
         canCreateStore={canCreateStore || false}
         tenantSlug={tenantSlug}
         avatarUrl={avatarUrl}
+        isAdmin={isAdmin}
       />
       <PromoCarousel banners={banners} />
       <MarketplaceClient
@@ -78,6 +82,8 @@ export function MarketplacePage({ siteLogo, siteName, banners, products, tenantC
         selectedCategoryId={selectedCategory}
         onCategorySelect={setSelectedCategory}
         sections={sections}
+        initialFavoriteIds={initialFavoriteIds}
+        isAuthenticated={isAuthenticated}
       />
     </>
   )

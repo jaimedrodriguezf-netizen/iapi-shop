@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { ProductFormModal } from "./product-form-modal"
-import { getProducts, deleteProduct, toggleMarketplaceApproval } from "@/lib/products/actions"
+import { getProducts, deleteProduct, toggleMarketplaceApproval, requestMarketplaceApproval } from "@/lib/products/actions"
 import { toast } from "sonner"
 import Image from "next/image"
 
@@ -37,6 +37,7 @@ export type Product = {
   price: number
   is_active: boolean
   approved_for_marketplace?: boolean
+  marketplace_status?: string
   created_at: string
   category_id?: string
   description?: string
@@ -112,6 +113,27 @@ export function ProductListClient({
     }
   }
 
+  async function handleRequestApproval(productId: string) {
+    const res = await requestMarketplaceApproval(productId, tenantId)
+    if (res.success) {
+      toast.success("Producto enviado a revisión")
+      fetchProducts()
+    } else {
+      toast.error(res.error || "Error al solicitar publicación")
+    }
+  }
+
+  async function handleAdminReject(productId: string) {
+    const m = await import("@/lib/products/actions")
+    const res = await m.reviewMarketplaceProduct(productId, "reject")
+    if (res.success) {
+      toast.success("Producto rechazado")
+      fetchProducts()
+    } else {
+      toast.error(res.error || "Error al rechazar")
+    }
+  }
+
   async function handleToggleApproval(productId: string) {
     const res = await toggleMarketplaceApproval(productId, tenantId)
     if (res.success) {
@@ -119,6 +141,15 @@ export function ProductListClient({
       fetchProducts()
     } else {
       toast.error(res.error || "Error al actualizar aprobación")
+    }
+  }
+
+  const marketplaceStatusBadge = (status: string | undefined) => {
+    switch (status) {
+      case "pending": return <Badge className="rounded-full bg-yellow-100 text-yellow-800 border-yellow-300 text-[10px]">Pendiente</Badge>
+      case "approved": return <Badge className="rounded-full bg-green-100 text-green-800 border-green-300 text-[10px]">✓ Aprobado</Badge>
+      case "rejected": return <Badge className="rounded-full bg-red-100 text-red-800 border-red-300 text-[10px]">Rechazado</Badge>
+      default: return null
     }
   }
 
@@ -167,27 +198,47 @@ export function ProductListClient({
         </Badge>
       ),
     },
-    ...(platformRole === "admin"
-      ? [
-          {
-            id: "approved_for_marketplace" as const,
-            header: "Marketplace",
-            cell: ({ row }: { row: { original: ProductWithCategory; getValue: (key: string) => unknown } }) => {
-              const product = row.original
-              return (
-                <Button
-                  size="sm"
-                  variant={product.approved_for_marketplace ? "default" : "outline"}
-                  className={`text-xs rounded-lg ${product.approved_for_marketplace ? "bg-green-600 hover:bg-green-700" : ""}`}
-                  onClick={() => handleToggleApproval(product.id)}
-                >
-                  {product.approved_for_marketplace ? "✓ Aprobado" : "Aprobar"}
+    {
+      id: "marketplace" as const,
+      header: "Marketplace",
+      cell: ({ row }: { row: { original: ProductWithCategory } }) => {
+        const product = row.original
+        const status = product.marketplace_status || "none"
+
+        // Admin: quick approve/reject
+        if (platformRole === "admin") {
+          if (status === "pending") {
+            return (
+              <div className="flex gap-1">
+                <Button size="sm" className="text-xs rounded-lg bg-green-600 hover:bg-green-700 h-7" onClick={() => handleToggleApproval(product.id)}>
+                  ✓ Aprobar
                 </Button>
-              )
-            },
-          } satisfies ColumnDef<ProductWithCategory>,
-        ]
-      : []),
+                <Button size="sm" variant="outline" className="text-xs rounded-lg h-7" onClick={() => {
+                  // Simple reject without reason for quick actions
+                  import("@/lib/products/actions").then(m => m.reviewMarketplaceProduct(product.id, "reject")).then(r => {
+                    if (r.success) { toast.success("Producto rechazado"); fetchProducts() }
+                    else toast.error(r.error || "Error")
+                  })
+                }}>
+                  ✕
+                </Button>
+              </div>
+            )
+          }
+          return marketplaceStatusBadge(status)
+        }
+
+        // Merchant: request or show status
+        if (status === "none") {
+          return (
+            <Button size="sm" variant="outline" className="text-xs rounded-lg h-7 border-orange-300 text-orange-600 hover:bg-orange-50" onClick={() => handleRequestApproval(product.id)}>
+              📢 Publicar
+            </Button>
+          )
+        }
+        return marketplaceStatusBadge(status)
+      },
+    } satisfies ColumnDef<ProductWithCategory>,
     {
       id: "actions",
       cell: ({ row }) => {

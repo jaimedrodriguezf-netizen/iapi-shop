@@ -33,13 +33,11 @@ interface FavoritesButtonProps {
 
 export function FavoritesButton({ products, itemCount, whatsappPhone, tenantName, onRemoveFavorite }: FavoritesButtonProps) {
   const handleSendFavorites = () => {
-    if (products.length === 0) return
+    if (products.length === 0 || !whatsappPhone) return
     const items = products.map(p => `• ${p.name} - $${p.price.toFixed(2)}`).join("\n")
     const total = products.reduce((sum, p) => sum + p.price, 0)
     const message = `Hola! Me interesan estos productos de ${tenantName}:\n\n${items}\n\nTotal estimado: $${total.toFixed(2)}`
-    const url = whatsappPhone
-      ? `https://wa.me/${whatsappPhone.replace(/\+/g, "")}?text=${encodeURIComponent(message)}`
-      : `https://wa.me/?text=${encodeURIComponent(message)}`
+    const url = `https://wa.me/${whatsappPhone.replace(/\+/g, "")}?text=${encodeURIComponent(message)}`
     window.open(url, "_blank")
   }
 
@@ -110,12 +108,14 @@ export function FavoritesButton({ products, itemCount, whatsappPhone, tenantName
           </ScrollArea>
           {products.length > 0 && (
             <DrawerFooter className="border-t p-4">
-              <Button
-                className="w-full rounded-xl font-bold bg-red-500 hover:bg-red-600 text-white"
-                onClick={handleSendFavorites}
-              >
-                Pedir favoritos por WhatsApp
-              </Button>
+              {whatsappPhone && (
+                <Button
+                  className="w-full rounded-xl font-bold bg-red-500 hover:bg-red-600 text-white"
+                  onClick={handleSendFavorites}
+                >
+                  Pedir favoritos por WhatsApp
+                </Button>
+              )}
               <DrawerClose render={<Button variant="ghost" className="w-full rounded-xl font-bold">Cerrar</Button>} />
             </DrawerFooter>
           )}

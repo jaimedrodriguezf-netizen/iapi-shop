@@ -150,6 +150,13 @@ export function OnboardingChecklistWidget({
           </li>
         ))}
       </ul>
+
+      <Link
+        href="/dashboard/settings"
+        className="inline-flex w-full items-center justify-center rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-orange-600 transition-colors shadow-sm"
+      >
+        Completar →
+      </Link>
     </div>
   );
 }

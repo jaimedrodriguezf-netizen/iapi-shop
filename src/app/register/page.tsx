@@ -4,8 +4,9 @@ import { register } from "@/lib/auth/actions";
 export default function RegisterPage() {
   return (
     <AuthForm
-      title="Crear cuenta"
-      description="Registra tu acceso para empezar a configurar tu tienda privada en IAPI Shop."
+      mode="customer"
+      title="Crear cuenta gratis"
+      description="Registrate para guardar favoritos, seguir tus pedidos y comprar más rápido en tiendas locales."
       submitLabel="Crear mi cuenta"
       switchHref="/login"
       switchLabel="¿Ya tienes cuenta? Inicia sesión"

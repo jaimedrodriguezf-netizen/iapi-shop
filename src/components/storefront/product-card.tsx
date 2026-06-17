@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { Package, Heart } from "lucide-react"
+import { AddToCartButton } from "@/components/storefront/add-to-cart-button"
 
 interface ProductCardProps {
   product: {
@@ -10,20 +11,28 @@ interface ProductCardProps {
     price: number
     compare_at_price?: number | null
     image_urls?: string[]
+    tenant_id?: string | null
+    description?: string | null
+    tenant_name?: string | null
+    tenant_slug?: string | null
   }
   isFavorited: boolean
   onToggleFavorite: (productId: string) => void
   isAuthenticated?: boolean
+  onCardClick?: () => void
 }
 
-export function ProductCard({ product, isFavorited, onToggleFavorite }: ProductCardProps) {
+export function ProductCard({ product, isFavorited, onToggleFavorite, onCardClick }: ProductCardProps) {
   const hasDiscount = product.compare_at_price && product.compare_at_price > product.price
   const discountPercent = hasDiscount 
     ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100) 
     : 0
 
   return (
-    <article className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-800 group">
+    <article
+      onClick={() => onCardClick?.()}
+      className="flex flex-col bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-800 group cursor-pointer"
+    >
       {/* Image container */}
       <div className="aspect-[4/5] bg-muted relative overflow-hidden">
         {product.image_urls?.[0] ? (
@@ -40,10 +49,7 @@ export function ProductCard({ product, isFavorited, onToggleFavorite }: ProductC
           </div>
         )}
 
-        {/* Visto badge - top left */}
-        <span className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-[10px] font-bold text-zinc-700 px-2 py-0.5 rounded-md shadow-sm">
-          Visto
-        </span>
+
 
         {/* Avatar circle - top right */}
         <div className="absolute top-2 right-2 h-7 w-7 rounded-full bg-white/90 backdrop-blur-sm shadow-sm flex items-center justify-center text-[10px] font-bold text-zinc-500">
@@ -60,6 +66,19 @@ export function ProductCard({ product, isFavorited, onToggleFavorite }: ProductC
             className={`h-4 w-4 transition-colors ${isFavorited ? 'fill-red-500 text-red-500' : 'text-zinc-400 hover:text-red-500'}`} 
           />
         </button>
+
+        {product.tenant_id && (
+          <AddToCartButton
+            product={{
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              image_url: product.image_urls?.[0],
+              tenant_id: product.tenant_id,
+            }}
+            className="absolute bottom-2 right-2 h-7 w-7 z-10"
+          />
+        )}
       </div>
 
       {/* Product info */}

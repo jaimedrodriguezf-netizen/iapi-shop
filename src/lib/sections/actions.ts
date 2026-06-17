@@ -49,12 +49,12 @@ export async function getMarketplaceSections(): Promise<ActionResult<Section[]>>
   }
 }
 
-export async function getSectionProducts(sectionId: string): Promise<ActionResult<{ id: string; name: string; price: number; compare_at_price: number | null; image_urls: string[] }[]>> {
+export async function getSectionProducts(sectionId: string): Promise<ActionResult<{ id: string; tenant_id?: string; name: string; price: number; compare_at_price: number | null; image_urls: string[]; description?: string | null; tenant_name?: string | null; tenant_slug?: string | null }[]>> {
   try {
     const supabase = await createClient()
     const { data, error } = await supabase
       .from("section_products")
-      .select("product_id, products(id, name, price, compare_at_price, product_images(url, display_order))")
+      .select("product_id, products(id, tenant_id, name, price, compare_at_price, description, product_images(url, display_order), tenants(name, slug))")
       .eq("section_id", sectionId)
       .order("display_order")
     
@@ -67,14 +67,15 @@ interface SectionProductRow {
   product_id: string
   products: {
     id: string
+    tenant_id: string
     name: string
     price: number
     compare_at_price: number | null
+    description: string | null
     product_images: { url: string; display_order: number }[]
+    tenants: { name: string; slug: string } | null
   } | null
 }
-
-// ...
 
     const rows = (data || []) as unknown as SectionProductRow[]
     const products = rows
@@ -84,10 +85,14 @@ interface SectionProductRow {
         const images = p.product_images || []
         return {
           id: p.id,
+          tenant_id: p.tenant_id,
           name: p.name,
           price: p.price,
           compare_at_price: p.compare_at_price,
           image_urls: [...images].sort((a, b) => a.display_order - b.display_order).map(i => i.url),
+          description: p.description,
+          tenant_name: p.tenants?.name || null,
+          tenant_slug: p.tenants?.slug || null,
         }
       })
     

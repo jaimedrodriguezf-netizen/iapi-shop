@@ -3,18 +3,26 @@
 import * as React from "react"
 import { ProductCard } from "@/components/storefront/product-card"
 import { StoreSearch } from "@/components/storefront/store-search"
-import { Search, Store } from "lucide-react"
+import { Search } from "lucide-react"
 import { Section } from "@/lib/sections/actions"
 import { getSectionProducts } from "@/lib/sections/actions"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
+import { toggleFavorite } from "@/lib/storefront/favorites-actions"
+import { ProductDetailModal } from "@/components/landing/product-detail-modal"
 
 interface MarketplaceProduct {
   id: string
+  tenant_id?: string
   name: string
   price: number
   compare_at_price?: number | null
   image_urls?: string[]
   category_name?: string | null
   category_id?: string | null
+  description?: string | null
+  tenant_name?: string | null
+  tenant_slug?: string | null
 }
 
 interface MarketplaceClientProps {
@@ -24,17 +32,57 @@ interface MarketplaceClientProps {
   selectedCategoryId?: string | null
   onCategorySelect?: (id: string | null) => void
   sections?: Section[]
+  initialFavoriteIds?: string[]
+  isAuthenticated?: boolean
 }
 
 type Tab = string
 
-export function MarketplaceClient({ products, tenantCount, categories = [], selectedCategoryId = null, onCategorySelect, sections = [] }: MarketplaceClientProps) {
+export function MarketplaceClient({
+  products,
+  categories = [],
+  selectedCategoryId = null,
+  onCategorySelect,
+  sections = [],
+  initialFavoriteIds = [],
+  isAuthenticated = false,
+}: MarketplaceClientProps) {
   const [activeTab, setActiveTab] = React.useState<Tab>("todos")
   const [searchQuery, setSearchQuery] = React.useState("")
   const [activeFilter, setActiveFilter] = React.useState("todos")
   const [localSelectedCategory, setLocalSelectedCategory] = React.useState<string | null>(null)
   const [sectionProducts, setSectionProducts] = React.useState<MarketplaceProduct[]>([])
   const [fetchedSectionId, setFetchedSectionId] = React.useState<string | null>(null)
+  const [prevInitialFavoriteIds, setPrevInitialFavoriteIds] = React.useState<string[]>(initialFavoriteIds || [])
+  const [favoriteIds, setFavoriteIds] = React.useState<string[]>(initialFavoriteIds || [])
+  const [selectedProduct, setSelectedProduct] = React.useState<MarketplaceProduct | null>(null)
+  const router = useRouter()
+
+  if (initialFavoriteIds !== prevInitialFavoriteIds) {
+    setPrevInitialFavoriteIds(initialFavoriteIds || [])
+    setFavoriteIds(initialFavoriteIds || [])
+  }
+
+  const handleToggleFavorite = async (productId: string) => {
+    if (!isAuthenticated) {
+      toast.error("Inicia sesión para guardar favoritos")
+      setTimeout(() => router.push("/login"), 800)
+      return
+    }
+    const product = products.find(p => p.id === productId) || sectionProducts.find(p => p.id === productId)
+    if (!product || !product.tenant_id) {
+      toast.error("Error al guardar favorito")
+      return
+    }
+    const isCurrentlyFav = favoriteIds.includes(productId)
+    setFavoriteIds(prev => isCurrentlyFav ? prev.filter(id => id !== productId) : [...prev, productId])
+    
+    const result = await toggleFavorite(productId, product.tenant_id)
+    if (!result.success) {
+      setFavoriteIds(prev => isCurrentlyFav ? [...prev, productId] : prev.filter(id => id !== productId))
+      toast.error(result.error || "Error al actualizar favorito")
+    }
+  }
 
   // Use external category state if provided, otherwise fall back to local
   const selectedCategory = selectedCategoryId ?? localSelectedCategory
@@ -139,7 +187,7 @@ export function MarketplaceClient({ products, tenantCount, categories = [], sele
       )}
 
       {/* Tabs */}
-      <div className="border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 sticky top-[53px] z-20">
+      <div id="marketplace-products" className="border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 sticky top-[53px] z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-0 overflow-x-auto">
           {allTabs.map((tab) => (
             <button
@@ -181,9 +229,10 @@ export function MarketplaceClient({ products, tenantCount, categories = [], sele
                   <ProductCard
                     key={product.id}
                     product={product}
-                    isFavorited={false}
-                    onToggleFavorite={() => {}}
-                    isAuthenticated={false}
+                    isFavorited={favoriteIds.includes(product.id)}
+                    onToggleFavorite={handleToggleFavorite}
+                    isAuthenticated={isAuthenticated}
+                    onCardClick={() => setSelectedProduct(product)}
                   />
                 ))}
               </div>
@@ -230,9 +279,10 @@ export function MarketplaceClient({ products, tenantCount, categories = [], sele
                   <ProductCard
                     key={product.id}
                     product={product}
-                    isFavorited={false}
-                    onToggleFavorite={() => {}}
-                    isAuthenticated={false}
+                    isFavorited={favoriteIds.includes(product.id)}
+                    onToggleFavorite={handleToggleFavorite}
+                    isAuthenticated={isAuthenticated}
+                    onCardClick={() => setSelectedProduct(product)}
                   />
                 ))}
               </div>
@@ -249,6 +299,14 @@ export function MarketplaceClient({ products, tenantCount, categories = [], sele
           </p>
         </div>
       </footer>
+
+      <ProductDetailModal
+        product={selectedProduct}
+        isOpen={selectedProduct !== null}
+        onClose={() => setSelectedProduct(null)}
+        isFavorited={selectedProduct ? favoriteIds.includes(selectedProduct.id) : false}
+        onToggleFavorite={handleToggleFavorite}
+      />
     </div>
   )
 }

@@ -3,11 +3,11 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, Search, User, Bell, Heart, ShoppingBag, ChevronRight, ChevronDown } from "lucide-react"
+import { Menu, Search, User, Bell, Heart, ChevronRight, ChevronDown } from "lucide-react"
 import { NotificationBell } from "@/components/landing/notification-bell"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { useCart } from "@/lib/storefront/cart-store"
 import { ProfilePopover } from "@/components/landing/profile-popover"
+import { MarketplaceCartDrawer } from "@/components/landing/marketplace-cart-drawer"
 
 export const COUNTRIES = [
   { code: "EC", name: "Ecuador", flag: "🇪🇨" },
@@ -70,19 +70,17 @@ interface MarketplaceHeaderProps {
   canCreateStore: boolean
   tenantSlug?: string
   avatarUrl?: string | null
+  isAdmin?: boolean
 }
 
 export function MarketplaceHeader({
   siteLogo, siteName, categories, selectedCategoryId, onCategorySelect,
   isAuthenticated, hasTenant, favoriteCount, country, onCountryChange,
-  userEmail, canCreateStore, tenantSlug, avatarUrl
+  userEmail, canCreateStore, tenantSlug, avatarUrl, isAdmin
 }: MarketplaceHeaderProps) {
   const [catOpen, setCatOpen] = React.useState(false)
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [countryOpen, setCountryOpen] = React.useState(false)
-
-  const carts = useCart(s => s.carts)
-  const totalCartItems = Object.values(carts).reduce((sum, items) => sum + items.reduce((s, i) => s + i.quantity, 0), 0)
 
   const currentCountry = COUNTRIES.find(c => c.code === country) || COUNTRIES[0]
   const rootCategories = categories.filter(c => !c.parent_id)
@@ -147,6 +145,7 @@ export function MarketplaceHeader({
             canCreateStore={canCreateStore}
             tenantSlug={tenantSlug}
             avatarUrl={avatarUrl}
+            isAdmin={isAdmin}
             className={`shrink-0 ${searchOpen ? 'hidden sm:block' : ''}`}
           />
         ) : (
@@ -164,12 +163,7 @@ export function MarketplaceHeader({
         </Link>
 
         {/* 🛒 Carrito */}
-        <div className={`relative p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 shrink-0 ${searchOpen ? 'hidden sm:block' : ''}`}>
-          <ShoppingBag className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
-          {totalCartItems > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center">{totalCartItems > 9 ? "9+" : totalCartItems}</span>
-          )}
-        </div>
+        <MarketplaceCartDrawer searchOpen={searchOpen} />
       </div>
 
       {/* Category Sheet */}

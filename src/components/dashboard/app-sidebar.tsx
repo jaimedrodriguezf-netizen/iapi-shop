@@ -12,6 +12,7 @@ import {
   Package,
   QrCode,
   Settings,
+  ShieldCheck,
   ShoppingBag,
   Store,
   Users,
@@ -88,6 +89,11 @@ const navItems = [
     url: "/dashboard/admin/subscriptions",
     icon: CreditCard,
   },
+  {
+    title: "Revisión",
+    url: "/dashboard/admin/review",
+    icon: ShieldCheck,
+  },
 ]
 
 const footerItems = [
@@ -147,7 +153,7 @@ export function AppSidebar({
               if (item.title === "Mis Sucursales") {
                 return planName.toLowerCase() === "plus" || platformRole === "admin"
               }
-              if (item.url === "/dashboard/admin/users" || item.url === "/dashboard/admin/banners" || item.url === "/dashboard/admin/sections" || item.url === "/dashboard/admin/subscriptions") {
+                if (item.url === "/dashboard/admin/users" || item.url === "/dashboard/admin/banners" || item.url === "/dashboard/admin/sections" || item.url === "/dashboard/admin/subscriptions" || item.url === "/dashboard/admin/review") {
                 return platformRole === "admin"
               }
               return true

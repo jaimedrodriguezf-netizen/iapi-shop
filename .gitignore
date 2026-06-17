@@ -49,3 +49,6 @@ next-env.d.ts
 # debug scripts (may log secrets)
 /scratch/
 
+
+# e2e test results
+test-results/

@@ -494,7 +494,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
 
                 <TabsContent value="category" className="space-y-4 mt-0">
                   <div className="space-y-4">
-                    {/* Level 1: Category */}
+                    {/* Level 1: Root categories */}
                     <div className="space-y-2">
                       <FormLabel className="font-bold">Categoría Principal</FormLabel>
                       <Select 
@@ -509,10 +509,12 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                       >
                         <SelectTrigger className="rounded-xl">
                           <SelectValue placeholder="Elige una categoría principal">
-                            {selectedLevel1Id === "" || selectedLevel1Id === "none" ? "Sin categoría" : categories.find(c => c.id === selectedLevel1Id)?.name}
+                            {selectedLevel1Id === "" || selectedLevel1Id === "none" 
+                              ? "Sin categoría" 
+                              : categories.find(c => c.id === selectedLevel1Id)?.name}
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl">
+                        <SelectContent className="rounded-xl max-h-72 min-w-[300px]" side="bottom" align="start">
                           <SelectItem value="none">Sin categoría</SelectItem>
                           {level1Categories.map((c) => (
                             <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
@@ -521,7 +523,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                       </Select>
                     </div>
 
-                    {/* Level 2: Subcategory */}
+                    {/* Level 2: Subcategories */}
                     {selectedLevel1Id && selectedLevel1Id !== "none" && level2Categories.length > 0 && (
                       <div className="space-y-2">
                         <FormLabel className="font-bold">Subcategoría</FormLabel>
@@ -539,7 +541,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                               {selectedLevel2Id === "none" ? "Ninguna subcategoría" : categories.find(c => c.id === selectedLevel2Id)?.name}
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent className="rounded-xl">
+                          <SelectContent className="rounded-xl max-h-72 min-w-[300px]" side="bottom" align="start">
                             <SelectItem value="none">Ninguna subcategoría</SelectItem>
                             {level2Categories.map((c) => (
                               <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
@@ -549,10 +551,10 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                       </div>
                     )}
 
-                    {/* Level 3: Third Level */}
+                    {/* Level 3: Third level */}
                     {selectedLevel2Id && selectedLevel2Id !== "none" && level3Categories.length > 0 && (
                       <div className="space-y-2">
-                        <FormLabel className="font-bold">Tercera Categoría</FormLabel>
+                        <FormLabel className="font-bold">Tercer Nivel</FormLabel>
                         <Select 
                           onValueChange={(val) => {
                             const value = val || "";
@@ -562,12 +564,12 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                           value={selectedLevel3Id}
                         >
                           <SelectTrigger className="rounded-xl">
-                            <SelectValue placeholder="Elige una tercera categoría (opcional)">
-                              {selectedLevel3Id === "none" ? "Ninguna tercera categoría" : categories.find(c => c.id === selectedLevel3Id)?.name}
+                            <SelectValue placeholder="Elige categoría de tercer nivel (opcional)">
+                              {selectedLevel3Id === "none" ? "Ninguna" : categories.find(c => c.id === selectedLevel3Id)?.name}
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent className="rounded-xl">
-                            <SelectItem value="none">Ninguna tercera categoría</SelectItem>
+                          <SelectContent className="rounded-xl max-h-72 min-w-[300px]" side="bottom" align="start">
+                            <SelectItem value="none">Ninguna</SelectItem>
                             {level3Categories.map((c) => (
                               <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                             ))}
@@ -602,7 +604,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                                 })()}
                               </SelectValue>
                             </SelectTrigger>
-                            <SelectContent className="rounded-xl">
+                        <SelectContent className="rounded-xl max-h-72 min-w-[300px]" side="bottom" align="start">
                               <SelectItem value="none">Ninguna (Categoría Principal)</SelectItem>
                               {eligibleParentsForRole.map((c) => {
                                 const parent = c.parent_id ? categories.find(p => p.id === c.parent_id) : null;

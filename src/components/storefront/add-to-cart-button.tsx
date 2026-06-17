@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus } from "lucide-react"
+import { ShoppingBag } from "lucide-react"
 import { useCart } from "@/lib/storefront/cart-store"
 import { toast } from "sonner"
 
@@ -39,7 +39,7 @@ export function AddToCartButton({ product, className }: AddToCartButtonProps) {
         })
       }}
     >
-      <Plus className="h-4 w-4" />
+      <ShoppingBag className="h-4 w-4" />
     </button>
   )
 }

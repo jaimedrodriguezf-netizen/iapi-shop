@@ -1,11 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 export interface FavoriteActionResult<T = void> {
   success: boolean;
   data?: T;
   error?: string;
+  errorCode?: "AUTH_REQUIRED" | "PRODUCT_NOT_FOUND" | "TENANT_MISMATCH";
 }
 
 export interface FavoriteStats {
@@ -25,46 +27,64 @@ export async function toggleFavorite(
 ): Promise<FavoriteActionResult<{ isFavorited: boolean }>> {
   try {
     const supabase = await createClient();
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: false, error: "Inicia sesion para guardar favoritos" };
+
+    const { data: claimsData } = await supabase.auth.getClaims();
+    let userId = claimsData?.claims?.sub as string | undefined;
+
+    if (!userId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        return { success: false, error: "Inicia sesion para guardar favoritos", errorCode: "AUTH_REQUIRED" };
+      }
+      userId = user.id;
     }
 
-    // Check if already favorited
-    const { data: existing } = await supabase
-      .from("product_favorites")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("product_id", productId)
+    const { data: product } = await supabase
+      .from("products")
+      .select("id, tenant_id")
+      .eq("id", productId)
       .maybeSingle();
 
-    if (existing) {
-      // Remove favorite
-      const { error } = await supabase
-        .from("product_favorites")
-        .delete()
-        .eq("id", existing.id);
-      
-      if (error) {
-        console.error("toggleFavorite remove error:", error);
-        return { success: false, error: "Error al quitar favorito" };
-      }
+    if (!product) {
+      return { success: false, error: "Producto no encontrado", errorCode: "PRODUCT_NOT_FOUND" };
+    }
+    if (product.tenant_id !== tenantId) {
+      return { success: false, error: "El producto no pertenece a esta tienda", errorCode: "TENANT_MISMATCH" };
+    }
+
+    const { data: deleted } = await supabase
+      .from("product_favorites")
+      .delete()
+      .eq("user_id", userId)
+      .eq("product_id", productId)
+      .select("id");
+
+    if (deleted && deleted.length > 0) {
+      revalidatePath("/perfil");
+      revalidatePath("/", "layout");
       return { success: true, data: { isFavorited: false } };
     }
 
-    // Add favorite
-    const { error } = await supabase
+    const { error: insError } = await supabase
       .from("product_favorites")
       .insert({
-        user_id: user.id,
+        user_id: userId,
         product_id: productId,
         tenant_id: tenantId,
       });
 
-    if (error) {
-      console.error("toggleFavorite insert error:", error);
+    if (insError) {
+      if (insError.code === "23505") {
+        revalidatePath("/perfil");
+        revalidatePath("/", "layout");
+        return { success: true, data: { isFavorited: true } };
+      }
+      console.error("toggleFavorite insert error:", insError);
       return { success: false, error: "Error al agregar favorito" };
     }
+
+    revalidatePath("/perfil");
+    revalidatePath("/", "layout");
     return { success: true, data: { isFavorited: true } };
   } catch (err) {
     console.error("toggleFavorite error:", err);
@@ -80,15 +100,20 @@ export async function getMyFavoriteIds(
 ): Promise<FavoriteActionResult<string[]>> {
   try {
     const supabase = await createClient();
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return { success: true, data: [] }; // Not an error — just empty
+    const { data: claimsData } = await supabase.auth.getClaims();
+    let userId = claimsData?.claims?.sub as string | undefined;
+    if (!userId) {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        return { success: true, data: [] };
+      }
+      userId = user.id;
     }
 
     const { data, error } = await supabase
       .from("product_favorites")
       .select("product_id")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .eq("tenant_id", tenantId);
 
     if (error) {

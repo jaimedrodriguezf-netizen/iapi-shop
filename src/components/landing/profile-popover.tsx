@@ -38,9 +38,10 @@ interface ProfilePopoverProps {
   unreadNotifications?: number
   avatarUrl?: string | null
   className?: string
+  isAdmin?: boolean
 }
 
-export function ProfilePopover({ email, hasTenant, canCreateStore, tenantSlug, unreadNotifications = 0, avatarUrl, className }: ProfilePopoverProps) {
+export function ProfilePopover({ email, hasTenant, canCreateStore, tenantSlug, unreadNotifications = 0, avatarUrl, className, isAdmin }: ProfilePopoverProps) {
   const [open, setOpen] = React.useState(false)
   const [avatarUrlState, setAvatarUrlState] = React.useState(avatarUrl)
   const displayAvatar = avatarUrlState ?? avatarUrl
@@ -105,7 +106,7 @@ export function ProfilePopover({ email, hasTenant, canCreateStore, tenantSlug, u
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate">{email}</p>
                   <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                    {hasTenant ? "Cliente · Vendedor" : "Cliente"}
+                    {isAdmin ? "Admin · Plataforma" : hasTenant ? "Cliente · Vendedor" : "Cliente"}
                   </p>
                 </div>
               </div>
@@ -115,12 +116,29 @@ export function ProfilePopover({ email, hasTenant, canCreateStore, tenantSlug, u
             <div className="py-1">
               {/* Always: Continue Shopping */}
               <Link
-                href="/"
-                onClick={() => setOpen(false)}
+                href="/#marketplace-products"
+                onClick={(e) => {
+                  setOpen(false)
+                  if (window.location.pathname === "/") {
+                    e.preventDefault()
+                    document.getElementById("marketplace-products")?.scrollIntoView({ behavior: "smooth" })
+                  }
+                }}
                 className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
               >
                 <ShoppingBag className="h-4 w-4 text-zinc-500" />
                 <span className="flex-1">Seguir Comprando</span>
+                <ChevronRight className="h-3.5 w-3.5 text-zinc-400" />
+              </Link>
+
+              {/* My Profile */}
+              <Link
+                href="/perfil"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              >
+                <User className="h-4 w-4 text-zinc-500" />
+                <span className="flex-1">Mi Perfil</span>
                 <ChevronRight className="h-3.5 w-3.5 text-zinc-400" />
               </Link>
 
@@ -185,7 +203,7 @@ export function ProfilePopover({ email, hasTenant, canCreateStore, tenantSlug, u
                 onClick={async () => {
                   setOpen(false)
                   await logoutToLanding()
-                  window.location.href = "/login"
+                  window.location.href = "/"
                 }}
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left"
               >

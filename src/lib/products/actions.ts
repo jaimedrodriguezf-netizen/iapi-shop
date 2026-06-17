@@ -409,7 +409,7 @@ export async function getCategories(tenant_id: string): Promise<{ success: boole
     const { data, error } = await supabase
       .from("categories")
       .select("*")
-      .eq("tenant_id", tenant_id)
+      .or(`tenant_id.eq.${tenant_id},tenant_id.is.null`)
       .order("name");
     
     if (error) {
@@ -685,6 +685,162 @@ export async function uploadProductImage(formData: FormData): Promise<{ success:
   }
 }
 
+export async function requestMarketplaceApproval(
+  productId: string,
+  tenantId: string
+): Promise<{ success: boolean; error?: string }> {
+  "use server"
+
+  try {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "No autorizado" }
+
+    const membership = await assertTenantMember(supabase, tenantId)
+    if (!membership.ok) return { success: false, error: membership.error }
+
+    const { data: product } = await supabase
+      .from("products")
+      .select("id, marketplace_status")
+      .eq("id", productId)
+      .eq("tenant_id", tenantId)
+      .single()
+
+    if (!product) return { success: false, error: "Producto no encontrado" }
+    if (product.marketplace_status === "pending") return { success: false, error: "El producto ya está pendiente de revisión" }
+    if (product.marketplace_status === "approved") return { success: false, error: "El producto ya fue aprobado" }
+
+    const { error } = await supabase
+      .from("products")
+      .update({ marketplace_status: "pending" })
+      .eq("id", productId)
+
+    if (error) {
+      console.error("requestMarketplaceApproval:", error)
+      return { success: false, error: "Error al solicitar publicación" }
+    }
+
+    return { success: true }
+  } catch (err) {
+    console.error("requestMarketplaceApproval error:", err)
+    return { success: false, error: "Error inesperado" }
+  }
+}
+
+export async function reviewMarketplaceProduct(
+  productId: string,
+  action: "approve" | "reject",
+  reason?: string
+): Promise<{ success: boolean; error?: string }> {
+  "use server"
+
+  try {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "No autorizado" }
+
+    const isAdmin = await isPlatformAdmin(user.id, user.email)
+    if (!isAdmin) return { success: false, error: "Solo administradores pueden revisar productos" }
+
+    const { data: product } = await supabase
+      .from("products")
+      .select("id, marketplace_status, tenant_id")
+      .eq("id", productId)
+      .single()
+
+    if (!product) return { success: false, error: "Producto no encontrado" }
+    if (product.marketplace_status !== "pending") return { success: false, error: "El producto no está pendiente de revisión" }
+
+    const newStatus = action === "approve" ? "approved" : "rejected"
+    const updates: Record<string, unknown> = {
+      marketplace_status: newStatus,
+      approved_for_marketplace: action === "approve",
+    }
+    if (action === "reject" && reason) {
+      updates.marketplace_rejection_reason = reason
+    }
+
+    const { error } = await supabase
+      .from("products")
+      .update(updates)
+      .eq("id", productId)
+
+    if (error) {
+      console.error("reviewMarketplaceProduct:", error)
+      return { success: false, error: "Error al revisar el producto" }
+    }
+
+    return { success: true }
+  } catch (err) {
+    console.error("reviewMarketplaceProduct error:", err)
+    return { success: false, error: "Error inesperado" }
+  }
+}
+
+export async function getPendingMarketplaceProducts(): Promise<{ success: boolean; data?: Array<{
+  id: string
+  name: string
+  price: number
+  tenant_id: string
+  image_urls: string[]
+  created_at: string
+}>; error?: string }> {
+  "use server"
+
+  try {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "No autorizado" }
+
+    const isAdmin = await isPlatformAdmin(user.id, user.email)
+    if (!isAdmin) return { success: false, error: "Solo administradores" }
+
+    // Use raw SQL via rpc to bypass tenant-scoped RLS
+    const { data, error } = await supabase.rpc("get_pending_marketplace_products")
+
+    if (error) {
+      // Fallback: try direct query
+      const { data: fallback, error: fallbackError } = await supabase
+        .from("products")
+        .select("id, name, price, tenant_id, created_at, product_images(url)")
+        .eq("marketplace_status", "pending")
+        .order("created_at", { ascending: false })
+
+      if (fallbackError) {
+        console.error("getPendingMarketplaceProducts:", fallbackError)
+        return { success: false, error: "Error al cargar productos pendientes" }
+      }
+
+      const products = (fallback || []).map(p => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        tenant_id: p.tenant_id,
+        image_urls: (p.product_images || []).map((img: { url: string }) => img.url),
+        created_at: p.created_at,
+      }))
+      return { success: true, data: products }
+    }
+
+    const products = (data || []).map((p: Record<string, unknown>) => ({
+      id: p.id as string,
+      name: p.name as string,
+      price: p.price as number,
+      tenant_id: p.tenant_id as string,
+      image_urls: (p.image_urls as string[]) || [],
+      created_at: p.created_at as string,
+    }))
+    return { success: true, data: products }
+  } catch (err) {
+    console.error("getPendingMarketplaceProducts error:", err)
+    return { success: false, error: "Error inesperado" }
+  }
+}
+
+// Keep old function for backwards compat but route through new system
 export async function toggleMarketplaceApproval(
   productId: string,
   _tenantId: string
@@ -694,27 +850,29 @@ export async function toggleMarketplaceApproval(
   try {
     const supabase = await createClient()
 
-    // Only platform admins can approve
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "No autorizado" }
 
     const isAdmin = await isPlatformAdmin(user.id, user.email)
     if (!isAdmin) return { success: false, error: "Solo administradores pueden aprobar productos" }
 
-    // Get current state
     const { data: product } = await supabase
       .from("products")
-      .select("id, approved_for_marketplace")
+      .select("id, approved_for_marketplace, marketplace_status")
       .eq("id", productId)
       .single()
 
     if (!product) return { success: false, error: "Producto no encontrado" }
 
     const newState = !product.approved_for_marketplace
+    const newStatus = newState ? "approved" : "none"
 
     const { error } = await supabase
       .from("products")
-      .update({ approved_for_marketplace: newState })
+      .update({ 
+        approved_for_marketplace: newState,
+        marketplace_status: newStatus as "approved" | "none"
+      })
       .eq("id", productId)
 
     if (error) {

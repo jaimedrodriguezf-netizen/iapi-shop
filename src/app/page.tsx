@@ -1,17 +1,21 @@
 import { createClient } from "@/lib/supabase/server"
 import { getPromoBanners } from "@/lib/admin/banner-actions"
 import { getMarketplaceSections } from "@/lib/sections/actions"
+import { getUserRoleInfo } from "@/lib/auth/actions"
 import { MarketplacePage } from "@/components/landing/marketplace-page"
 
 /** Row shape returned by Supabase when selecting products with joined relations */
 interface MarketplaceProductRow {
   id: string
+  tenant_id: string
   name: string
   price: number
   compare_at_price: number | null
   category_id: string | null
   categories: { name: string } | null
   product_images: { url: string; display_order: number }[] | null
+  description: string | null
+  tenants: { name: string; slug: string } | null
 }
 
 export default async function LandingPage() {
@@ -39,7 +43,7 @@ export default async function LandingPage() {
   // Fetch products from all active tenants (RLS enforces tenant status)
   const { data: products } = await supabase
     .from("products")
-    .select("id, name, price, compare_at_price, category_id, categories(name), product_images(url, display_order)")
+    .select("id, tenant_id, name, price, compare_at_price, description, category_id, categories(name), product_images(url, display_order), tenants(name, slug)")
     .eq("is_active", true)
     .eq("approved_for_marketplace", true)
     .order("created_at", { ascending: false })
@@ -75,12 +79,16 @@ export default async function LandingPage() {
       .map((img) => img.url)
     return {
       id: p.id,
+      tenant_id: p.tenant_id,
       name: p.name,
       price: p.price,
       compare_at_price: p.compare_at_price,
       image_urls,
       category_name: p.categories?.name || null,
       category_id: p.category_id || null,
+      description: p.description || null,
+      tenant_name: p.tenants?.name || null,
+      tenant_slug: p.tenants?.slug || null,
     }
   })
 
@@ -152,6 +160,18 @@ export default async function LandingPage() {
     }
   }
 
+  const roleInfo = user ? await getUserRoleInfo() : null
+  const isAdmin = roleInfo?.success && roleInfo.data?.platformRole === "admin"
+
+  let initialFavoriteIds: string[] = []
+  if (user) {
+    const { data: allFavs } = await supabase
+      .from("product_favorites")
+      .select("product_id")
+      .eq("user_id", user.id)
+    initialFavoriteIds = (allFavs || []).map(f => f.product_id)
+  }
+
   return (
     <MarketplacePage
       siteLogo={siteLogo}
@@ -167,6 +187,8 @@ export default async function LandingPage() {
       canCreateStore={canCreateStore}
       tenantSlug={tenantSlug}
       avatarUrl={avatarUrl}
+      isAdmin={isAdmin}
+      initialFavoriteIds={initialFavoriteIds}
     />
   )
 }

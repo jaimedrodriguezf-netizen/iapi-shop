@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Shield, Users, Megaphone, LayoutGrid, CreditCard, ClipboardCheck, Store } from "lucide-react";
 import { SampleSalesChart } from "@/components/dashboard/sample-chart";
 import { ShopSummaryTable, ShopSummary } from "@/components/dashboard/shop-summary-table";
 import { getTenantOrders } from "@/lib/orders/actions";
@@ -31,9 +32,11 @@ export default async function DashboardPage() {
     created_at: t.created_at
   }));
 
-  // 3. Analytics Reales de Órdenes
+  // 3. Analytics Reales de Órdenes (solo para merchants con tenant activo)
   const activeTenantId = sucursales[0]?.id;
-  const ordersResult = activeTenantId ? await getTenantOrders(activeTenantId) : { success: true, data: [] };
+  const ordersResult = activeTenantId && platformRole !== "admin"
+    ? await getTenantOrders(activeTenantId) 
+    : { success: true, data: [] };
   const orders = ordersResult.success && ordersResult.data ? ordersResult.data : [];
   
   const totalSales = orders
@@ -106,6 +109,91 @@ export default async function DashboardPage() {
 
   return (
     <section className="space-y-6 py-6">
+      {platformRole === "admin" ? (
+        /* ── ADMIN DASHBOARD ── */
+        <>
+          <div className="bg-gradient-to-r from-orange-500 to-orange-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg">
+            <div className="flex items-center gap-3 mb-2">
+              <Shield className="h-8 w-8" />
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight">Panel de Administración</h1>
+            </div>
+            <p className="text-orange-100 text-sm max-w-xl">
+              Gestioná usuarios, productos, banners, suscripciones y revisá el marketplace desde acá.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Link href="/dashboard/admin/users" className="group rounded-3xl border bg-background p-6 shadow-sm hover:border-orange-500 hover:shadow-md transition-all flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/30 shrink-0">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-black text-lg group-hover:text-orange-500 transition-colors">Usuarios SaaS</h3>
+                <p className="text-sm text-muted-foreground mt-1">Gestionar usuarios, roles y permisos de plataforma</p>
+              </div>
+            </Link>
+
+            <Link href="/dashboard/admin/banners" className="group rounded-3xl border bg-background p-6 shadow-sm hover:border-orange-500 hover:shadow-md transition-all flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/30 shrink-0">
+                <Megaphone className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="font-black text-lg group-hover:text-orange-500 transition-colors">Banners</h3>
+                <p className="text-sm text-muted-foreground mt-1">Gestionar banners promocionales del marketplace</p>
+              </div>
+            </Link>
+
+            <Link href="/dashboard/admin/sections" className="group rounded-3xl border bg-background p-6 shadow-sm hover:border-orange-500 hover:shadow-md transition-all flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/30 shrink-0">
+                <LayoutGrid className="h-6 w-6 text-teal-600" />
+              </div>
+              <div>
+                <h3 className="font-black text-lg group-hover:text-orange-500 transition-colors">Secciones</h3>
+                <p className="text-sm text-muted-foreground mt-1">Organizar productos en secciones del marketplace</p>
+              </div>
+            </Link>
+
+            <Link href="/dashboard/admin/subscriptions" className="group rounded-3xl border bg-background p-6 shadow-sm hover:border-orange-500 hover:shadow-md transition-all flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 shrink-0">
+                <CreditCard className="h-6 w-6 text-amber-600" />
+              </div>
+              <div>
+                <h3 className="font-black text-lg group-hover:text-orange-500 transition-colors">Suscripciones</h3>
+                <p className="text-sm text-muted-foreground mt-1">Gestionar planes y suscripciones de tenants</p>
+              </div>
+            </Link>
+
+            <Link href="/dashboard/admin/review" className="group rounded-3xl border bg-background p-6 shadow-sm hover:border-orange-500 hover:shadow-md transition-all flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-green-50 dark:bg-green-950/30 shrink-0">
+                <ClipboardCheck className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-black text-lg group-hover:text-orange-500 transition-colors">Revisión</h3>
+                <p className="text-sm text-muted-foreground mt-1">Revisar productos pendientes de publicación</p>
+              </div>
+            </Link>
+
+            <Link href="/" className="group rounded-3xl border bg-background p-6 shadow-sm hover:border-orange-500 hover:shadow-md transition-all flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-orange-50 dark:bg-orange-950/30 shrink-0">
+                <Store className="h-6 w-6 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="font-black text-lg group-hover:text-orange-500 transition-colors">Ver Marketplace</h3>
+                <p className="text-sm text-muted-foreground mt-1">Ver la tienda general como la ven los clientes</p>
+              </div>
+            </Link>
+          </div>
+
+          {sucursales.length > 0 && (
+            <>
+              <h2 className="text-xl font-black mt-8">Sucursales en la plataforma</h2>
+              <ShopSummaryTable data={sucursales} />
+            </>
+          )}
+        </>
+      ) : (
+        /* ── MERCHANT DASHBOARD ── */
+        <>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Link href="/onboarding" className="group flex flex-col justify-center rounded-3xl border bg-background p-6 shadow-sm hover:border-orange-500 transition-all">
           <span className="text-sm font-bold text-orange-500">Primeros pasos</span>
@@ -165,6 +253,8 @@ export default async function DashboardPage() {
       <div className="mt-8 flex justify-between items-center text-xs text-muted-foreground border-t pt-4">
         <span>IAPI Shop © {new Date().getFullYear()}</span>
       </div>
+        </>
+      )}
     </section>
   );
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createOrder, getTenantOrders, updateOrderStatus } from "./actions";
+import { createOrder, getTenantOrders, updateOrderStatus, OrderStatus } from "./actions";
 import { orderRateLimit } from "@/lib/rate-limit";
 
 // Auto-resolving chainable mock
@@ -19,7 +19,7 @@ function makeSupabase() {
   return {
     auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }) },
     from: vi.fn().mockReturnValue(chain()),
-    rpc: vi.fn().mockResolvedValue("order-1"),
+    rpc: vi.fn().mockResolvedValue({ data: "order-1", error: null }),
   };
 }
 
@@ -69,7 +69,7 @@ describe("Orders Security Tests", () => {
     it("should create an order with valid input", async () => {
       setupTenant("active");
       // Override rpc for this test
-      mockSupabase.rpc.mockResolvedValue("order-xyz");
+      mockSupabase.rpc.mockResolvedValue({ data: "order-xyz", error: null });
 
       const result = await createOrder({
         tenant_id: tenantId,
@@ -105,8 +105,12 @@ describe("Orders Security Tests", () => {
     });
 
     it("should accept order with total_amount = 0 (free order)", async () => {
-      setupTenant("active");
-      mockSupabase.rpc.mockResolvedValue("order-zero");
+      mockSupabase.from = vi.fn().mockImplementation((table: string) => {
+        if (table === "tenants") return chain({ data: { id: tenantId, status: "active" }, error: null });
+        if (table === "products") return chain({ data: [{ id: productId, name: "Free Item", price: 0 }], error: null });
+        return chain();
+      });
+      mockSupabase.rpc.mockResolvedValue({ data: "order-zero", error: null });
 
       const result = await createOrder({
         tenant_id: tenantId,
@@ -230,7 +234,7 @@ describe("Orders Security Tests", () => {
     });
 
     it("should reject when status is not a valid OrderStatus", async () => {
-      const result = await updateOrderStatus("550e8400-e29b-41d4-a716-446655440000", "660e8400-e29b-41d4-a716-446655440001", "hacked" as unknown as string);
+      const result = await updateOrderStatus("550e8400-e29b-41d4-a716-446655440000", "660e8400-e29b-41d4-a716-446655440001", "hacked" as unknown as OrderStatus);
       expect(result.success).toBe(false);
       expect(result.error).toContain("Estado");
     });

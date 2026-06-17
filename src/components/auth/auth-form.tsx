@@ -2,13 +2,13 @@
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { signInWithGoogle, login, register, type AuthActionState } from "@/lib/auth/actions";
 import { Turnstile } from "./turnstile";
 
 type AuthFormProps = {
+  mode?: "customer" | "seller";
   title?: string;
   description?: string;
   submitLabel?: string;
@@ -21,6 +21,7 @@ type AuthFormProps = {
 };
 
 export function AuthForm({
+  mode = "seller",
   title,
   description,
   submitLabel,
@@ -77,13 +78,15 @@ export function AuthForm({
     ? title
     : isRegisterMode
       ? "Crear cuenta"
-      : "Ingresar al panel";
+      : mode === "customer" ? "Bienvenido de vuelta" : "Ingresar al panel";
 
   const currentDescription = isInitialMode && description
     ? description
     : isRegisterMode
-      ? "Registra tu acceso para empezar a configurar tu tienda privada en IAPI Shop."
-      : "Accede con tu cuenta registrada para gestionar tu tienda, productos, QR e IA.";
+      ? "Registrate gratis para guardar favoritos, seguir tus pedidos y comprar más rápido."
+      : mode === "customer" 
+        ? "Iniciá sesión para seguir tus pedidos, guardar favoritos y comprar más rápido."
+        : "Accede con tu cuenta registrada para gestionar tu tienda, productos, QR e IA.";
 
   const currentSubmitLabel = isInitialMode && submitLabel
     ? submitLabel
@@ -169,29 +172,46 @@ export function AuthForm({
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-sky-300/20 dark:bg-sky-500/10 blur-3xl pointer-events-none" />
 
         {/* Top brand logo */}
-        <Link href="/" className="z-10 flex items-center gap-3 cursor-pointer group">
-          <Image
-            src="/logo.png"
-            alt="IAPI Logo"
-            width={48}
-            height={48}
-            className="w-12 h-12 object-contain group-hover:scale-105 transition-transform"
-          />
-          <span className="text-2xl font-black tracking-wider bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-400 dark:to-orange-300 bg-clip-text text-transparent">IAPI</span>
+        <Link href="/" className="z-10 cursor-pointer group">
+          <span className="leading-none text-center">
+            <span className="block font-black text-3xl text-orange-500 group-hover:scale-105 transition-transform">IAPI</span>
+            <span className="block font-black text-[10px] text-orange-400 tracking-[0.2em] uppercase text-center -mt-1">shop</span>
+          </span>
         </Link>
 
-        {/* Middle emotional copy and dashboard mockup */}
+        {/* Middle emotional copy */}
         <div className="z-10 my-auto space-y-8 max-w-lg">
           <div className="space-y-4">
             <h2 className="text-4xl font-extrabold tracking-tight leading-tight lg:text-5xl text-slate-900 dark:text-white">
-              Desbloquea tu Potencial.
+              {mode === "customer" ? "Comprá local, comprá fácil." : "Desbloquea tu Potencial."}
             </h2>
             <p className="text-lg text-slate-600 dark:text-zinc-300 font-medium">
-              Gestiona, escala y triunfa con IAPI.
+              {mode === "customer" 
+                ? "Descubrí productos de tiendas ecuatorianas y pedí directo por WhatsApp."
+                : "Gestiona, escala y triunfa con IAPI."}
             </p>
           </div>
 
-          {/* Dashboard Mockup card */}
+          {mode === "customer" ? (
+            /* Shopping benefits */
+            <div className="space-y-4">
+              {[
+                { icon: "🛍️", title: "Catálogo local", desc: "Explorá productos de tiendas de todo Ecuador" },
+                { icon: "❤️", title: "Favoritos", desc: "Guardá tus productos favoritos y volvé cuando quieras" },
+                { icon: "📦", title: "Pedí por WhatsApp", desc: "Contacto directo con el vendedor, sin app extra" },
+                { icon: "🔔", title: "Seguí tus pedidos", desc: "Recibí notificaciones cuando tu pedido esté listo" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-2xl bg-white/60 dark:bg-white/5 backdrop-blur-sm">
+                  <span className="text-2xl shrink-0">{item.icon}</span>
+                  <div>
+                    <p className="font-bold text-sm text-slate-800 dark:text-zinc-200">{item.title}</p>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Seller Dashboard Mockup card */
           <div className="rounded-3xl border border-orange-100/80 bg-white/80 dark:border-white/10 dark:bg-white/5 p-6 backdrop-blur-xl shadow-2xl space-y-6">
             {/* Mockup Header */}
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-4">
@@ -250,6 +270,7 @@ export function AuthForm({
               </div>
             </div>
           </div>
+          )}
         </div>
 
         {/* Footer text */}
@@ -263,14 +284,10 @@ export function AuthForm({
         <div className="backdrop-blur-md bg-white/75 dark:bg-zinc-900/75 border border-white/20 dark:border-zinc-800/20 shadow-2xl rounded-3xl p-8 max-w-md w-full">
           <div className="mb-8 space-y-2 text-center flex flex-col items-center">
             <Link href="/" className="flex flex-col items-center gap-2 group cursor-pointer">
-              <Image
-                src="/logo.png"
-                alt="IAPI Logo"
-                width={64}
-                height={64}
-                className="w-16 h-16 object-contain group-hover:scale-105 transition-transform"
-              />
-              <span className="text-sm font-bold text-orange-accent tracking-wider">IAPI</span>
+              <span className="leading-none text-center">
+                <span className="block font-black text-3xl text-orange-500 group-hover:scale-105 transition-transform">IAPI</span>
+                <span className="block font-black text-[10px] text-orange-400 tracking-[0.2em] uppercase text-center -mt-1">shop</span>
+              </span>
             </Link>
             <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">{currentTitle}</h1>
             <p className="text-sm leading-6 text-muted-foreground">{currentDescription}</p>
