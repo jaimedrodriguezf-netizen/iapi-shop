@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { Separator } from "@/components/ui/separator"
 import { getMyTenants, getTenantSubscription } from "@/lib/tenants/actions"
 import { getUserRoleInfo } from "@/lib/auth/actions"
+import { ReConsentBanner } from "@/components/legal/re-consent-banner"
 import { User } from "lucide-react"
 import {
   Breadcrumb,
@@ -96,6 +97,7 @@ export default async function DashboardLayout({
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <ReConsentBanner isAdmin={platformRole === "admin"} />
           {children}
         </div>
       </SidebarInset>

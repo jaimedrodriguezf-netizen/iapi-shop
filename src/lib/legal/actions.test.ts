@@ -262,3 +262,128 @@ describe("acceptLegalTerms", () => {
     expect(result.error).toContain("Error al aceptar");
   });
 });
+
+describe("checkReConsent", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns needsReAccept=false for admin users", async () => {
+    const { checkReConsent } = await import("./actions");
+    const result = await checkReConsent(true);
+
+    expect(result.success).toBe(true);
+    expect(result.data?.needsReAccept).toBe(false);
+  });
+
+  it("returns needsReAccept=false when user is not authenticated", async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: null,
+    });
+
+    const { checkReConsent } = await import("./actions");
+    const result = await checkReConsent(false);
+
+    expect(result.success).toBe(true);
+    expect(result.data?.needsReAccept).toBe(false);
+  });
+
+  it("returns needsReAccept=true when versions differ", async () => {
+    const userId = "user-mismatch";
+    mockSupabase.auth.getUser.mockResolvedValue({
+      data: { user: { id: userId } },
+      error: null,
+    });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "site_settings") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { legal_version: "2" }, error: null }),
+        };
+      }
+      if (table === "tenant_members") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { legal_accepted_version: "1" }, error: null }),
+        };
+      }
+      return mockSupabase;
+    });
+
+    const { checkReConsent } = await import("./actions");
+    const result = await checkReConsent(false);
+
+    expect(result.success).toBe(true);
+    expect(result.data?.needsReAccept).toBe(true);
+    expect(result.data?.currentVersion).toBe("2");
+  });
+
+  it("returns needsReAccept=false when versions match", async () => {
+    const userId = "user-match";
+    mockSupabase.auth.getUser.mockResolvedValue({
+      data: { user: { id: userId } },
+      error: null,
+    });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "site_settings") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { legal_version: "1" }, error: null }),
+        };
+      }
+      if (table === "tenant_members") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { legal_accepted_version: "1" }, error: null }),
+        };
+      }
+      return mockSupabase;
+    });
+
+    const { checkReConsent } = await import("./actions");
+    const result = await checkReConsent(false);
+
+    expect(result.success).toBe(true);
+    expect(result.data?.needsReAccept).toBe(false);
+  });
+
+  it("returns needsReAccept=true when user has not accepted any version", async () => {
+    const userId = "user-no-version";
+    mockSupabase.auth.getUser.mockResolvedValue({
+      data: { user: { id: userId } },
+      error: null,
+    });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "site_settings") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { legal_version: "2" }, error: null }),
+        };
+      }
+      if (table === "tenant_members") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { legal_accepted_version: null }, error: null }),
+        };
+      }
+      return mockSupabase;
+    });
+
+    const { checkReConsent } = await import("./actions");
+    const result = await checkReConsent(false);
+
+    expect(result.success).toBe(true);
+    expect(result.data?.needsReAccept).toBe(true);
+    expect(result.data?.currentVersion).toBe("2");
+  });
+});
