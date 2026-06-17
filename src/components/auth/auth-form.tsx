@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { signInWithGoogle, login, register, type AuthActionState } from "@/lib/auth/actions";
 import { Turnstile } from "./turnstile";
+import { ConsentCheckbox } from "@/components/legal/consent-checkbox";
 
 type AuthFormProps = {
   mode?: "customer" | "seller";
@@ -38,6 +39,7 @@ export function AuthForm({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [legalConsent, setLegalConsent] = useState(false);
 
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -64,6 +66,7 @@ export function AuthForm({
     setErrorMsg(null);
     setFieldErrors(null);
     setCaptchaToken(null);
+    setLegalConsent(false);
 
     // Update URL smoothly if window is available
     if (typeof window !== "undefined") {
@@ -300,6 +303,9 @@ export function AuthForm({
           )}
 
           <form action={handleSubmit} className="space-y-5">
+            {isRegisterMode && (
+              <input type="hidden" name="accepted_legal_terms" value={legalConsent ? "true" : "false"} />
+            )}
             <label className="grid gap-2 text-sm font-semibold text-slate-800 dark:text-zinc-200">
               Email
               <div className="relative">
@@ -408,10 +414,18 @@ export function AuthForm({
               </React.Fragment>
             )}
 
+            {isRegisterMode && (
+              <ConsentCheckbox
+                checked={legalConsent}
+                onChange={setLegalConsent}
+                disabled={isPending}
+              />
+            )}
+
             <button
               className="h-11 w-full rounded-xl bg-orange-accent hover:bg-orange-accent-hover disabled:bg-orange-accent/50 text-sm font-black text-white transition active:scale-95 shadow-md shadow-orange-accent/10 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center"
               type="submit"
-              disabled={isPending || (!!siteKey && !captchaToken)}
+              disabled={isPending || (!!siteKey && !captchaToken) || (isRegisterMode && !legalConsent)}
             >
               {isPending ? "Procesando..." : currentSubmitLabel}
             </button>

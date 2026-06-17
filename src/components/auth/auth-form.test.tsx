@@ -311,3 +311,62 @@ describe("AuthForm Component - Edge Cases and UX/UI States", () => {
     });
   });
 });
+
+describe("AuthForm consent checkbox in register mode", () => {
+  const mockRegisterAction = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRegisterAction.mockReset();
+  });
+
+  it("shows consent checkbox in register mode", () => {
+    render(
+      <AuthForm
+        isRegister={true}
+        registerAction={mockRegisterAction}
+      />
+    );
+
+    expect(screen.getByRole("checkbox", { name: /acepto/i })).toBeInTheDocument();
+  });
+
+  it("hides consent checkbox in login mode", () => {
+    render(
+      <AuthForm
+        isRegister={false}
+        loginAction={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByRole("checkbox", { name: /acepto/i })).not.toBeInTheDocument();
+  });
+
+  it("disables submit button when consent checkbox is unchecked in register mode", () => {
+    render(
+      <AuthForm
+        isRegister={true}
+        registerAction={mockRegisterAction}
+      />
+    );
+
+    const submitBtn = screen.getByRole("button", { name: /crear mi cuenta/i });
+    expect(submitBtn).toBeDisabled();
+  });
+
+  it("enables submit button when consent checkbox is checked", async () => {
+    const user = userEvent.setup();
+    render(
+      <AuthForm
+        isRegister={true}
+        registerAction={mockRegisterAction}
+      />
+    );
+
+    const checkbox = screen.getByRole("checkbox", { name: /acepto/i });
+    await user.click(checkbox);
+
+    const submitBtn = screen.getByRole("button", { name: /crear mi cuenta/i });
+    expect(submitBtn).not.toBeDisabled();
+  });
+});
