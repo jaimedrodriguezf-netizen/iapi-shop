@@ -143,6 +143,7 @@ describe("auth server actions", () => {
       .email("owner@shop.com")
       .password("secret123")
       .confirmPassword("different123")
+      .acceptedLegalTerms("true")
       .build();
 
     const result = await register(formData);
@@ -256,7 +257,7 @@ describe("rate limiting", () => {
       success: false, limit: 5, remaining: 0, reset: Date.now() + 900000, pending: Promise.resolve(),
     });
     const { register } = await import("./actions");
-    const formData = new FormDataBuilder().email("test@test.com").password("secret123").confirmPassword("secret123").build();
+    const formData = new FormDataBuilder().email("test@test.com").password("secret123").confirmPassword("secret123").acceptedLegalTerms("true").build();
     const result = await register(formData);
     expect(result.success).toBe(false);
     expect(result.error).toContain("Demasiados intentos");
