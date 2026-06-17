@@ -83,6 +83,12 @@ export async function login(formData: FormData): Promise<AuthActionState> {
 
 export async function register(formData: FormData): Promise<AuthActionState> {
   try {
+    // Validate legal terms acceptance
+    const acceptedLegalTerms = formData.get("accepted_legal_terms");
+    if (acceptedLegalTerms !== "true") {
+      return { success: false, error: "Debes aceptar los términos y condiciones y la política de privacidad." };
+    }
+
     const parsed = registerSchema.safeParse({
       email: formData.get("email"),
       password: formData.get("password"),

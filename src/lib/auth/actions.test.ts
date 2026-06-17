@@ -210,6 +210,11 @@ class FormDataBuilder {
     return this;
   }
 
+  acceptedLegalTerms(value: string) {
+    this.formData.set("accepted_legal_terms", value);
+    return this;
+  }
+
   build() {
     return this.formData;
   }
@@ -331,5 +336,67 @@ describe("signInWithGoogle", () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBe("Error al procesar la solicitud");
+  });
+});
+
+describe("register consent validation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(authRateLimit.limit).mockResolvedValue({ success: true, limit: 5, remaining: 4, reset: Date.now() + 900000, pending: Promise.resolve() });
+  });
+
+  it("rejects register when accepted_legal_terms is missing", async () => {
+    const { register } = await import("./actions");
+    const formData = new FormDataBuilder()
+      .email("test@test.com")
+      .password("secret123")
+      .confirmPassword("secret123")
+      .build();
+
+    const result = await register(formData);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Debes aceptar los términos");
+    expect(signUp).not.toHaveBeenCalled();
+  });
+
+  it("rejects register when accepted_legal_terms is 'false'", async () => {
+    const { register } = await import("./actions");
+    const formData = new FormDataBuilder()
+      .email("test@test.com")
+      .password("secret123")
+      .confirmPassword("secret123")
+      .acceptedLegalTerms("false")
+      .build();
+
+    const result = await register(formData);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Debes aceptar los términos");
+    expect(signUp).not.toHaveBeenCalled();
+  });
+
+  it("allows register when accepted_legal_terms is 'true'", async () => {
+    signUp.mockResolvedValueOnce({
+      data: { user: { id: "user-1", email: "test@test.com", email_confirmed_at: new Date().toISOString() } },
+      error: null,
+    });
+
+    const mockSupabase = createMockSupabase(null);
+    const { createClient } = await import("@/lib/supabase/server");
+    vi.mocked(createClient).mockResolvedValue(mockSupabase as unknown as SupabaseClient);
+
+    const { register } = await import("./actions");
+    const formData = new FormDataBuilder()
+      .email("test@test.com")
+      .password("secret123")
+      .confirmPassword("secret123")
+      .acceptedLegalTerms("true")
+      .build();
+
+    // register will successfully pass consent validation and call signUp,
+    // then redirect throws NEXT_REDIRECT — we catch it as success
+    await expect(register(formData)).rejects.toThrow("NEXT_REDIRECT");
+    expect(signUp).toHaveBeenCalled();
   });
 });
