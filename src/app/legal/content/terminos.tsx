@@ -58,12 +58,12 @@ export function TerminosContent() {
           aspecto de la transacción son responsabilidad exclusiva del comerciante.
         </li>
         <li>
-          Comunicaciones vía WhatsApp constituyen un canal directa entre el
+          Comunicaciones vía WhatsApp constituyen un canal directo entre el
           comprador y el comerciante.
         </li>
         <li>
           IAPI Shop no tiene acceso al contenido de esas comunicaciones ni
-          intervene en ellas.
+          interviene en ellas.
         </li>
       </ul>
 
