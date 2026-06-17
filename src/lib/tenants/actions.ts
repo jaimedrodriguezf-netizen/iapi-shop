@@ -397,6 +397,7 @@ export type CreateTenantInput = {
   name: string;
   slug: string;
   whatsapp_phone?: string;
+  accepted_legal_terms?: boolean;
 };
 
 export async function createTenant(input: CreateTenantInput): Promise<ActionResult<Tenant>> {
@@ -489,6 +490,25 @@ const hasPlus = subs?.some(sub => {
     if (memberError) {
       console.error("createTenant member:", memberError);
       return { success: false, error: "Error al procesar la solicitud" };
+    }
+
+    // 3b. Persist legal consent if provided
+    if (input.accepted_legal_terms) {
+      const { data: siteSettings } = await supabase
+        .from("site_settings")
+        .select("legal_version")
+        .single();
+
+      const legalVersion = siteSettings?.legal_version || "1";
+
+      await supabase
+        .from("tenant_members")
+        .update({
+          legal_accepted_version: legalVersion,
+          legal_accepted_at: new Date().toISOString(),
+        })
+        .eq("tenant_id", tenant.id)
+        .eq("user_id", user.id);
     }
 
     // 4. Asignar plan 'free' inicial (Operación crítica para la integridad)

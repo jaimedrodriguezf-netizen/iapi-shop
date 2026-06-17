@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select"
 import { createTenant, checkSlugAvailability, getMyTenants, getTenantSubscription } from "@/lib/tenants/actions"
 import { useDebounce } from "@/hooks/use-debounce"
+import { ConsentCheckbox } from "@/components/legal/consent-checkbox"
 
 const countries = [
   { label: "🇪🇨 Ecuador (+593)", value: "+593" },
@@ -58,6 +59,9 @@ const formSchema = z.object({
   phone_number: z.string().regex(/^[0-9\s-]{7,}$/, {
     message: "Ingresa un número de teléfono válido.",
   }).optional().or(z.literal("")),
+  accepted_legal_terms: z.literal(true, {
+    errorMap: () => ({ message: "Debes aceptar los términos y condiciones y la política de privacidad." }),
+  }),
 })
 
 type SlugAvailability = {
@@ -101,6 +105,7 @@ export default function OnboardingPage() {
       slug: "",
       country_code: "+593",
       phone_number: "",
+      accepted_legal_terms: false as unknown as true,
     },
   })
 
@@ -173,6 +178,7 @@ export default function OnboardingPage() {
         name: values.name,
         slug: values.slug,
         whatsapp_phone: fullPhone,
+        accepted_legal_terms: values.accepted_legal_terms,
       })
 
       if (result.success && result.data) {
@@ -307,6 +313,22 @@ export default function OnboardingPage() {
                   Donde recibirás los pedidos por WhatsApp.
                 </FormDescription>
               </div>
+              <FormField
+                control={form.control}
+                name="accepted_legal_terms"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <ConsentCheckbox
+                        checked={field.value as boolean}
+                        onChange={(checked) => field.onChange(checked)}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <Button
                 type="submit"
                 className="w-full rounded-xl font-bold py-6 bg-orange-500 hover:bg-orange-600 shadow-sm"

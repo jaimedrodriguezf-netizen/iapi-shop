@@ -734,3 +734,119 @@ describe("Zod input validation", () => {
     });
   });
 });
+
+describe("createTenant consent persistence", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    vi.clearAllMocks();
+  });
+
+  it("persists legal_accepted_version and legal_accepted_at when consent is provided", async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
+
+    const legalUpdateMock = vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }) });
+
+    const fromMock = vi.fn().mockImplementation((table: string) => {
+      if (table === "tenants") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+          insert: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { id: "tenant-456", slug: "tienda-test" }, error: null }),
+        };
+      }
+      if (table === "tenant_members") {
+        const insertMock = vi.fn().mockResolvedValue({ error: null });
+        // Return an object where .insert() creates member, and .update() sets consent
+        return {
+          insert: insertMock,
+          update: legalUpdateMock,
+        };
+      }
+      if (table === "site_settings") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { legal_version: "1" }, error: null }),
+        };
+      }
+      if (table === "plans") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { id: "plan-free" }, error: null }),
+        };
+      }
+      if (table === "tenant_subscriptions") {
+        return {
+          insert: vi.fn().mockResolvedValue({ error: null }),
+        };
+      }
+      return mockSupabase;
+    });
+
+    vi.spyOn(mockSupabase, "from").mockImplementation(fromMock);
+
+    const result = await createTenant({
+      name: "Mi Tienda Consent",
+      slug: "tienda-consent",
+      accepted_legal_terms: true,
+    });
+
+    expect(result.success).toBe(true);
+    // Verify that tenant_members.update was called for consent persistence
+    expect(legalUpdateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        legal_accepted_version: "1",
+        legal_accepted_at: expect.any(String),
+      }),
+    );
+  });
+
+  it("does not update legal fields when consent is not provided", async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
+
+    let updateCalled = false;
+    const fromMock = vi.fn().mockImplementation((table: string) => {
+      if (table === "tenants") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+          insert: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { id: "tenant-456", slug: "tienda-no-consent" }, error: null }),
+        };
+      }
+      if (table === "tenant_members") {
+        return {
+          insert: vi.fn().mockResolvedValue({ error: null }),
+          update: vi.fn().mockImplementation(() => {
+            updateCalled = true;
+            return { eq: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }) };
+          }),
+        };
+      }
+      if (table === "plans") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: { id: "plan-free" }, error: null }),
+        };
+      }
+      if (table === "tenant_subscriptions") {
+        return {
+          insert: vi.fn().mockResolvedValue({ error: null }),
+        };
+      }
+      return mockSupabase;
+    });
+
+    vi.spyOn(mockSupabase, "from").mockImplementation(fromMock);
+
+    const result = await createTenant({
+      name: "Mi Tienda No Consent",
+      slug: "tienda-no-consent",
+    });
+
+    expect(result.success).toBe(true);
+    expect(updateCalled).toBe(false);
+  });
+});
