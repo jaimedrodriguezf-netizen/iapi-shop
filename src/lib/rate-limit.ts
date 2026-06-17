@@ -134,6 +134,19 @@ export const tenantRateLimit = redis
   : createMockRatelimit();
 
 /**
+ * Report rate limiter: 3 reports per 15 minutes per IP
+ * Protects store report submission from spam
+ */
+export const reportRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(3, "15 m"),
+      prefix: "ratelimit:reports",
+      analytics: true,
+    })
+  : createMockRatelimit();
+
+/**
  * Returns the client IP from request headers.
  */
 export async function getClientIdentifier(): Promise<string> {

@@ -70,6 +70,18 @@ describe("rate-limit helper", () => {
     expect(tenantRateLimit.limit).toBe(mockLimitFn);
   });
 
+  it("exports slugRateLimit with limit method", async () => {
+    const { slugRateLimit } = await import("./rate-limit");
+    expect(slugRateLimit).toBeDefined();
+    expect(slugRateLimit.limit).toBe(mockLimitFn);
+  });
+
+  it("exports reportRateLimit with limit method", async () => {
+    const { reportRateLimit } = await import("./rate-limit");
+    expect(reportRateLimit).toBeDefined();
+    expect(reportRateLimit.limit).toBe(mockLimitFn);
+  });
+
   it("exports getClientIdentifier as a function", async () => {
     const { getClientIdentifier } = await import("./rate-limit");
     expect(getClientIdentifier).toBeDefined();
