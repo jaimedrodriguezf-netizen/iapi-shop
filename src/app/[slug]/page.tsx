@@ -7,6 +7,8 @@ import { getMyFavoriteIds } from "@/lib/storefront/favorites-actions";
 import { createClient } from "@/lib/supabase/server";
 import type { Address } from "@/lib/tenants/actions";
 import { getTenantSections } from "@/lib/sections/actions";
+import { LegalFooterLinks } from "@/components/legal/legal-footer-links";
+import { LEGAL_LINKS_ENABLED } from "@/lib/legal/constants";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -205,8 +207,13 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
               </p>
             )}
           </div>
-          <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-70">
-            Potenciado por IAPI Shop
+          <div className="flex flex-col items-center sm:items-end gap-2">
+            {LEGAL_LINKS_ENABLED && (
+              <LegalFooterLinks mode="inline" separator=" | " />
+            )}
+            <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-70">
+              Potenciado por IAPI Shop
+            </div>
           </div>
         </div>
       </footer>

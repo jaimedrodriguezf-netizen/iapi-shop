@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { toggleFavorite } from "@/lib/storefront/favorites-actions"
 import { ProductDetailModal } from "@/components/landing/product-detail-modal"
+import { LegalFooterLinks } from "@/components/legal/legal-footer-links"
 
 interface MarketplaceProduct {
   id: string
@@ -293,10 +294,11 @@ export function MarketplaceClient({
 
       {/* Footer */}
       <footer className="border-t py-8 mt-12 px-6">
-        <div className="max-w-7xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto text-center space-y-3">
           <p className="text-xs text-zinc-400 font-medium">
             © {new Date().getFullYear()} IAPI Shop — Marketplace de tiendas ecuatorianas
           </p>
+          <LegalFooterLinks />
         </div>
       </footer>
 
