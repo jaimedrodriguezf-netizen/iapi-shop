@@ -9,6 +9,7 @@ import type { Address } from "@/lib/tenants/actions";
 import { getTenantSections } from "@/lib/sections/actions";
 import { LegalFooterLinks } from "@/components/legal/legal-footer-links";
 import { LEGAL_LINKS_ENABLED } from "@/lib/legal/constants";
+import { StoreReportButton } from "@/components/legal/store-report-button";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -209,7 +210,10 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
           </div>
           <div className="flex flex-col items-center sm:items-end gap-2">
             {LEGAL_LINKS_ENABLED && (
-              <LegalFooterLinks mode="inline" separator=" | " />
+              <>
+                <LegalFooterLinks mode="inline" separator=" | " />
+                <StoreReportButton tenantId={tenant.id} tenantName={tenant.name} />
+              </>
             )}
             <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-70">
               Potenciado por IAPI Shop
