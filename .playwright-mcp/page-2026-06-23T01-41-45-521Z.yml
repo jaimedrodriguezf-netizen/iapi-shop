@@ -1,0 +1,70 @@
+- generic [active] [ref=e1]:
+  - article [ref=e3]:
+    - heading "Términos y Condiciones" [level=1] [ref=e4]
+    - paragraph [ref=e5]: "Última actualización: junio 2026"
+    - heading "1. Objeto del Servicio" [level=2] [ref=e6]
+    - paragraph [ref=e7]: IAPI Shop es una plataforma de tecnología (SaaS) que permite a comerciantes ecuatorianos crear catálogos digitales de productos y compartirlos con sus clientes a través de enlaces y códigos QR. IAPI Shop no es un almacén, un distribuidor ni un intermediario comercial. La plataforma proporciona exclusivamente herramientas tecnológicas para la gestión y presentación de catálogos.
+    - heading "2. Declaración de Intermediación" [level=2] [ref=e8]
+    - paragraph [ref=e9]: "Conforme a los artículos 54 y 55 de la Ley de Comercio Electrónico, Firmas Electrónicas y Mensajes de Datos del Ecuador (LCE), IAPI Shop actúa como intermediario neutral en la presentación de información de terceros comerciantes. IAPI Shop:"
+    - list [ref=e10]:
+      - listitem [ref=e11]: No interviene en la transacción entre comprador y comerciante.
+      - listitem [ref=e12]: No cobra comisiones sobre las ventas realizadas.
+      - listitem [ref=e13]: No procesa pagos, no almacena datos de pago de compradores y no tiene control sobre los términos de venta ofrecidos por cada comerciante.
+      - listitem [ref=e14]: No es responsable por el cumplimiento de las obligaciones contractuales entre el comerciante y el comprador.
+    - paragraph [ref=e15]: Los catálogos publicados a través de IAPI Shop corresponden exclusivamente a cada comerciante. IAPI Shop no garantiza la exactitud, integridad o actualidad de la información contenida en dichos catálogos.
+    - heading "3. Canal de Venta (WhatsApp)" [level=2] [ref=e16]
+    - paragraph [ref=e17]: "IAPI Shop facilita un enlace de comunicación entre el comprador y el comerciante mediante WhatsApp. Las transacciones se realizan directamente entre las partes (persona a persona), fuera del control y la responsabilidad de IAPI Shop. Especificamente:"
+    - list [ref=e18]:
+      - listitem [ref=e19]: IAPI Shop no participa en la negociación, el acuerdo ni la ejecución de la venta.
+      - listitem [ref=e20]: Los precios, disponibilidad, condiciones de entrega y cualquier otro aspecto de la transacción son responsabilidad exclusiva del comerciante.
+      - listitem [ref=e21]: Comunicaciones vía WhatsApp constituyen un canal directo entre el comprador y el comerciante.
+      - listitem [ref=e22]: IAPI Shop no tiene acceso al contenido de esas comunicaciones ni interviene en ellas.
+    - heading "4. Exclusiones de Responsabilidad" [level=2] [ref=e23]
+    - paragraph [ref=e24]: "IAPI Shop no es responsable por:"
+    - list [ref=e25]:
+      - listitem [ref=e26]:
+        - strong [ref=e27]: "Pagos:"
+        - text: No gestiona, procesa ni garantiza transacciones económicas entre las partes.
+      - listitem [ref=e28]:
+        - strong [ref=e29]: "Envíos y entregas:"
+        - text: No interviene en la logística de entrega de productos.
+      - listitem [ref=e30]:
+        - strong [ref=e31]: "Calidad del producto:"
+        - text: No garantiza la calidad, autenticidad o estado de los productos ofrecidos por los comerciantes.
+      - listitem [ref=e32]:
+        - strong [ref=e33]: "Exactitud del catálogo:"
+        - text: Los precios, descripciones, imágenes y disponibilidad publicados son responsabilidad del comerciante.
+      - listitem [ref=e34]:
+        - strong [ref=e35]: "Disputas:"
+        - text: No actúa como mediador en controversias entre compradores y comerciantes.
+    - heading "5. Obligaciones del Comerciante" [level=2] [ref=e36]
+    - paragraph [ref=e37]: "Al utilizar IAPI Shop, cada comerciante se obliga a cumplir con la Ley Orgánica de Defensa del Consumidor (LODC), incluyendo:"
+    - list [ref=e38]:
+      - listitem [ref=e39]: Ofrecer descripciones veraces y completas de los productos y servicios.
+      - listitem [ref=e40]: Garantizar la calidad y seguridad de los productos ofrecidos.
+      - listitem [ref=e41]: Respetar el derecho de retracto de 3 días hábiles contemplado en el artículo 45 de la LODC, para compras realizadas a distancia o fuera del establecimiento.
+      - listitem [ref=e42]: Proporcionar información de contacto actualizada para la atención de reclamos.
+      - listitem [ref=e43]: Cumplir con la normativa tributaria aplicable a su actividad comercial.
+    - heading "6. Uso Aceptable y Suspensión" [level=2] [ref=e44]
+    - paragraph [ref=e45]: "Queda terminantemente prohibido utilizar IAPI Shop para la venta o promoción de:"
+    - list [ref=e46]:
+      - listitem [ref=e47]: Drogas y sustancias ilegales.
+      - listitem [ref=e48]: Armas de fuego, municiones y explosivos.
+      - listitem [ref=e49]: Material con derechos de autor sin autorización del titular.
+      - listitem [ref=e50]: Productos falsificados o que infrinjan propiedad intelectual.
+      - listitem [ref=e51]: Contenido pornográfico, obsceno o ilegal.
+      - listitem [ref=e52]: Cualquier producto o servicio que viole la legislación ecuatoriana.
+    - paragraph [ref=e53]: IAPI Shop se reserva el derecho de suspender o cancelar cuentas que infrinjan estas condiciones, sin perjuicio de las acciones legales que correspondan.
+    - heading "7. Propiedad Intelectual" [level=2] [ref=e54]
+    - paragraph [ref=e55]: El nombre comercial "IAPI Shop", su logotipo, el diseño de la plataforma, el código fuente y la documentación técnica son propiedad intelectual de Januscore. Queda prohibida su reproducción, distribución, modificación o uso sin autorización expresa.
+    - paragraph [ref=e56]: Los contenidos de los catálogos (imágenes, descripciones, precios) son propiedad del comerciante respectivo, quien es el único responsable de contar con los derechos necesarios para su publicación.
+    - heading "8. Ley Aplicable y Jurisdicción" [level=2] [ref=e57]
+    - paragraph [ref=e58]: Estos términos y condiciones se rigen por las leyes de la República del Ecuador. Cualquier controversia derivada de su interpretación o cumplimiento será sometida a los tribunales de la ciudad de Quito, Distrito Metropolitano, Ecuador.
+    - paragraph [ref=e59]:
+      - text: Para consultas sobre estos términos, contacte a
+      - link "soporte@januscore.pro" [ref=e60] [cursor=pointer]:
+        - /url: mailto:soporte@januscore.pro
+      - text: .
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e66] [cursor=pointer]:
+    - img [ref=e67]

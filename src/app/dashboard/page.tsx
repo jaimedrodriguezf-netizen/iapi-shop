@@ -251,7 +251,7 @@ export default async function DashboardPage() {
       )}
 
       <div className="mt-8 flex justify-between items-center text-xs text-muted-foreground border-t pt-4">
-        <span>IAPI Shop © {new Date().getFullYear()}</span>
+        <span>Un producto de <a href="https://januscore.pro" target="_blank" rel="noopener noreferrer" className="hover:underline text-orange-500 font-medium">Janus Core</a> © {new Date().getFullYear()}</span>
       </div>
         </>
       )}

@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Logo } from "@/components/logo";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { signInWithGoogle, login, register, type AuthActionState } from "@/lib/auth/actions";
 import { Turnstile } from "./turnstile";
@@ -176,10 +177,7 @@ export function AuthForm({
 
         {/* Top brand logo */}
         <Link href="/" className="z-10 cursor-pointer group">
-          <span className="leading-none text-center">
-            <span className="block font-black text-3xl text-orange-500 group-hover:scale-105 transition-transform">IAPI</span>
-            <span className="block font-black text-[10px] text-orange-400 tracking-[0.2em] uppercase text-center -mt-1">shop</span>
-          </span>
+          <Logo className="text-3xl group-hover:scale-105 transition-transform" />
         </Link>
 
         {/* Middle emotional copy */}
@@ -278,7 +276,7 @@ export function AuthForm({
 
         {/* Footer text */}
         <div className="z-10 text-xs text-slate-400 dark:text-zinc-500 font-semibold">
-          © 2026 IAPI Inc. Todos los derechos reservados.
+          © {new Date().getFullYear()} Un producto de <a href="https://januscore.pro" target="_blank" rel="noopener noreferrer" className="hover:underline text-orange-500 font-medium">Janus Core</a>. Todos los derechos reservados.
         </div>
       </section>
 
@@ -287,10 +285,7 @@ export function AuthForm({
         <div className="backdrop-blur-md bg-white/75 dark:bg-zinc-900/75 border border-white/20 dark:border-zinc-800/20 shadow-2xl rounded-3xl p-8 max-w-md w-full">
           <div className="mb-8 space-y-2 text-center flex flex-col items-center">
             <Link href="/" className="flex flex-col items-center gap-2 group cursor-pointer">
-              <span className="leading-none text-center">
-                <span className="block font-black text-3xl text-orange-500 group-hover:scale-105 transition-transform">IAPI</span>
-                <span className="block font-black text-[10px] text-orange-400 tracking-[0.2em] uppercase text-center -mt-1">shop</span>
-              </span>
+              <Logo className="text-3xl group-hover:scale-105 transition-transform" />
             </Link>
             <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">{currentTitle}</h1>
             <p className="text-sm leading-6 text-muted-foreground">{currentDescription}</p>

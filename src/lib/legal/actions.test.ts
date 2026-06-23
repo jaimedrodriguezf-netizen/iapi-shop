@@ -29,6 +29,7 @@ const mockSupabase = {
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(() => Promise.resolve(mockSupabase)),
+  createAdminClient: vi.fn(() => Promise.resolve(mockSupabase)),
 }));
 
 describe("acceptLegalTerms", () => {
@@ -483,8 +484,8 @@ describe("submitStoreReport", () => {
 
     expect(result.success).toBe(true);
     expect(insertedData).not.toBeNull();
-    expect((insertedData as Record<string, unknown>).details).not.toContain("<");
-    expect((insertedData as Record<string, unknown>).details).not.toContain(">");
+    expect((insertedData as unknown as Record<string, unknown>).details).not.toContain("<");
+    expect((insertedData as unknown as Record<string, unknown>).details).not.toContain(">");
   });
 
   it("rejects details exceeding 2000 characters", async () => {
@@ -523,7 +524,7 @@ describe("submitStoreReport", () => {
     const result = await submitStoreReport({
       tenant_id: "550e8400-e29b-41d4-a716-446655440040",
       reporter_email: "valid@example.com",
-      reason: "Invalid Reason" as any,
+      reason: "Invalid Reason" as never,
       details: "Test details",
     });
 
@@ -701,7 +702,7 @@ describe("updateReportStatus", () => {
     });
 
     const { updateReportStatus } = await import("./actions");
-    const result = await updateReportStatus("report-1", "invalid_status" as any);
+    const result = await updateReportStatus("report-1", "invalid_status" as never);
 
     expect(result.success).toBe(false);
   });
@@ -763,8 +764,8 @@ describe("updateReportStatus", () => {
 
     expect(result.success).toBe(true);
     expect(updatedData).not.toBeNull();
-    expect((updatedData as Record<string, unknown>).moderator_notes).toBe("False alarm — not a real report");
-    expect((updatedData as Record<string, unknown>).status).toBe("dismissed");
+    expect((updatedData as unknown as Record<string, unknown>).moderator_notes).toBe("False alarm — not a real report");
+    expect((updatedData as unknown as Record<string, unknown>).status).toBe("dismissed");
   });
 
   it("returns error when user is not authenticated", async () => {

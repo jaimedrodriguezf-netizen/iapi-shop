@@ -61,7 +61,7 @@ export function UsageLimitsWidget({
             ⚠️ Has alcanzado el límite de productos. Actualiza tu plan para seguir agregando más.
           </p>
           <Link
-            href="/#pricing-title"
+            href="/dashboard/planes"
             className="inline-flex w-full items-center justify-center rounded-2xl bg-orange-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-orange-600 transition-colors shadow-sm"
           >
             Mejorar Plan
@@ -211,7 +211,7 @@ export function PremiumBenefitsWidget() {
 
         <div className="pt-2">
           <Link
-            href="/#pricing-title"
+            href="/dashboard/planes"
             className="flex w-full items-center justify-center rounded-2xl bg-white px-4 py-3 text-sm font-bold text-orange-600 hover:bg-orange-50 transition-colors shadow-lg"
           >
             Obtener Plan Plus

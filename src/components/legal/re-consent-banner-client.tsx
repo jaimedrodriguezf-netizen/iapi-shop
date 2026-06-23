@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { acceptLegalTerms } from "@/lib/legal/actions";
 
@@ -31,19 +32,19 @@ export function ReConsentBannerClient({ currentVersion }: ReConsentBannerClientP
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <p className="text-sm text-orange-800 dark:text-orange-200 font-medium">
           Hemos actualizado nuestros{" "}
-          <a
+          <Link
             href="/legal/terminos"
             className="font-bold underline underline-offset-2 hover:text-orange-900 dark:hover:text-orange-100"
           >
             Términos y Condiciones
-          </a>{" "}
+          </Link>{" "}
           y{" "}
-          <a
+          <Link
             href="/legal/privacidad"
             className="font-bold underline underline-offset-2 hover:text-orange-900 dark:hover:text-orange-100"
           >
             Política de Privacidad
-          </a>
+          </Link>
           . Debés aceptarlos nuevamente para continuar.
         </p>
         <button

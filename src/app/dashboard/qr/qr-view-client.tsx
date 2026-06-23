@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { Download, ExternalLink, QrCode, FileText } from "lucide-react"
+import { Download, ExternalLink, FileText, QrCode } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
+import { Logo } from "@/components/logo"
 import { toast } from "sonner"
 import { jsPDF } from "jspdf"
 
@@ -42,27 +43,11 @@ export function QRViewClient({ qrDataUrl, publicUrl, tenantName }: QRViewClientP
       const pageHeight = doc.internal.pageSize.getHeight() // 210
       const halfWidth = pageWidth / 2 // 148.5
 
-      // Load IAPI Logo image
-      let logoImg: HTMLImageElement | null = null
-      try {
-        logoImg = await new Promise<HTMLImageElement>((resolve, reject) => {
-          const img = new window.Image()
-          img.onload = () => resolve(img)
-          img.onerror = () => reject(new Error("Error loading logo"))
-          img.src = "/logo.png"
-        })
-      } catch (err) {
-        console.warn("Could not load logo image, continuing without logo in PDF", err)
-      }
-
       // Draw left and right halves
       for (let i = 0; i < 2; i++) {
         const xOffset = i * halfWidth
 
-        // 1. Draw IAPI Logo if loaded
-        if (logoImg) {
-          doc.addImage(logoImg, "PNG", xOffset + halfWidth / 2 - 8, 20, 16, 16)
-        }
+        // 1. (Logo image removed, using text below)
 
         // 2. IAPI Shop Text
         doc.setFont("helvetica", "bold")
@@ -120,8 +105,9 @@ export function QRViewClient({ qrDataUrl, publicUrl, tenantName }: QRViewClientP
   return (
     <Card className="rounded-3xl border shadow-lg overflow-hidden">
       <CardHeader className="bg-orange-50 dark:bg-orange-950/20 text-center py-8">
-        <CardTitle className="text-xl font-black text-orange-500 uppercase tracking-widest flex items-center justify-center gap-2">
-          <QrCode className="h-6 w-6" /> Escanea & Pide
+        <CardTitle className="text-xl font-black text-orange-500 uppercase tracking-widest flex flex-col items-center justify-center gap-2">
+          <Logo className="text-2xl" />
+          <span className="mt-2 flex items-center gap-2 text-sm"><QrCode className="h-5 w-5" /> Escanea & Pide</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center p-8 bg-white dark:bg-zinc-900">

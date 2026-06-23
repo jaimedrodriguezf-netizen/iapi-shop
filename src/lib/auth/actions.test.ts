@@ -50,7 +50,7 @@ describe("auth server actions", () => {
 
     const { login } = await import("./actions");
     await expect(login(new FormDataBuilder().email("owner@shop.com").password("secret123").build())).rejects.toThrow(
-      "NEXT_REDIRECT:/perfil",
+      "NEXT_REDIRECT:/",
     );
   });
 
@@ -65,7 +65,7 @@ describe("auth server actions", () => {
 
     const { login } = await import("./actions");
     await expect(login(new FormDataBuilder().email("owner@shop.com").password("secret123").build())).rejects.toThrow(
-      "NEXT_REDIRECT:/dashboard",
+      "NEXT_REDIRECT:/",
     );
   });
 
@@ -89,6 +89,7 @@ describe("auth server actions", () => {
       .email("owner@shop.com")
       .password("secret123")
       .confirmPassword("secret123")
+      .acceptedLegalTerms("true")
       .build();
 
     await expect(register(formData)).rejects.toThrow(
@@ -113,7 +114,7 @@ describe("auth server actions", () => {
     const { login } = await import("./actions");
     await expect(
       login(new FormDataBuilder().email("   owner@shop.com   ").password("secret123").build())
-    ).rejects.toThrow("NEXT_REDIRECT:/perfil");
+    ).rejects.toThrow("NEXT_REDIRECT:/");
 
     expect(signInWithPassword).toHaveBeenCalledWith({
       email: "owner@shop.com",
@@ -184,7 +185,7 @@ describe("auth server actions", () => {
     const { login } = await import("./actions");
     await expect(
       login(new FormDataBuilder().email("owner@shop.com").password("secret123").build())
-    ).rejects.toThrow("NEXT_REDIRECT:/perfil");
+    ).rejects.toThrow("NEXT_REDIRECT:/");
 
     expect(signOut).toHaveBeenCalled();
     const signOutOrder = signOut.mock.invocationCallOrder[0];
@@ -249,7 +250,7 @@ describe("rate limiting", () => {
 
     const { login } = await import("./actions");
     await expect(login(new FormDataBuilder().email("test@test.com").password("secret123").build()))
-      .rejects.toThrow("NEXT_REDIRECT:/perfil");
+      .rejects.toThrow("NEXT_REDIRECT:/");
   });
 
   it("blocks register when rate limit is exceeded", async () => {

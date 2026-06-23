@@ -1,0 +1,68 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - button "Categorías" [ref=e4]:
+        - img [ref=e5]
+      - link "IAPI shop" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e7]:
+          - generic [ref=e8]: IAPI
+          - generic [ref=e9]: shop
+      - generic "Ecuador" [ref=e10]: 🇪🇨
+      - generic [ref=e12]:
+        - textbox "Buscar productos..." [ref=e13]
+        - button "Buscar" [ref=e14]:
+          - img [ref=e15]
+      - link "Iniciar sesión" [ref=e18] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e19]
+      - link "Iniciar sesión" [ref=e22] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e23]
+      - link "Favoritos" [ref=e26] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e27]
+      - button "Abrir carrito" [ref=e29] [cursor=pointer]:
+        - img [ref=e30]
+  - generic [ref=e33]:
+    - generic [ref=e35]:
+      - button "Todos" [ref=e36]
+      - button "Día de la madre" [ref=e37]
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - textbox "Buscar entre los 1 artículos..." [ref=e42]
+          - img [ref=e43]
+        - generic [ref=e46]:
+          - button "Todos (1)" [ref=e48]:
+            - text: Todos (1)
+            - img [ref=e49]
+          - button "Filtros" [ref=e51]:
+            - img [ref=e52]
+      - article [ref=e54] [cursor=pointer]:
+        - generic [ref=e55]:
+          - img "BASE LIQUIDA LONGWEAR" [ref=e56]
+          - generic [ref=e57]: 👤
+          - button "Agregar a favoritos" [ref=e58]:
+            - img [ref=e59]
+          - button "Agregar BASE LIQUIDA LONGWEAR al carrito" [ref=e61]:
+            - img [ref=e62]
+        - generic [ref=e65]:
+          - heading "BASE LIQUIDA LONGWEAR" [level=3] [ref=e66]
+          - paragraph [ref=e67]: $2.75
+          - paragraph [ref=e68]:
+            - generic [ref=e69]: $3.49
+            - generic [ref=e70]: "-21%"
+          - generic [ref=e72]: Envío GRATIS
+    - contentinfo [ref=e73]:
+      - generic [ref=e74]:
+        - paragraph [ref=e75]: © 2026 IAPI Shop — Marketplace de tiendas ecuatorianas
+        - generic [ref=e76]:
+          - link "Términos y Condiciones" [ref=e77] [cursor=pointer]:
+            - /url: /legal/terminos
+          - generic [ref=e78]: •
+          - link "Política de Privacidad" [ref=e79] [cursor=pointer]:
+            - /url: /legal/privacidad
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e85] [cursor=pointer]:
+    - img [ref=e86]

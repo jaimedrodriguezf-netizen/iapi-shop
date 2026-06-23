@@ -20,9 +20,10 @@ interface ProductCardProps {
   onToggleFavorite: (productId: string) => void
   isAuthenticated?: boolean
   onCardClick?: () => void
+  showAddToCart?: boolean
 }
 
-export function ProductCard({ product, isFavorited, onToggleFavorite, onCardClick }: ProductCardProps) {
+export function ProductCard({ product, isFavorited, onToggleFavorite, onCardClick, showAddToCart = true }: ProductCardProps) {
   const hasDiscount = product.compare_at_price && product.compare_at_price > product.price
   const discountPercent = hasDiscount 
     ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100) 
@@ -67,7 +68,7 @@ export function ProductCard({ product, isFavorited, onToggleFavorite, onCardClic
           />
         </button>
 
-        {product.tenant_id && (
+        {showAddToCart && product.tenant_id && (
           <AddToCartButton
             product={{
               id: product.id,

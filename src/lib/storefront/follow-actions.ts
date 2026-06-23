@@ -65,7 +65,7 @@ export async function getFollowedTenants(): Promise<{ success: boolean; data?: A
 
      
     const followed = (data || []).flatMap(f => {
-      const t = (f as any).tenants as { id: string; name: string; slug: string; logo_url: string | null } | null
+      const t = (f as unknown as { tenants: { id: string; name: string; slug: string; logo_url: string | null } | null }).tenants
       return t ? [{ id: t.id, name: t.name, slug: t.slug, logo_url: t.logo_url }] : []
     })
 

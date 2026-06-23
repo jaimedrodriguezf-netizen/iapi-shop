@@ -1,0 +1,82 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - link "IAPI shop" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]:
+          - generic [ref=e6]: IAPI
+          - generic [ref=e7]: shop
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - heading "Comprá local, comprá fácil." [level=2] [ref=e10]
+          - paragraph [ref=e11]: Descubrí productos de tiendas ecuatorianas y pedí directo por WhatsApp.
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - generic [ref=e14]: 🛍️
+            - generic [ref=e15]:
+              - paragraph [ref=e16]: Catálogo local
+              - paragraph [ref=e17]: Explorá productos de tiendas de todo Ecuador
+          - generic [ref=e18]:
+            - generic [ref=e19]: ❤️
+            - generic [ref=e20]:
+              - paragraph [ref=e21]: Favoritos
+              - paragraph [ref=e22]: Guardá tus productos favoritos y volvé cuando quieras
+          - generic [ref=e23]:
+            - generic [ref=e24]: 📦
+            - generic [ref=e25]:
+              - paragraph [ref=e26]: Pedí por WhatsApp
+              - paragraph [ref=e27]: Contacto directo con el vendedor, sin app extra
+          - generic [ref=e28]:
+            - generic [ref=e29]: 🔔
+            - generic [ref=e30]:
+              - paragraph [ref=e31]: Seguí tus pedidos
+              - paragraph [ref=e32]: Recibí notificaciones cuando tu pedido esté listo
+      - generic [ref=e33]: © 2026 IAPI Inc. Todos los derechos reservados.
+    - generic [ref=e35]:
+      - generic [ref=e36]:
+        - link "IAPI shop" [ref=e37] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e38]:
+            - generic [ref=e39]: IAPI
+            - generic [ref=e40]: shop
+        - heading "Crear cuenta gratis" [level=1] [ref=e41]
+        - paragraph [ref=e42]: Registrate para guardar favoritos, seguir tus pedidos y comprar más rápido en tiendas locales.
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - text: Email
+          - generic [ref=e45]:
+            - img [ref=e46]
+            - textbox "Email" [ref=e49]
+        - generic [ref=e50]:
+          - text: Contraseña
+          - generic [ref=e51]:
+            - img [ref=e52]
+            - textbox "Contraseña" [ref=e55]
+            - button [ref=e56] [cursor=pointer]:
+              - img [ref=e57]
+        - generic [ref=e60]:
+          - text: Confirmar contraseña
+          - generic [ref=e61]:
+            - img [ref=e62]
+            - textbox "Confirmar contraseña" [ref=e65]
+            - button [ref=e66] [cursor=pointer]:
+              - img [ref=e67]
+        - generic [ref=e70] [cursor=pointer]:
+          - checkbox "Acepto los Términos y Condiciones y la Política de Privacidad" [ref=e71]
+          - generic [ref=e72]:
+            - text: Acepto los
+            - link "Términos y Condiciones" [ref=e73]:
+              - /url: /legal/terminos
+            - text: y la
+            - link "Política de Privacidad" [ref=e74]:
+              - /url: /legal/privacidad
+            - text: de IAPI Shop.
+        - button "Crear mi cuenta" [disabled] [ref=e75]
+      - generic [ref=e80]: O continuar con
+      - button "Google" [ref=e82] [cursor=pointer]:
+        - img [ref=e83]
+        - generic [ref=e88]: Google
+      - button "¿Ya tienes cuenta? Inicia sesión" [ref=e90] [cursor=pointer]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e96] [cursor=pointer]:
+    - img [ref=e97]

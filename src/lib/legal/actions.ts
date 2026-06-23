@@ -116,7 +116,7 @@ export async function checkReConsent(isAdmin: boolean): Promise<
 const submitReportSchema = z.object({
   tenant_id: z.string().uuid("ID de tienda inválido"),
   reporter_email: z.string().email("Correo electrónico inválido"),
-  reason: z.enum(REPORT_REASONS, { errorMap: () => ({ message: "Motivo de denuncia inválido" }) }),
+  reason: z.enum(REPORT_REASONS, { message: "Motivo de denuncia inválido" }),
   details: z.string().min(1, "Los detalles son requeridos").max(2000, "Los detalles no pueden exceder 2000 caracteres"),
 });
 
@@ -248,7 +248,7 @@ export async function getPendingReports(): Promise<ActionResult<StoreReport[]>> 
 
 const updateStatusSchema = z.object({
   status: z.enum(["reviewed", "actioned", "dismissed"] as const, {
-    errorMap: () => ({ message: "Estado de reporte inválido" }),
+    message: "Estado de reporte inválido",
   }),
   moderator_notes: z.string().optional(),
 });

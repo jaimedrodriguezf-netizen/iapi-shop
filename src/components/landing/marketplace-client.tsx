@@ -234,6 +234,7 @@ export function MarketplaceClient({
                     onToggleFavorite={handleToggleFavorite}
                     isAuthenticated={isAuthenticated}
                     onCardClick={() => setSelectedProduct(product)}
+                    showAddToCart={false}
                   />
                 ))}
               </div>
@@ -284,6 +285,7 @@ export function MarketplaceClient({
                     onToggleFavorite={handleToggleFavorite}
                     isAuthenticated={isAuthenticated}
                     onCardClick={() => setSelectedProduct(product)}
+                    showAddToCart={false}
                   />
                 ))}
               </div>
@@ -296,7 +298,7 @@ export function MarketplaceClient({
       <footer className="border-t py-8 mt-12 px-6">
         <div className="max-w-7xl mx-auto text-center space-y-3">
           <p className="text-xs text-zinc-400 font-medium">
-            © {new Date().getFullYear()} IAPI Shop — Marketplace de tiendas ecuatorianas
+            © {new Date().getFullYear()} Un producto de <a href="https://januscore.pro" target="_blank" rel="noopener noreferrer" className="hover:underline text-orange-500 font-medium">Janus Core</a>
           </p>
           <LegalFooterLinks />
         </div>

@@ -331,7 +331,6 @@ export function PlansManager({ plans: initialPlans, users }: PlansManagerProps) 
               <label className="text-xs font-bold uppercase text-muted-foreground">Funcionalidades</label>
               {[
                 { label: "QR Analytics", value: qrAnalytics, set: setQrAnalytics },
-                { label: "Dominio personalizado", value: customDomain, set: setCustomDomain },
                 { label: "Reportes avanzados", value: advancedReports, set: setAdvancedReports },
               ].map(f => (
                 <label key={f.label} className="flex items-center justify-between py-1.5 cursor-pointer">

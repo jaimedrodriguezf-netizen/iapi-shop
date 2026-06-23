@@ -647,6 +647,17 @@ export async function getTenantSubscription(tenantId: string): Promise<ActionRes
       .single();
 
     if (error) {
+      if (error.code === 'PGRST116') {
+        // No subscription row exists -> Default to Free plan
+        return {
+          success: true,
+          data: {
+            id: 'default-free',
+            tenant_id: tenantId,
+            plans: { name: 'Free', product_limit: 10 }
+          }
+        };
+      }
       console.error("getTenantSubscription:", error);
       return { success: false, error: "Error al acceder a los datos de la sucursal" };
     }

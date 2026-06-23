@@ -14,7 +14,7 @@ interface StoreReportButtonProps {
   tenantName: string;
 }
 
-export function StoreReportButton({ tenantId, tenantName }: StoreReportButtonProps) {
+export function StoreReportButton({ tenantId }: StoreReportButtonProps) {
   const [open, setOpen] = useState(false);
 
   if (!LEGAL_LINKS_ENABLED) return null;

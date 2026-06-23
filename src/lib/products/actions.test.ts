@@ -12,6 +12,7 @@ interface MockSupabaseClient {
   update: ReturnType<typeof vi.fn>;
   delete: ReturnType<typeof vi.fn>;
   eq: ReturnType<typeof vi.fn>;
+  or: ReturnType<typeof vi.fn>;
   order: ReturnType<typeof vi.fn>;
   single: ReturnType<typeof vi.fn>;
   maybeSingle: ReturnType<typeof vi.fn>;
@@ -31,6 +32,7 @@ function createMockSupabase(overrides: Record<string, unknown> = {}): MockSupaba
     update: vi.fn(),
     delete: vi.fn(),
     eq: vi.fn(),
+    or: vi.fn(),
     order: vi.fn(),
     single: vi.fn(),
     maybeSingle: vi.fn(),
@@ -43,6 +45,7 @@ function createMockSupabase(overrides: Record<string, unknown> = {}): MockSupaba
   mock.update.mockReturnValue(mock);
   mock.delete.mockReturnValue(mock);
   mock.eq.mockReturnValue(mock);
+  mock.or.mockReturnValue(mock);
   mock.maybeSingle.mockReturnValue(mock);
 
   Object.assign(mock, overrides);
@@ -53,6 +56,7 @@ function createMockSupabase(overrides: Record<string, unknown> = {}): MockSupaba
   mock.update.mockReturnValue(mock);
   mock.delete.mockReturnValue(mock);
   mock.eq.mockReturnValue(mock);
+  mock.or.mockReturnValue(mock);
   mock.maybeSingle.mockReturnValue(mock);
 
   return mock;
@@ -302,7 +306,7 @@ describe("Product Catalog Actions", () => {
       const result = await getCategories("550e8400-e29b-41d4-a716-446655440000");
       expect(result.success).toBe(true);
       expect(mockSupabase.from).toHaveBeenCalledWith("categories");
-      expect(mockSupabase.eq).toHaveBeenCalledWith("tenant_id", "550e8400-e29b-41d4-a716-446655440000");
+      expect(mockSupabase.or).toHaveBeenCalledWith("tenant_id.eq.550e8400-e29b-41d4-a716-446655440000,tenant_id.is.null");
     });
 
     it("should create a new category", async () => {

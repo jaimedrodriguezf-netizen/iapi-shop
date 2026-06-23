@@ -615,12 +615,20 @@ describe("ensureUserTenant", () => {
 
     const fromMock = vi.fn().mockImplementation((table: string) => {
       if (table === "tenants") {
-        return {
-          select: vi.fn().mockReturnThis(),
+        const queryBuilder = {
+          select: vi.fn().mockImplementation((projection, options) => {
+            if (options && options.count === "exact") {
+              return {
+                eq: vi.fn().mockResolvedValue({ count: 1, error: null }),
+              };
+            }
+            return queryBuilder;
+          }),
           eq: vi.fn().mockReturnThis(),
           limit: vi.fn().mockReturnThis(),
-          maybeSingle: vi.fn().mockResolvedValue({ data: existing, error: null }),
+          single: vi.fn().mockResolvedValue({ data: existing, error: null }),
         };
+        return queryBuilder;
       }
       return mockSupabase;
     });
@@ -639,14 +647,21 @@ describe("ensureUserTenant", () => {
 
     const fromMock = vi.fn().mockImplementation((table: string) => {
       if (table === "tenants") {
-        return {
-          select: vi.fn().mockReturnThis(),
+        const queryBuilder = {
+          select: vi.fn().mockImplementation((projection, options) => {
+            if (options && options.count === "exact") {
+              return {
+                eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+              };
+            }
+            return queryBuilder;
+          }),
           eq: vi.fn().mockReturnThis(),
           limit: vi.fn().mockReturnThis(),
-          maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
           insert: vi.fn().mockReturnThis(),
           single: vi.fn().mockResolvedValue({ data: { id: "new-tenant", name: "Mi Tienda", slug: "tienda-abcde", status: "draft" }, error: null }),
         };
+        return queryBuilder;
       }
       if (table === "tenant_members") {
         return {

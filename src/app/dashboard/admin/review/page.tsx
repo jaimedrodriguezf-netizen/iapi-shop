@@ -59,14 +59,15 @@ function ProductsTab() {
   const fetchProducts = React.useCallback(async () => {
     setLoading(true)
     const res = await getPendingMarketplaceProducts()
-    if (res.success && res.data) {
-      setProducts(res.data)
-    } else {
+    if (!res.success) {
       toast.error(res.error || "Error al cargar productos pendientes")
+    } else if (res.data) {
+      setProducts(res.data)
     }
     setLoading(false)
   }, [])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   React.useEffect(() => { fetchProducts() }, [fetchProducts])
 
   async function handleReview(productId: string, action: "approve" | "reject") {
@@ -144,14 +145,15 @@ function ReportsTab() {
   const fetchReports = React.useCallback(async () => {
     setLoading(true)
     const res = await getPendingReports()
-    if (res.success && res.data) {
-      setReports(res.data)
-    } else {
+    if (!res.success) {
       toast.error(res.error || "Error al cargar reportes")
+    } else if (res.data) {
+      setReports(res.data)
     }
     setLoading(false)
   }, [])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   React.useEffect(() => { fetchReports() }, [fetchReports])
 
   async function handleStatusChange(reportId: string, status: "reviewed" | "actioned" | "dismissed") {

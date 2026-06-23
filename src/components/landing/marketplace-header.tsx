@@ -7,7 +7,7 @@ import { Menu, Search, User, Bell, Heart, ChevronRight, ChevronDown } from "luci
 import { NotificationBell } from "@/components/landing/notification-bell"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { ProfilePopover } from "@/components/landing/profile-popover"
-import { MarketplaceCartDrawer } from "@/components/landing/marketplace-cart-drawer"
+import { Logo } from "@/components/logo"
 
 export const COUNTRIES = [
   { code: "EC", name: "Ecuador", flag: "🇪🇨" },
@@ -98,10 +98,7 @@ export function MarketplaceHeader({
           {siteLogo ? (
             <Image src={siteLogo} alt={siteName} width={32} height={32} className="h-8 w-auto rounded" />
           ) : (
-            <span className="leading-none text-center">
-              <span className="block font-black text-lg text-orange-500">IAPI</span>
-              <span className="block font-black text-[8px] text-orange-400 tracking-[0.2em] uppercase text-center -mt-1">shop</span>
-            </span>
+            <Logo className="text-lg" />
           )}
         </Link>
 
@@ -161,9 +158,6 @@ export function MarketplaceHeader({
             <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center">{favoriteCount > 9 ? "9+" : favoriteCount}</span>
           )}
         </Link>
-
-        {/* 🛒 Carrito */}
-        <MarketplaceCartDrawer searchOpen={searchOpen} />
       </div>
 
       {/* Category Sheet */}

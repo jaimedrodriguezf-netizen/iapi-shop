@@ -25,7 +25,7 @@ export default async function AdminPage() {
         </p>
 
         <div className="mt-8 flex justify-between items-center text-xs text-muted-foreground border-t pt-4">
-          <span>IAPI Shop © {new Date().getFullYear()}</span>
+          <span>Un producto de <a href="https://januscore.pro" target="_blank" rel="noopener noreferrer" className="hover:underline text-orange-500 font-medium">Janus Core</a> © {new Date().getFullYear()}</span>
           <span className="font-mono bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 text-[10px] font-bold">v{pkg.version}</span>
         </div>
       </section>

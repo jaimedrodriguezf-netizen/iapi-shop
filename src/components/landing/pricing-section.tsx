@@ -30,11 +30,12 @@ const PLANS: PricingPlan[] = [
     features: [
       { text: "Hasta 10 productos activos", included: true },
       { text: "Catálogo digital QR básico", included: true },
+      { text: "Cotizador rápido", included: true },
       { text: "1 foto por producto", included: true },
       { text: "Pedidos directos por WhatsApp", included: true },
       { text: "Soporte por comunidad", included: true },
-      { text: "Pasarela PayPal Ecuador", included: false },
-      { text: "Dominio personalizado y sucursales", included: false },
+      { text: "Pagos: PayPal, Deuna, Transferencias y PayPhone", included: false },
+      { text: "Múltiples sucursales", included: false },
     ],
     buttonText: "Comenzar Gratis",
     popular: false,
@@ -47,12 +48,13 @@ const PLANS: PricingPlan[] = [
     features: [
       { text: "Hasta 300 productos activos", included: true },
       { text: "Catálogo digital QR básico", included: true },
+      { text: "Cotizador rápido", included: true },
       { text: "Hasta 3 fotos por producto", included: true },
       { text: "Pedidos directos por WhatsApp", included: true },
       { text: "Descarga de QR en alta resolución", included: true },
       { text: "Estudio básico de fondos con IA", included: true },
       { text: "Soporte técnico por email", included: true },
-      { text: "Pasarela PayPal Ecuador", included: false },
+      { text: "Pagos: PayPal, Deuna, Transferencias y PayPhone", included: false },
     ],
     buttonText: "Elegir Plan Plus",
     popular: true,
@@ -64,10 +66,11 @@ const PLANS: PricingPlan[] = [
     period: "",
     features: [
       { text: "Todo lo del Plan Plus", included: true },
+      { text: "Cotizador rápido avanzado", included: true },
       { text: "Hasta 1000 productos activos", included: true },
       { text: "Hasta 6 fotos por producto", included: true },
-      { text: "Integración de PayPal Ecuador", included: true },
-      { text: "Dominio personalizado", included: true },
+      { text: "Pagos: PayPal, Deuna, Transferencias y PayPhone", included: true },
+      { text: "Facturación electrónica y automatizada", included: true },
       { text: "Soporte prioritario 24/7", included: true },
     ],
     buttonText: "Próximamente",
@@ -99,7 +102,7 @@ export function PricingSection() {
         </div>
 
         {/* Pricing Grid */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto items-stretch">
           {PLANS.map((plan) => {
             return (
               <div

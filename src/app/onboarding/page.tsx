@@ -60,7 +60,7 @@ const formSchema = z.object({
     message: "Ingresa un número de teléfono válido.",
   }).optional().or(z.literal("")),
   accepted_legal_terms: z.literal(true, {
-    errorMap: () => ({ message: "Debes aceptar los términos y condiciones y la política de privacidad." }),
+    message: "Debes aceptar los términos y condiciones y la política de privacidad.",
   }),
 })
 

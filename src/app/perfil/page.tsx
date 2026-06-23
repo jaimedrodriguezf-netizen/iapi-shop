@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import { Logo } from "@/components/logo"
 import { createClient } from "@/lib/supabase/server"
 import { getMyTenants } from "@/lib/tenants/actions"
 import { getUserRoleInfo, logoutAction } from "@/lib/auth/actions"
@@ -70,8 +71,7 @@ export default async function PerfilPage() {
       <header className="sticky top-0 z-30 bg-white dark:bg-zinc-900 border-b shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="leading-none text-center">
-            <span className="block font-black text-xl text-orange-500">IAPI</span>
-            <span className="block font-black text-[8px] text-orange-400 tracking-[0.2em] uppercase text-center -mt-1">shop</span>
+            <Logo className="text-xl" />
           </Link>
           <span className="text-sm font-medium text-zinc-500 truncate max-w-[180px]">{email}</span>
         </div>
@@ -231,7 +231,7 @@ export default async function PerfilPage() {
           </div>
 
           <Link
-            href="/#pricing-title"
+            href="/dashboard/planes"
             className="block text-center text-xs font-bold text-orange-600 hover:text-orange-700 transition-colors"
           >
             Ver todos los planes y beneficios →

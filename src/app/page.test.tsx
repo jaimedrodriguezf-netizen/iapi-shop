@@ -34,7 +34,9 @@ vi.mock("@/components/landing/marketplace-page", () => ({
       <span>{siteName}</span>
       {!isAuthenticated && (
         <>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/login">Iniciar sesión</a>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/register">Registrarse</a>
         </>
       )}

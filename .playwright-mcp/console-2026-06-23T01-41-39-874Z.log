@@ -1,0 +1,4 @@
+[    1705ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2477
+[    1783ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2477
+[    1889ms] [WARNING] Image with src "https://emwmjnrdkphhjshbbnwu.supabase.co/storage/v1/object/public/products/34f6df5b-64c9-4095-b2fa-11c50f365c7e/1781569213337-k8ohpt.jpeg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2477

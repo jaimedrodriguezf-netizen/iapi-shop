@@ -11,12 +11,15 @@ import {
   Megaphone,
   Package,
   QrCode,
+  Calculator,
+  Receipt,
   Settings,
   ShieldCheck,
   ShoppingBag,
   Store,
   Users,
 } from "lucide-react"
+import { Logo } from "@/components/logo"
 
 import {
   Sidebar,
@@ -58,6 +61,16 @@ const navItems = [
     title: "Códigos QR",
     url: "/dashboard/qr",
     icon: QrCode,
+  },
+  {
+    title: "Cotizador",
+    url: "/dashboard/cotizador",
+    icon: Calculator,
+  },
+  {
+    title: "Recibos",
+    url: "/dashboard/recibos",
+    icon: Receipt,
   },
   {
     title: "Favoritos",
@@ -129,10 +142,7 @@ export function AppSidebar({
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b px-6 py-4">
         <Link href="/" className="flex items-center gap-2 cursor-pointer group">
-          <span className="leading-none text-center shrink-0">
-            <span className="block font-black text-lg text-orange-500">IAPI</span>
-            <span className="block font-black text-[8px] text-orange-400 tracking-[0.2em] uppercase text-center -mt-1">shop</span>
-          </span>
+          <Logo className="text-lg" />
         </Link>
         {activeTenantName && (
           <div className="mt-2 flex items-center gap-2 px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">

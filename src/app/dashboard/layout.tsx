@@ -14,6 +14,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Logo } from "@/components/logo"
 
 export default async function DashboardLayout({
   children,
@@ -67,10 +68,7 @@ export default async function DashboardLayout({
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="/dashboard">
-                    <span className="leading-none text-center">
-                      <span className="font-black text-sm text-orange-500">IAPI</span>
-                      <span className="font-black text-[7px] text-orange-400 tracking-[0.2em] uppercase -mt-0.5 block text-center">shop</span>
-                    </span>
+                    <Logo className="text-sm" />
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
