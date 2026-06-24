@@ -107,12 +107,10 @@ export async function ensureUserTenant(): Promise<ActionResult<Tenant>> {
       return { success: false, error: "No autorizado" };
     }
 
-    // Rate limiting
-    const clientIp = await getClientIdentifier();
-    const { success: rateLimitOk } = await tenantRateLimit.limit(clientIp);
-    if (!rateLimitOk) {
-      return { success: false, error: "Demasiadas solicitudes. Intenta de nuevo en un minuto." };
-    }
+    // No rate limit here: this is called from every dashboard page load
+    // and the per-IP tenantRateLimit would block legitimate navigation.
+    // Abuse is prevented by RLS (a user can only create tenants they own)
+    // and by the explicit createTenant action keeping its rate limit.
 
     // Count existing tenants before creating
     const { count, error: countError } = await supabase

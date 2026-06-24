@@ -34,6 +34,8 @@ vi.mock("@/lib/rate-limit", () => ({
   getClientIdentifier: vi.fn().mockResolvedValue("127.0.0.1"),
 }));
 
+import { tenantRateLimit } from "@/lib/rate-limit";
+
 vi.mock("@/lib/auth/guards", () => ({
   assertTenantMember: vi.fn().mockResolvedValue({ ok: true as const }),
 }));
@@ -701,6 +703,36 @@ describe("ensureUserTenant", () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBe("No autorizado");
+  });
+
+  it("should NOT consume the tenant rate limit (called from every dashboard page)", async () => {
+    mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: "user-123" } }, error: null });
+    vi.mocked(tenantRateLimit.limit).mockClear();
+
+    const existing = { id: "tenant-exist", name: "Mi Tienda", slug: "tienda-exist", created_by: "user-123", status: "active" };
+    const fromMock = vi.fn().mockImplementation((table: string) => {
+      if (table === "tenants") {
+        const queryBuilder = {
+          select: vi.fn().mockImplementation((projection, options) => {
+            if (options && options.count === "exact") {
+              return { eq: vi.fn().mockResolvedValue({ count: 1, error: null }) };
+            }
+            return queryBuilder;
+          }),
+          eq: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: existing, error: null }),
+        };
+        return queryBuilder;
+      }
+      return mockSupabase;
+    });
+    vi.spyOn(mockSupabase, "from").mockImplementation(fromMock);
+
+    const result = await ensureUserTenant();
+
+    expect(result.success).toBe(true);
+    expect(tenantRateLimit.limit).not.toHaveBeenCalled();
   });
 });
 
