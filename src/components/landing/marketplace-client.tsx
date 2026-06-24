@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation"
 import { toggleFavorite } from "@/lib/storefront/favorites-actions"
 import { ProductDetailModal } from "@/components/landing/product-detail-modal"
 import { LegalFooterLinks } from "@/components/legal/legal-footer-links"
+import pkg from "../../../package.json"
 
 interface MarketplaceProduct {
   id: string
@@ -300,6 +301,9 @@ export function MarketplaceClient({
           <p className="text-xs text-zinc-400 font-medium">
             © {new Date().getFullYear()} Un producto de <a href="https://januscore.pro" target="_blank" rel="noopener noreferrer" className="hover:underline text-orange-500 font-medium">Janus Core</a>
           </p>
+          <div className="flex items-center justify-center gap-2">
+            <span className="font-mono bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 text-[10px] font-bold text-zinc-500 dark:text-zinc-400">v{pkg.version}</span>
+          </div>
           <LegalFooterLinks />
         </div>
       </footer>
