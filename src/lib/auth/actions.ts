@@ -7,7 +7,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { authRateLimit, getClientIdentifier } from "@/lib/rate-limit";
 import { isBootstrapPlatformAdminEmail, isPlatformAdmin } from "./platform-admins";
-import { isSafeRedirect } from "./url-utils";
+import { getSiteOrigin, isSafeRedirect } from "./url-utils";
 import { createNotification } from "@/lib/notifications/actions";
 
 export type AuthActionState = {
@@ -247,11 +247,14 @@ export async function signInWithGoogle(redirectTo: string): Promise<ActionResult
   }
 
   try {
+    const origin = await getSiteOrigin();
+    const fullRedirectUrl = `${origin}${redirectTo}`;
+
     const supabase = await createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo,
+        redirectTo: fullRedirectUrl,
       },
     });
 

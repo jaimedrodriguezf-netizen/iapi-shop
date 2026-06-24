@@ -4,6 +4,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/navigation", () => ({ redirect: vi.fn((url: string) => { throw new Error(`NEXT_REDIRECT:${url}`); }) }));
+vi.mock("next/headers", () => ({
+  headers: vi.fn(async () => new Headers({ host: "iapi.shop", "x-forwarded-proto": "https" })),
+}));
 
 vi.mock("@/lib/rate-limit", () => ({
   authRateLimit: { limit: vi.fn().mockResolvedValue({ success: true, limit: 5, remaining: 4, reset: Date.now() + 900000, pending: Promise.resolve() }) },
@@ -283,7 +286,7 @@ describe("signInWithGoogle", () => {
     expect(result.data?.url).toBe("https://accounts.google.com/o/oauth2/auth");
     expect(signInWithOAuth).toHaveBeenCalledWith({
       provider: "google",
-      options: { redirectTo: "/auth/callback" },
+      options: { redirectTo: "https://iapi.shop/auth/callback" },
     });
   });
 

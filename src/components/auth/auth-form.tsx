@@ -113,7 +113,7 @@ export function AuthForm({
     const toastId = toast.loading("Redirigiendo a Google...");
     startTransition(async () => {
       try {
-        const result = await signInWithGoogle(`${window.location.origin}/auth/callback`);
+        const result = await signInWithGoogle("/auth/callback");
         if (!result.success) {
           toast.error(result.error || "Error al conectar con Google.", { id: toastId });
         } else if (result.data?.url) {
