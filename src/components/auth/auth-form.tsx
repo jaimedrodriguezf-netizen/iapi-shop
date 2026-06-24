@@ -8,6 +8,7 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { signInWithGoogle, login, register, type AuthActionState } from "@/lib/auth/actions";
 import { Turnstile } from "./turnstile";
 import { ConsentCheckbox } from "@/components/legal/consent-checkbox";
+import pkg from "../../../package.json";
 
 type AuthFormProps = {
   mode?: "customer" | "seller";
@@ -275,8 +276,9 @@ export function AuthForm({
         </div>
 
         {/* Footer text */}
-        <div className="z-10 text-xs text-slate-400 dark:text-zinc-500 font-semibold">
-          © {new Date().getFullYear()} Un producto de <a href="https://januscore.pro" target="_blank" rel="noopener noreferrer" className="hover:underline text-orange-500 font-medium">Janus Core</a>. Todos los derechos reservados.
+        <div className="z-10 flex items-center gap-2 text-xs text-slate-400 dark:text-zinc-500 font-semibold">
+          <span>© {new Date().getFullYear()} Un producto de <a href="https://januscore.pro" target="_blank" rel="noopener noreferrer" className="hover:underline text-orange-500 font-medium">Janus Core</a>.</span>
+          <span className="font-mono bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-zinc-200/50 dark:border-zinc-700/50 text-[10px] font-bold text-slate-500 dark:text-zinc-400">v{pkg.version}</span>
         </div>
       </section>
 
