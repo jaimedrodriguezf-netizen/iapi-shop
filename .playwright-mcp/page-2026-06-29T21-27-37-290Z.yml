@@ -1,0 +1,157 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: demo@dentiapp.online
+            - paragraph [ref=e18]: demo@dentiapp.online
+          - generic [ref=e20]: D
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - heading "¡Hola, Doctor! 👋" [level=2] [ref=e26]
+              - paragraph [ref=e27]: Hoy es lunes, 29 de junio de 2026
+            - generic [ref=e30]: Sistema Online
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - img [ref=e35]
+                - 'heading "Tu plan: Free" [level=3] [ref=e37]'
+              - paragraph [ref=e38]: 10/50 pacientes · 3/20 admisiones este mes · 1/2 usuarios
+              - paragraph [ref=e39]: "Storage: 15 KB / 10 MB"
+            - link "Actualizar plan" [ref=e40] [cursor=pointer]:
+              - /url: /settings/subscription
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - generic [ref=e45]:
+                - generic [ref=e46]: 09:00
+                - generic [ref=e47]: Turno
+              - generic [ref=e48]:
+                - generic [ref=e49]: Siguiente en la lista
+                - heading "JAIME RODRIGUEZ" [level=3] [ref=e50]
+                - paragraph [ref=e51]:
+                  - img [ref=e52]
+                  - text: "Motivo: Consulta general"
+            - link "INICIAR CONSULTA" [ref=e54] [cursor=pointer]:
+              - /url: /odontology?patientId=e6071204-6df5-453e-b4f5-828f4306fb6f
+              - img [ref=e55]
+              - text: INICIAR CONSULTA
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - img [ref=e62]
+              - paragraph [ref=e67]: "10"
+              - paragraph [ref=e68]: Total Pacientes
+            - generic [ref=e69]:
+              - img [ref=e72]
+              - paragraph [ref=e74]: "16"
+              - paragraph [ref=e75]: Citas Activas
+            - generic [ref=e76]:
+              - img [ref=e79]
+              - paragraph [ref=e82]: "12"
+              - paragraph [ref=e83]: Historias
+            - generic [ref=e84]:
+              - img [ref=e87]
+              - paragraph [ref=e90]: "1"
+              - paragraph [ref=e91]: Pendientes Hoy
+          - generic [ref=e92]:
+            - generic [ref=e93]:
+              - generic [ref=e94]:
+                - heading "Agenda de Hoy" [level=3] [ref=e95]
+                - link "Ver calendario completo" [ref=e96] [cursor=pointer]:
+                  - /url: /dentiapp/admission/appointments
+                  - text: Ver calendario completo
+                  - img [ref=e97]
+              - generic [ref=e100]:
+                - generic [ref=e102]: 09:00
+                - generic [ref=e103]:
+                  - paragraph [ref=e104]: JAIME RODRIGUEZ
+                  - generic [ref=e105]:
+                    - generic [ref=e106]: Pendiente
+                    - generic [ref=e107]:
+                      - img [ref=e108]
+                      - text: "0983144424"
+                - link [ref=e110] [cursor=pointer]:
+                  - /url: /odontology?patientId=e6071204-6df5-453e-b4f5-828f4306fb6f
+                  - img [ref=e111]
+            - generic [ref=e113]:
+              - heading "Acciones Rápidas" [level=3] [ref=e114]
+              - generic [ref=e115]:
+                - link "Nuevo Paciente Registrar ingreso" [ref=e116] [cursor=pointer]:
+                  - /url: /admission/patients?new=true
+                  - img [ref=e118]
+                  - generic [ref=e123]:
+                    - paragraph [ref=e124]: Nuevo Paciente
+                    - paragraph [ref=e125]: Registrar ingreso
+                - link "Agendar Turno Manejar calendario" [ref=e126] [cursor=pointer]:
+                  - /url: /dentiapp/admission/appointments
+                  - img [ref=e128]
+                  - generic [ref=e130]:
+                    - paragraph [ref=e131]: Agendar Turno
+                    - paragraph [ref=e132]: Manejar calendario
+                - generic [ref=e133]:
+                  - img [ref=e134]
+                  - heading "Truco Pro" [level=5] [ref=e136]
+                  - paragraph [ref=e137]: Presioná Cmd+K desde cualquier lugar para buscar pacientes al instante.
+    - generic [ref=e138]:
+      - generic "close sidebar"
+      - complementary [ref=e139]:
+        - generic [ref=e140]:
+          - link "Detiapp doctor" [ref=e141] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e143]
+            - generic [ref=e145]:
+              - heading "Detiapp" [level=2] [ref=e146]
+              - paragraph [ref=e147]: doctor
+          - generic [ref=e148]:
+            - generic [ref=e149]: Plan Free
+            - link "Actualizar" [ref=e150] [cursor=pointer]:
+              - /url: /settings/subscription
+        - navigation [ref=e151]:
+          - link "Dashboard" [ref=e152] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e153]
+            - text: Dashboard
+          - link "Pacientes" [ref=e158] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e159]
+            - text: Pacientes
+          - link "Turnos" [ref=e164] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e165]
+            - text: Turnos
+          - link "Odontología" [ref=e167] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e168]
+            - text: Odontología
+          - button "Enfermería" [ref=e170]:
+            - img [ref=e171]
+            - text: Enfermería
+            - img [ref=e174]
+          - link "Mis Clínicas" [ref=e177] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e178]
+            - text: Mis Clínicas
+          - link "Soporte" [ref=e184] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e185]
+            - text: Soporte
+          - link "Configuración" [ref=e188] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e189]
+            - text: Configuración
+        - generic [ref=e192]:
+          - button "Cerrar sesión" [ref=e194]:
+            - img [ref=e195]
+            - text: Cerrar sesión
+          - generic [ref=e198]: v1.1.102
+  - button "Open Next.js Dev Tools" [ref=e204] [cursor=pointer]:
+    - img [ref=e205]
+  - alert [ref=e208]

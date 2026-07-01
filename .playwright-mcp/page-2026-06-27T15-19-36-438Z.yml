@@ -1,0 +1,53 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e8]:
+      - img [ref=e10]
+      - generic [ref=e12]:
+        - heading "Tu clínica en la nube." [level=2] [ref=e13]:
+          - text: Tu clínica
+          - text: en la nube.
+        - paragraph [ref=e14]: DentiApp Online es la herramienta definitiva para profesionales que buscan eficiencia, seguridad y modernidad.
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - img [ref=e18]
+          - generic [ref=e21]: Historias Clínicas
+        - generic [ref=e22]:
+          - img [ref=e24]
+          - generic [ref=e27]: Turnos Online
+        - generic [ref=e28]:
+          - img [ref=e30]
+          - generic [ref=e32]: Odontograma Pro
+        - generic [ref=e33]:
+          - img [ref=e35]
+          - generic [ref=e37]: Gestión Total
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - heading "Bienvenido" [level=1] [ref=e42]
+          - paragraph [ref=e43]: Accedé a tu panel administrativo
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - img [ref=e47]
+              - text: Email del Profesional
+            - textbox "ejemplo@clínica.com" [ref=e50]
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - img [ref=e53]
+              - text: Contraseña
+            - generic [ref=e56]:
+              - textbox "••••••••" [ref=e57]
+              - button [ref=e58]:
+                - img [ref=e59]
+          - button "INICIAR SESIÓN" [ref=e62]:
+            - text: INICIAR SESIÓN
+            - img [ref=e63]
+        - generic [ref=e67]: o bien
+        - paragraph [ref=e69]:
+          - text: ¿No tenés cuenta?
+          - link "Registrate Gratis" [ref=e70] [cursor=pointer]:
+            - /url: /register
+      - paragraph [ref=e71]: DentiApp Online v1.1.75
+  - button "Open Next.js Dev Tools" [ref=e77] [cursor=pointer]:
+    - img [ref=e78]
+  - alert [ref=e81]

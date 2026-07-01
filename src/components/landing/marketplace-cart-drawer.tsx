@@ -112,7 +112,7 @@ export function MarketplaceCartDrawer({ searchOpen }: MarketplaceCartDrawerProps
           unit_price: item.price,
           quantity: item.quantity,
         })),
-        notes: "Pedido multitienda desde IAPI Shop",
+        notes: "Pedido multitienda desde Tenddy Shop",
       })
 
       if (!orderResult.success) {

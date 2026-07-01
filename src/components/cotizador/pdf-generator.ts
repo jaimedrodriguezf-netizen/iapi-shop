@@ -92,7 +92,7 @@ export function generateCotizacionPDF({
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(150);
-  doc.text("Cotización generada por IAPI Shop", 105, 280, { align: "center" });
+  doc.text("Cotización generada por Tenddy Shop", 105, 280, { align: "center" });
 
   doc.save(`Cotizacion-${tenantName.replace(/\s+/g, '-')}-${Date.now()}.pdf`);
 }

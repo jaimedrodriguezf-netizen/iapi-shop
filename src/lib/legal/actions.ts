@@ -1,10 +1,11 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { CURRENT_LEGAL_VERSION, REPORT_REASONS } from "./constants";
 import type { ReportReason, ReportStatus } from "./constants";
 import { reportRateLimit, getClientIdentifier } from "@/lib/rate-limit";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 
 export type ActionResult<T> = { success: true; data: T } | { success: false; error: string };
 
@@ -17,6 +18,8 @@ export type ActionResult<T> = { success: true; data: T } | { success: false; err
  * must be accepted across ALL tenants the user belongs to — a user who accepts
  * legal terms does so for all their memberships simultaneously.
  *
+ * Uses admin client because users might be members in some tenants, and RLS 
+ * prevents non-admins/owners from updating the tenant_members table.
  * Idempotent — calling multiple times is safe, it just updates the timestamp.
  */
 export async function acceptLegalTerms(): Promise<ActionResult<{ version: string }>> {
@@ -36,8 +39,21 @@ export async function acceptLegalTerms(): Promise<ActionResult<{ version: string
 
     const legalVersion = siteSettings?.legal_version || CURRENT_LEGAL_VERSION;
 
-    // Update all tenant_members rows for this user across all tenants
-    const { error: updateError } = await supabase
+    // Save consent in user_metadata, which bypasses RLS and applies globally to the user
+    const { error: updateError } = await supabase.auth.updateUser({
+      data: {
+        legal_accepted_version: legalVersion,
+        legal_accepted_at: new Date().toISOString(),
+      }
+    });
+
+    if (updateError) {
+      console.error("acceptLegalTerms update error:", updateError);
+      return { success: false, error: "Error al aceptar los términos" };
+    }
+
+    // Try to update DB as fallback, but don't fail if RLS blocks it (for non-owners)
+    await supabase
       .from("tenant_members")
       .update({
         legal_accepted_version: legalVersion,
@@ -45,10 +61,7 @@ export async function acceptLegalTerms(): Promise<ActionResult<{ version: string
       })
       .eq("user_id", user.id);
 
-    if (updateError) {
-      console.error("acceptLegalTerms update error:", updateError);
-      return { success: false, error: "Error al aceptar los términos" };
-    }
+    revalidatePath("/dashboard", "layout");
 
     return { success: true, data: { version: legalVersion } };
   } catch (error) {
@@ -61,10 +74,6 @@ export async function acceptLegalTerms(): Promise<ActionResult<{ version: string
  * Check whether the current user needs to re-accept legal terms.
  * Returns structured result with needsReAccept and currentVersion.
  * Admins never need to re-accept.
- *
- * Intentionally queries tenant_members with user_id-only filter:
- * we check any membership row to determine if the user has accepted
- * the current version. If any row is outdated, the entire user needs re-consent.
  */
 export async function checkReConsent(isAdmin: boolean): Promise<
   ActionResult<{ needsReAccept: boolean; currentVersion?: string }>
@@ -89,15 +98,21 @@ export async function checkReConsent(isAdmin: boolean): Promise<
 
     const currentVersion = siteSettings?.legal_version || CURRENT_LEGAL_VERSION;
 
-    // Read user's accepted version from tenant_members
-    const { data: member } = await supabase
-      .from("tenant_members")
-      .select("legal_accepted_version")
-      .eq("user_id", user.id)
-      .limit(1)
-      .single();
+    // Check user_metadata first (our new reliable source)
+    let acceptedVersion = user.user_metadata?.legal_accepted_version;
 
-    const acceptedVersion = member?.legal_accepted_version;
+    // Fallback to tenant_members if not in user_metadata (for backwards compatibility)
+    if (!acceptedVersion) {
+      const { data: member } = await supabase
+        .from("tenant_members")
+        .select("legal_accepted_version")
+        .eq("user_id", user.id)
+        .order("legal_accepted_at", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .single();
+      
+      acceptedVersion = member?.legal_accepted_version;
+    }
 
     if (acceptedVersion !== currentVersion) {
       return { success: true, data: { needsReAccept: true, currentVersion } };

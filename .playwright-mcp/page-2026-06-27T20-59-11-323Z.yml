@@ -1,0 +1,137 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: admin@dentiapp.online
+            - paragraph [ref=e18]: admin@dentiapp.online
+          - generic [ref=e20]: A
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - link "Volver" [ref=e26] [cursor=pointer]:
+                - /url: /odontology/treatment-plans
+                - img [ref=e27]
+              - generic [ref=e29]:
+                - heading "Nuevo Plan de Tratamiento" [level=2] [ref=e30]
+                - paragraph [ref=e31]: Creación
+            - link "Cancelar" [ref=e32] [cursor=pointer]:
+              - /url: /odontology/treatment-plans
+          - generic [ref=e34]:
+            - img [ref=e35]
+            - paragraph [ref=e38]:
+              - text: Tu clínica no tiene odontólogos cargados. Necesitás al menos un miembro con rol
+              - emphasis [ref=e39]: doctor
+              - text: para poder asignar el plan.
+          - generic [ref=e44]:
+            - generic [ref=e46]:
+              - text: Nombre del plan
+              - textbox "Nombre del plan" [ref=e47]:
+                - /placeholder: "Ej: Ortodoncia completa"
+            - generic [ref=e48]:
+              - text: Descripción
+              - textbox "Descripción" [ref=e49]:
+                - /placeholder: Notas clínicas, objetivos del tratamiento...
+            - generic [ref=e50]:
+              - text: Odontólogo tratante
+              - combobox "Seleccionar odontólogo" [ref=e51]:
+                - option "Seleccioná un odontólogo…" [selected]
+            - generic [ref=e52]:
+              - generic [ref=e53]:
+                - heading "Procedimientos" [level=3] [ref=e54]
+                - generic [ref=e55]: "Total del Plan: $0.00"
+              - generic [ref=e57]:
+                - generic [ref=e58]:
+                  - generic [ref=e59]: Procedimiento 1
+                  - button "Quitar procedimiento 1" [disabled] [ref=e60]:
+                    - img [ref=e61]
+                - textbox "Procedimiento" [ref=e64]:
+                  - /placeholder: "Ej: Endodoncia"
+                - generic [ref=e65]:
+                  - generic [ref=e66]:
+                    - text: Costo
+                    - spinbutton "Costo" [ref=e67]: "0"
+                  - generic [ref=e68]:
+                    - text: Cantidad
+                    - spinbutton "Cantidad" [ref=e69]: "1"
+                  - generic [ref=e70]:
+                    - text: Notas
+                    - textbox "Notas" [ref=e71]:
+                      - /placeholder: Opcional
+                - generic [ref=e72]: "Subtotal: $0.00"
+              - button "Agregar Procedimiento" [ref=e73]:
+                - img [ref=e74]
+                - text: Agregar Procedimiento
+            - button "GUARDAR PLAN" [ref=e76] [cursor=pointer]:
+              - img [ref=e77]
+              - text: GUARDAR PLAN
+    - generic [ref=e81]:
+      - generic "close sidebar"
+      - complementary [ref=e82]:
+        - link "Detiapp admin" [ref=e84] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e86]
+          - generic [ref=e88]:
+            - heading "Detiapp" [level=2] [ref=e89]
+            - paragraph [ref=e90]: admin
+        - navigation [ref=e91]:
+          - link "Dashboard" [ref=e92] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e93]
+            - text: Dashboard
+          - link "Pacientes" [ref=e98] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e99]
+            - text: Pacientes
+          - link "Turnos" [ref=e104] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e105]
+            - text: Turnos
+          - link "Odontología" [ref=e107] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e108]
+            - text: Odontología
+          - link "Enfermería" [ref=e110] [cursor=pointer]:
+            - /url: /nursing/vital-signs
+            - img [ref=e111]
+            - text: Enfermería
+          - link "Mis Clínicas" [ref=e114] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e115]
+            - text: Mis Clínicas
+          - link "Equipo" [ref=e121] [cursor=pointer]:
+            - /url: /settings/team
+            - img [ref=e122]
+            - text: Equipo
+          - link "Permisos" [ref=e127] [cursor=pointer]:
+            - /url: /settings/permissions
+            - img [ref=e128]
+            - text: Permisos
+          - link "Suscripción" [ref=e130] [cursor=pointer]:
+            - /url: /settings/subscription
+            - img [ref=e131]
+            - text: Suscripción
+          - link "Soporte" [ref=e133] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e134]
+            - text: Soporte
+          - link "Configuración" [ref=e137] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e138]
+            - text: Configuración
+        - generic [ref=e141]:
+          - button "Cerrar sesión" [ref=e143]:
+            - img [ref=e144]
+            - text: Cerrar sesión
+          - generic [ref=e147]: v1.1.75
+  - button "Open Next.js Dev Tools" [ref=e153] [cursor=pointer]:
+    - img [ref=e154]
+  - alert [ref=e157]

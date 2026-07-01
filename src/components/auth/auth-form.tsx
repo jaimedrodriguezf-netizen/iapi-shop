@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Logo } from "@/components/logo";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
@@ -46,6 +47,13 @@ export function AuthForm({
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams?.get("message") === "check-email") {
+      toast.success("Te enviamos un correo. Por favor confirma tu cuenta antes de iniciar sesión.");
+    }
+  }, [searchParams]);
 
   // Synchronize internal state with URL on popstate
   React.useEffect(() => {
@@ -190,7 +198,7 @@ export function AuthForm({
             <p className="text-lg text-slate-600 dark:text-zinc-300 font-medium">
               {mode === "customer" 
                 ? "Descubrí productos de tiendas ecuatorianas y pedí directo por WhatsApp."
-                : "Gestiona, escala y triunfa con IAPI."}
+                : "Gestiona, escala y triunfa con Tenddy."}
             </p>
           </div>
 

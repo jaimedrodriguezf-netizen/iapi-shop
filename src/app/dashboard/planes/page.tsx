@@ -1,7 +1,7 @@
 import { PricingSection } from "@/components/landing/pricing-section";
 
 export const metadata = {
-  title: "Planes - IAPI Shop",
+  title: "Planes - Tenddy Shop",
   description: "Conoce nuestros planes y mejora tu tienda.",
 };
 

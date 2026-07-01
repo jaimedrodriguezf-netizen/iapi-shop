@@ -133,7 +133,7 @@ export async function register(formData: FormData): Promise<AuthActionState> {
             admin.user_id,
             "new_user",
             `Nuevo usuario registrado`,
-            `${parsed.data.email} se registró en IAPI Shop`,
+            `${parsed.data.email} se registró en Tenddy Shop`,
             "/dashboard/admin/users"
           );
         }

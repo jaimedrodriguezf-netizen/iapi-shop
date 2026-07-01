@@ -39,7 +39,7 @@ export function ConsentCheckbox({ checked, onChange, disabled = false }: Consent
         >
           Política de Privacidad
         </Link>{" "}
-        de IAPI Shop.
+        de Tenddy Shop.
       </span>
     </label>
   );

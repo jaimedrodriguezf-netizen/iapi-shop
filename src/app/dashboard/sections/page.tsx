@@ -1,8 +1,15 @@
 import { getMyTenants } from "@/lib/tenants/actions"
 import { getAllSections } from "@/lib/sections/actions"
 import { SectionsManager } from "@/components/dashboard/sections-manager"
+import { getUserRoleInfo } from "@/lib/auth/actions"
+import { redirect } from "next/navigation"
 
 export default async function SectionsPage() {
+  const roleResult = await getUserRoleInfo()
+  if (!roleResult.success || roleResult.data?.platformRole !== "admin") {
+    redirect("/dashboard")
+  }
+
   // Get the tenant for this seller
   const tenantsResult = await getMyTenants()
   const tenant = tenantsResult.success && tenantsResult.data ? tenantsResult.data[0] : null

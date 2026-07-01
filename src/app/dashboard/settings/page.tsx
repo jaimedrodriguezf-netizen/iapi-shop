@@ -1,7 +1,7 @@
 import { ensureUserTenant, getTenantSubscription, getColorPalettes, getCountries } from "@/lib/tenants/actions";
 import { redirect } from "next/navigation";
 import { SettingsForm } from "@/components/dashboard/settings-form";
-import { getStorefrontData } from "@/lib/storefront/actions";
+import { getProducts } from "@/lib/products/actions";
 
 export default async function SettingsPage() {
   const result = await ensureUserTenant();
@@ -10,15 +10,22 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  // Fetch storefront details, subscription plan, and geographic countries in parallel
-  const [storefrontResult, subResult, palettesResult, countriesResult] = await Promise.all([
-    getStorefrontData(result.data.slug),
+  // Fetch products, subscription plan, and geographic countries in parallel
+  const [productsResult, subResult, palettesResult, countriesResult] = await Promise.all([
+    getProducts(result.data.id),
     getTenantSubscription(result.data.id),
     getColorPalettes(),
     getCountries(),
   ]);
 
-  const initialProducts = storefrontResult.products || [];
+  const initialProducts = (productsResult.success && productsResult.products) 
+    ? productsResult.products.map(p => ({ 
+        ...p, 
+        description: p.description || undefined,
+        image_urls: p.image_urls || undefined,
+        category_id: p.category_id || undefined
+      })) 
+    : [];
   const planName = (subResult.success && subResult.data) ? subResult.data.plans?.name || "Free" : "Free";
   const palettes = (palettesResult.success && palettesResult.data) ? palettesResult.data : [];
   const countries = (countriesResult.success && countriesResult.data) ? countriesResult.data : [];

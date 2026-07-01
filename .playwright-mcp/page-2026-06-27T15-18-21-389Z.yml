@@ -1,0 +1,352 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: admin@dentiapp.online
+            - paragraph [ref=e18]: admin@dentiapp.online
+          - generic [ref=e20]: A
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - heading "Odontología" [level=2] [ref=e25]
+            - paragraph [ref=e26]: Historias clínicas, Formulario 033 y odontograma
+          - generic [ref=e27]:
+            - generic [ref=e28]:
+              - generic [ref=e29]:
+                - generic [ref=e30]:
+                  - generic [ref=e31]: Expedientes Totales
+                  - heading "12" [level=3] [ref=e32]
+                  - paragraph [ref=e33]: Historias clínicas creadas
+                - img [ref=e35]
+              - link "Crear Expediente Registrá un paciente nuevo para iniciar el Formulario 033." [ref=e37] [cursor=pointer]:
+                - /url: /dentiapp/admission/patients
+                - generic [ref=e38]:
+                  - heading "Crear Expediente" [level=3] [ref=e39]
+                  - paragraph [ref=e40]: Registrá un paciente nuevo para iniciar el Formulario 033.
+                - img [ref=e42]
+            - generic [ref=e45]:
+              - generic [ref=e46]:
+                - generic [ref=e47]:
+                  - heading "Buscador Clínico" [level=3] [ref=e48]
+                  - paragraph [ref=e49]: Localizá el Odontograma de cualquier paciente al instante
+                - generic [ref=e50]:
+                  - img [ref=e51]
+                  - textbox "Buscar por nombre, apellido o cédula..." [ref=e54]
+              - table [ref=e56]:
+                - rowgroup [ref=e57]:
+                  - row "Paciente Identificación Última Atención Acciones Clínicas" [ref=e58]:
+                    - columnheader "Paciente" [ref=e59]
+                    - columnheader "Identificación" [ref=e60]
+                    - columnheader "Última Atención" [ref=e61]
+                    - columnheader "Acciones Clínicas" [ref=e62]
+                - rowgroup [ref=e63]:
+                  - row "Pérez Juan 1723456789 23/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e64]:
+                    - cell "Pérez Juan" [ref=e65]:
+                      - strong [ref=e66]: Pérez Juan
+                    - cell "1723456789" [ref=e67]
+                    - cell "23/05/2026" [ref=e68]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e69]:
+                      - generic [ref=e70]:
+                        - link "Ver Ficha 033" [ref=e71] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/3b20caeb-95d3-4d26-a266-742c54e62b57
+                          - img [ref=e72]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e75] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/3b20caeb-95d3-4d26-a266-742c54e62b57
+                          - img [ref=e76]
+                          - text: Odontograma
+                          - img [ref=e78]
+                        - link "Periodontograma" [ref=e80] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=ac4f5bf8-c641-49f5-a52e-72ab060a8d60
+                          - img [ref=e81]
+                          - text: Periodontograma
+                  - row "Díaz Tanya 1718392920 21/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e84]:
+                    - cell "Díaz Tanya" [ref=e85]:
+                      - strong [ref=e86]: Díaz Tanya
+                    - cell "1718392920" [ref=e87]
+                    - cell "21/05/2026" [ref=e88]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e89]:
+                      - generic [ref=e90]:
+                        - link "Ver Ficha 033" [ref=e91] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/b2ba22b4-fd34-4a3d-bfda-bf75cfc51b0b
+                          - img [ref=e92]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e95] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/b2ba22b4-fd34-4a3d-bfda-bf75cfc51b0b
+                          - img [ref=e96]
+                          - text: Odontograma
+                          - img [ref=e98]
+                        - link "Periodontograma" [ref=e100] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=0caafd2e-3fbb-43be-8c4a-4e8d06d0f772
+                          - img [ref=e101]
+                          - text: Periodontograma
+                  - row "Booking Ana — 20/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e104]:
+                    - cell "Booking Ana" [ref=e105]:
+                      - strong [ref=e106]: Booking Ana
+                    - cell "—" [ref=e107]
+                    - cell "20/05/2026" [ref=e108]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e109]:
+                      - generic [ref=e110]:
+                        - link "Ver Ficha 033" [ref=e111] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/ed1b53f6-3200-4bf7-8f05-66e68b1047ce
+                          - img [ref=e112]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e115] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/ed1b53f6-3200-4bf7-8f05-66e68b1047ce
+                          - img [ref=e116]
+                          - text: Odontograma
+                          - img [ref=e118]
+                        - link "Periodontograma" [ref=e120] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=8b9d1321-e8ee-4665-b4fa-b8f4be73b1c5
+                          - img [ref=e121]
+                          - text: Periodontograma
+                  - row "Booking Ana — 20/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e124]:
+                    - cell "Booking Ana" [ref=e125]:
+                      - strong [ref=e126]: Booking Ana
+                    - cell "—" [ref=e127]
+                    - cell "20/05/2026" [ref=e128]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e129]:
+                      - generic [ref=e130]:
+                        - link "Ver Ficha 033" [ref=e131] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/12371daa-24e9-478f-82d6-78953f1e1d0a
+                          - img [ref=e132]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e135] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/12371daa-24e9-478f-82d6-78953f1e1d0a
+                          - img [ref=e136]
+                          - text: Odontograma
+                          - img [ref=e138]
+                        - link "Periodontograma" [ref=e140] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=8b9d1321-e8ee-4665-b4fa-b8f4be73b1c5
+                          - img [ref=e141]
+                          - text: Periodontograma
+                  - row "Perez Juanoto 12345678900 19/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e144]:
+                    - cell "Perez Juanoto" [ref=e145]:
+                      - strong [ref=e146]: Perez Juanoto
+                    - cell "12345678900" [ref=e147]
+                    - cell "19/05/2026" [ref=e148]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e149]:
+                      - generic [ref=e150]:
+                        - link "Ver Ficha 033" [ref=e151] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/4c540390-5431-4c31-9423-d65069ae53c0
+                          - img [ref=e152]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e155] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/4c540390-5431-4c31-9423-d65069ae53c0
+                          - img [ref=e156]
+                          - text: Odontograma
+                          - img [ref=e158]
+                        - link "Periodontograma" [ref=e160] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=eae80c95-a543-4695-9453-5d421de2ac43
+                          - img [ref=e161]
+                          - text: Periodontograma
+                  - row "Perez Juanoto 12345678900 19/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e164]:
+                    - cell "Perez Juanoto" [ref=e165]:
+                      - strong [ref=e166]: Perez Juanoto
+                    - cell "12345678900" [ref=e167]
+                    - cell "19/05/2026" [ref=e168]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e169]:
+                      - generic [ref=e170]:
+                        - link "Ver Ficha 033" [ref=e171] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/ddf57bc7-7728-4c1d-bcd4-5e7d431fc9ec
+                          - img [ref=e172]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e175] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/ddf57bc7-7728-4c1d-bcd4-5e7d431fc9ec
+                          - img [ref=e176]
+                          - text: Odontograma
+                          - img [ref=e178]
+                        - link "Periodontograma" [ref=e180] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=eae80c95-a543-4695-9453-5d421de2ac43
+                          - img [ref=e181]
+                          - text: Periodontograma
+                  - row "Uno Test 999 19/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e184]:
+                    - cell "Uno Test" [ref=e185]:
+                      - strong [ref=e186]: Uno Test
+                    - cell "999" [ref=e187]
+                    - cell "19/05/2026" [ref=e188]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e189]:
+                      - generic [ref=e190]:
+                        - link "Ver Ficha 033" [ref=e191] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/276cff7e-ff63-49fa-a73a-d74f53448a07
+                          - img [ref=e192]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e195] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/276cff7e-ff63-49fa-a73a-d74f53448a07
+                          - img [ref=e196]
+                          - text: Odontograma
+                          - img [ref=e198]
+                        - link "Periodontograma" [ref=e200] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=7bf4d257-769d-4cc6-9b45-30f8701233a1
+                          - img [ref=e201]
+                          - text: Periodontograma
+                  - row "Test Public — 19/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e204]:
+                    - cell "Test Public" [ref=e205]:
+                      - strong [ref=e206]: Test Public
+                    - cell "—" [ref=e207]
+                    - cell "19/05/2026" [ref=e208]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e209]:
+                      - generic [ref=e210]:
+                        - link "Ver Ficha 033" [ref=e211] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/bda8643d-bf32-4827-864e-424d4012cd64
+                          - img [ref=e212]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e215] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/bda8643d-bf32-4827-864e-424d4012cd64
+                          - img [ref=e216]
+                          - text: Odontograma
+                          - img [ref=e218]
+                        - link "Periodontograma" [ref=e220] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=669de44f-9b42-475c-8ff0-305f4462a4aa
+                          - img [ref=e221]
+                          - text: Periodontograma
+                  - row "Test Public — 19/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e224]:
+                    - cell "Test Public" [ref=e225]:
+                      - strong [ref=e226]: Test Public
+                    - cell "—" [ref=e227]
+                    - cell "19/05/2026" [ref=e228]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e229]:
+                      - generic [ref=e230]:
+                        - link "Ver Ficha 033" [ref=e231] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/8a60e243-f952-4b2b-b361-5c794232228e
+                          - img [ref=e232]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e235] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/8a60e243-f952-4b2b-b361-5c794232228e
+                          - img [ref=e236]
+                          - text: Odontograma
+                          - img [ref=e238]
+                        - link "Periodontograma" [ref=e240] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=669de44f-9b42-475c-8ff0-305f4462a4aa
+                          - img [ref=e241]
+                          - text: Periodontograma
+                  - row "Uno Test 999 18/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e244]:
+                    - cell "Uno Test" [ref=e245]:
+                      - strong [ref=e246]: Uno Test
+                    - cell "999" [ref=e247]
+                    - cell "18/05/2026" [ref=e248]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e249]:
+                      - generic [ref=e250]:
+                        - link "Ver Ficha 033" [ref=e251] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/98f5d3e6-c89d-4510-8614-7567dda7ab92
+                          - img [ref=e252]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e255] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/98f5d3e6-c89d-4510-8614-7567dda7ab92
+                          - img [ref=e256]
+                          - text: Odontograma
+                          - img [ref=e258]
+                        - link "Periodontograma" [ref=e260] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=7bf4d257-769d-4cc6-9b45-30f8701233a1
+                          - img [ref=e261]
+                          - text: Periodontograma
+                  - row "Uno Test 999 18/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e264]:
+                    - cell "Uno Test" [ref=e265]:
+                      - strong [ref=e266]: Uno Test
+                    - cell "999" [ref=e267]
+                    - cell "18/05/2026" [ref=e268]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e269]:
+                      - generic [ref=e270]:
+                        - link "Ver Ficha 033" [ref=e271] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/fe8354f5-1415-4e7b-98f2-65dec41d575a
+                          - img [ref=e272]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e275] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/fe8354f5-1415-4e7b-98f2-65dec41d575a
+                          - img [ref=e276]
+                          - text: Odontograma
+                          - img [ref=e278]
+                        - link "Periodontograma" [ref=e280] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=7bf4d257-769d-4cc6-9b45-30f8701233a1
+                          - img [ref=e281]
+                          - text: Periodontograma
+                  - row "sore jore 1719154826 17/05/2026 Ver Ficha 033 Odontograma Periodontograma" [ref=e284]:
+                    - cell "sore jore" [ref=e285]:
+                      - strong [ref=e286]: sore jore
+                    - cell "1719154826" [ref=e287]
+                    - cell "17/05/2026" [ref=e288]
+                    - cell "Ver Ficha 033 Odontograma Periodontograma" [ref=e289]:
+                      - generic [ref=e290]:
+                        - link "Ver Ficha 033" [ref=e291] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/form-033/38658871-480b-4972-9017-7944a9074556
+                          - img [ref=e292]
+                          - text: Ver Ficha 033
+                        - link "Odontograma" [ref=e295] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/odontogram/38658871-480b-4972-9017-7944a9074556
+                          - img [ref=e296]
+                          - text: Odontograma
+                          - img [ref=e298]
+                        - link "Periodontograma" [ref=e300] [cursor=pointer]:
+                          - /url: /dentiapp/odontology/periodontogram?patientId=0a5149e0-a3c3-45f9-9b47-a11a614ffd24
+                          - img [ref=e301]
+                          - text: Periodontograma
+    - generic [ref=e304]:
+      - generic "close sidebar"
+      - complementary [ref=e305]:
+        - link "Detiapp admin" [ref=e307] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e309]
+          - generic [ref=e311]:
+            - heading "Detiapp" [level=2] [ref=e312]
+            - paragraph [ref=e313]: admin
+        - navigation [ref=e314]:
+          - link "Dashboard" [ref=e315] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e316]
+            - text: Dashboard
+          - link "Pacientes" [ref=e321] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e322]
+            - text: Pacientes
+          - link "Turnos" [ref=e327] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e328]
+            - text: Turnos
+          - link "Odontología" [ref=e330] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e331]
+            - text: Odontología
+          - link "Enfermería" [ref=e333] [cursor=pointer]:
+            - /url: /nursing/vital-signs
+            - img [ref=e334]
+            - text: Enfermería
+          - link "Mis Clínicas" [ref=e337] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e338]
+            - text: Mis Clínicas
+          - link "Equipo" [ref=e344] [cursor=pointer]:
+            - /url: /settings/team
+            - img [ref=e345]
+            - text: Equipo
+          - link "Permisos" [ref=e350] [cursor=pointer]:
+            - /url: /settings/permissions
+            - img [ref=e351]
+            - text: Permisos
+          - link "Suscripción" [ref=e353] [cursor=pointer]:
+            - /url: /settings/subscription
+            - img [ref=e354]
+            - text: Suscripción
+          - link "Soporte" [ref=e356] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e357]
+            - text: Soporte
+          - link "Configuración" [ref=e360] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e361]
+            - text: Configuración
+        - generic [ref=e364]:
+          - button "Cerrar sesión" [ref=e366]:
+            - img [ref=e367]
+            - text: Cerrar sesión
+          - generic [ref=e370]: v1.1.75
+  - button "Open Next.js Dev Tools" [ref=e376] [cursor=pointer]:
+    - img [ref=e377]
+  - alert [ref=e380]

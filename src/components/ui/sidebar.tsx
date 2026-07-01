@@ -195,10 +195,7 @@ function Sidebar({
           }
           side={side}
         >
-          <SheetHeader className="p-4 border-b">
-            <SheetTitle className="text-orange-500 font-black">IAPI Shop</SheetTitle>
-            <SheetDescription className="sr-only">Menú de navegación móvil</SheetDescription>
-          </SheetHeader>
+          <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
           <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>
       </Sheet>

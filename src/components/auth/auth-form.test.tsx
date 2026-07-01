@@ -40,7 +40,7 @@ describe("AuthForm Component - Edge Cases and UX/UI States", () => {
 
     // Verify premium visual layout components
     expect(screen.getByText("Desbloquea tu Potencial.")).toBeInTheDocument();
-    expect(screen.getByText("Gestiona, escala y triunfa con IAPI.")).toBeInTheDocument();
+    expect(screen.getByText("Gestiona, escala y triunfa con Tenddy.")).toBeInTheDocument();
     expect(screen.getByLabelText("Recordarme")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "¿Olvidaste tu contraseña?" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Google" })).toBeInTheDocument();

@@ -1,0 +1,133 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: demo@dentiapp.online
+            - paragraph [ref=e18]: demo@dentiapp.online
+          - generic [ref=e20]: D
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - heading "¡Hola, Doctor! 👋" [level=2] [ref=e26]
+              - paragraph [ref=e27]: Hoy es lunes, 29 de junio de 2026
+            - generic [ref=e30]: Sistema Online
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - img [ref=e35]
+                - 'heading "Tu plan: Free" [level=3] [ref=e37]'
+              - paragraph [ref=e38]: 9/50 pacientes · 1/20 admisiones este mes · 1/2 usuarios
+              - paragraph [ref=e39]: "Storage: 15 KB / 10 MB"
+            - link "Actualizar plan" [ref=e40] [cursor=pointer]:
+              - /url: /settings/subscription
+          - paragraph [ref=e42]: No hay turnos pendientes para lo que queda del día.
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - img [ref=e47]
+              - paragraph [ref=e52]: "9"
+              - paragraph [ref=e53]: Total Pacientes
+            - generic [ref=e54]:
+              - img [ref=e57]
+              - paragraph [ref=e59]: "14"
+              - paragraph [ref=e60]: Citas Activas
+            - generic [ref=e61]:
+              - img [ref=e64]
+              - paragraph [ref=e67]: "12"
+              - paragraph [ref=e68]: Historias
+            - generic [ref=e69]:
+              - img [ref=e72]
+              - paragraph [ref=e75]: "0"
+              - paragraph [ref=e76]: Pendientes Hoy
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]:
+                - heading "Agenda de Hoy" [level=3] [ref=e80]
+                - link "Ver calendario completo" [ref=e81] [cursor=pointer]:
+                  - /url: /dentiapp/admission/appointments
+                  - text: Ver calendario completo
+                  - img [ref=e82]
+              - generic [ref=e85]:
+                - img [ref=e86]
+                - paragraph [ref=e89]: Tu agenda está vacía hoy.
+            - generic [ref=e90]:
+              - heading "Acciones Rápidas" [level=3] [ref=e91]
+              - generic [ref=e92]:
+                - link "Nuevo Paciente Registrar ingreso" [ref=e93] [cursor=pointer]:
+                  - /url: /admission/patients?new=true
+                  - img [ref=e95]
+                  - generic [ref=e100]:
+                    - paragraph [ref=e101]: Nuevo Paciente
+                    - paragraph [ref=e102]: Registrar ingreso
+                - link "Agendar Turno Manejar calendario" [ref=e103] [cursor=pointer]:
+                  - /url: /dentiapp/admission/appointments
+                  - img [ref=e105]
+                  - generic [ref=e107]:
+                    - paragraph [ref=e108]: Agendar Turno
+                    - paragraph [ref=e109]: Manejar calendario
+                - generic [ref=e110]:
+                  - img [ref=e111]
+                  - heading "Truco Pro" [level=5] [ref=e113]
+                  - paragraph [ref=e114]: Presioná Cmd+K desde cualquier lugar para buscar pacientes al instante.
+    - generic [ref=e115]:
+      - generic "close sidebar"
+      - complementary [ref=e116]:
+        - generic [ref=e117]:
+          - link "Detiapp doctor" [ref=e118] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e120]
+            - generic [ref=e122]:
+              - heading "Detiapp" [level=2] [ref=e123]
+              - paragraph [ref=e124]: doctor
+          - generic [ref=e125]:
+            - generic [ref=e126]: Plan Free
+            - link "Actualizar" [ref=e127] [cursor=pointer]:
+              - /url: /settings/subscription
+        - navigation [ref=e128]:
+          - link "Dashboard" [ref=e129] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e130]
+            - text: Dashboard
+          - link "Pacientes" [ref=e135] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e136]
+            - text: Pacientes
+          - link "Turnos" [ref=e141] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e142]
+            - text: Turnos
+          - link "Odontología" [ref=e144] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e145]
+            - text: Odontología
+          - button "Enfermería" [ref=e147]:
+            - img [ref=e148]
+            - text: Enfermería
+            - img [ref=e151]
+          - link "Mis Clínicas" [ref=e154] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e155]
+            - text: Mis Clínicas
+          - link "Soporte" [ref=e161] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e162]
+            - text: Soporte
+          - link "Configuración" [ref=e165] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e166]
+            - text: Configuración
+        - generic [ref=e169]:
+          - button "Cerrar sesión" [ref=e171]:
+            - img [ref=e172]
+            - text: Cerrar sesión
+          - generic [ref=e175]: v1.1.92
+  - button "Open Next.js Dev Tools" [ref=e181] [cursor=pointer]:
+    - img [ref=e182]

@@ -1,13 +1,19 @@
 import { ensureUserTenant } from "@/lib/tenants/actions";
 import { ReciberaClient } from "@/components/recibos/recibera-client";
 import { redirect } from "next/navigation";
+import { getUserRoleInfo } from "@/lib/auth/actions";
 
 export const metadata = {
-  title: "Recibera Digital - IAPI Shop",
+  title: "Recibera Digital - Tenddy Shop",
   description: "Crea y envía recibos digitales a tus clientes",
 };
 
 export default async function RecibosPage() {
+  const roleResult = await getUserRoleInfo();
+  if (!roleResult.success || roleResult.data?.platformRole !== "admin") {
+    redirect("/dashboard");
+  }
+
   const result = await ensureUserTenant();
   if (!result.success || !result.data) {
     redirect("/onboarding");

@@ -28,8 +28,8 @@ const PLANS: PricingPlan[] = [
     price: 0,
     period: "/ año",
     features: [
-      { text: "Hasta 10 productos activos", included: true },
-      { text: "Catálogo digital QR básico", included: true },
+      { text: "Hasta 15 productos activos", included: true },
+      { text: "Catálogo digital QR básico", included: false },
       { text: "Cotizador rápido", included: true },
       { text: "1 foto por producto", included: true },
       { text: "Pedidos directos por WhatsApp", included: true },
@@ -165,7 +165,7 @@ export function PricingSection() {
                 {/* CTA Button */}
                 {plan.name === "Plus" ? (
                   <a
-                    href="https://wa.me/593987274146?text=Hola!%20Me%20interesa%20adquirir%20el%20Plan%20Plus%20para%20mi%20tienda%20en%20IAPI%20Shop."
+                    href="https://wa.me/593987274146?text=Hola!%20Me%20interesa%20adquirir%20el%20Plan%20Plus%20para%20mi%20tienda%20en%20Tenddy%20Shop."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block w-full rounded-xl py-4 text-center text-sm font-black transition-all shadow-sm bg-orange-accent hover:bg-orange-accent-hover text-white hover:shadow-md cursor-pointer active:scale-[0.98]"

@@ -6,7 +6,7 @@ export function Logo({ className }: { className?: string }) {
     <svg 
       className={cn("shrink-0", className)}
       height="1.2em"
-      viewBox="0 0 80 40" 
+      viewBox="0 0 140 40" 
       xmlns="http://www.w3.org/2000/svg"
       style={{ overflow: 'visible' }}
     >
@@ -20,7 +20,7 @@ export function Logo({ className }: { className?: string }) {
         fontSize="32" 
         fontFamily="ui-sans-serif, system-ui, sans-serif"
       >
-        IAPI
+        TENDDY
       </text>
       <text 
         x="51%" 

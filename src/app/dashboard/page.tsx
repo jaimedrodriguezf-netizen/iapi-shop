@@ -99,12 +99,14 @@ export default async function DashboardPage() {
 
   // Fetch productCount and productLimit via checkProductLimit(activeTenantId)
   let productCount = 0;
-  let productLimit = 10;
+  let productLimit = 15;
   const activeTenant = tenants[0];
   if (activeTenantId) {
     const limitCheck = await checkProductLimit(activeTenantId);
     productCount = limitCheck.current;
-    productLimit = limitCheck.limit;
+    if (limitCheck.limit > 0) {
+      productLimit = limitCheck.limit;
+    }
   }
 
   return (

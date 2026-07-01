@@ -1,0 +1,98 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: admin@dentiapp.online
+            - paragraph [ref=e18]: admin@dentiapp.online
+          - generic [ref=e20]: A
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - heading "Pacientes" [level=2] [ref=e26]
+              - paragraph [ref=e27]: 0 pacientes registrados
+            - link "NUEVO PACIENTE" [ref=e28] [cursor=pointer]:
+              - /url: /admission/patients/new
+              - img [ref=e29]
+              - text: NUEVO PACIENTE
+          - generic [ref=e31]:
+            - generic:
+              - img
+            - textbox "Buscar por nombre, apellido o cédula..." [ref=e32]
+            - button "Buscar" [ref=e33]
+          - generic [ref=e35]:
+            - img [ref=e37]
+            - heading "Tu base de datos está vacía" [level=3] [ref=e42]
+            - paragraph [ref=e43]: Registrá tu primer paciente para empezar a gestionar sus historias clínicas.
+            - link "REGISTRAR PRIMER PACIENTE" [ref=e44] [cursor=pointer]:
+              - /url: /admission/patients/new
+    - generic [ref=e45]:
+      - generic "close sidebar"
+      - complementary [ref=e46]:
+        - link "Detiapp admin" [ref=e48] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e50]
+          - generic [ref=e52]:
+            - heading "Detiapp" [level=2] [ref=e53]
+            - paragraph [ref=e54]: admin
+        - navigation [ref=e55]:
+          - link "Dashboard" [ref=e56] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e57]
+            - text: Dashboard
+          - link "Pacientes" [ref=e62] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e63]
+            - text: Pacientes
+          - link "Turnos" [ref=e68] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e69]
+            - text: Turnos
+          - link "Odontología" [ref=e71] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e72]
+            - text: Odontología
+          - link "Enfermería" [ref=e74] [cursor=pointer]:
+            - /url: /nursing/vital-signs
+            - img [ref=e75]
+            - text: Enfermería
+          - link "Mis Clínicas" [ref=e78] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e79]
+            - text: Mis Clínicas
+          - link "Equipo" [ref=e85] [cursor=pointer]:
+            - /url: /settings/team
+            - img [ref=e86]
+            - text: Equipo
+          - link "Permisos" [ref=e91] [cursor=pointer]:
+            - /url: /settings/permissions
+            - img [ref=e92]
+            - text: Permisos
+          - link "Suscripción" [ref=e94] [cursor=pointer]:
+            - /url: /settings/subscription
+            - img [ref=e95]
+            - text: Suscripción
+          - link "Soporte" [ref=e97] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e98]
+            - text: Soporte
+          - link "Configuración" [ref=e101] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e102]
+            - text: Configuración
+        - generic [ref=e105]:
+          - button "Cerrar sesión" [ref=e107]:
+            - img [ref=e108]
+            - text: Cerrar sesión
+          - generic [ref=e111]: v1.1.75
+  - button "Open Next.js Dev Tools" [ref=e117] [cursor=pointer]:
+    - img [ref=e118]
+  - alert [ref=e121]

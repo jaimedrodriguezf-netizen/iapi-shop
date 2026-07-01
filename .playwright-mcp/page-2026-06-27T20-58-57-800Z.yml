@@ -1,0 +1,125 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: admin@dentiapp.online
+            - paragraph [ref=e18]: admin@dentiapp.online
+          - generic [ref=e20]: A
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - heading "Planes de Tratamiento" [level=2] [ref=e26]
+              - paragraph [ref=e27]: 0 planes registrados
+            - link "NUEVO PLAN" [ref=e28] [cursor=pointer]:
+              - /url: /odontology/treatment-plans/new
+              - img [ref=e29]
+              - text: NUEVO PLAN
+          - form "Filtros de planes de tratamiento" [ref=e31]:
+            - generic [ref=e32]:
+              - img [ref=e33]
+              - textbox "Buscar" [ref=e36]:
+                - /placeholder: Buscar por plan, paciente o cédula…
+            - generic [ref=e37]:
+              - paragraph [ref=e38]: Estado
+              - generic [ref=e39]:
+                - generic [ref=e40] [cursor=pointer]:
+                  - checkbox "Borrador" [ref=e41]
+                  - text: Borrador
+                - generic [ref=e42] [cursor=pointer]:
+                  - checkbox "Aprobado" [ref=e43]
+                  - text: Aprobado
+                - generic [ref=e44] [cursor=pointer]:
+                  - checkbox "En curso" [ref=e45]
+                  - text: En curso
+                - generic [ref=e46] [cursor=pointer]:
+                  - checkbox "Completado" [ref=e47]
+                  - text: Completado
+                - generic [ref=e48] [cursor=pointer]:
+                  - checkbox "Cancelado" [ref=e49]
+                  - text: Cancelado
+            - generic [ref=e50]:
+              - button "Aplicar filtros" [ref=e51] [cursor=pointer]:
+                - img [ref=e52]
+                - text: Aplicar filtros
+              - button "Limpiar filtros" [ref=e55]:
+                - img [ref=e56]
+                - text: Limpiar filtros
+          - generic [ref=e61]:
+            - img [ref=e63]
+            - heading "No hay planes de tratamiento" [level=3] [ref=e66]
+            - paragraph [ref=e67]: Creá el primer plan de tratamiento para empezar a gestionar procedimientos y costos.
+            - link "Crear primer plan" [ref=e68] [cursor=pointer]:
+              - /url: /odontology/treatment-plans/new
+              - img [ref=e69]
+              - text: Crear primer plan
+    - generic [ref=e70]:
+      - generic "close sidebar"
+      - complementary [ref=e71]:
+        - link "Detiapp admin" [ref=e73] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e75]
+          - generic [ref=e77]:
+            - heading "Detiapp" [level=2] [ref=e78]
+            - paragraph [ref=e79]: admin
+        - navigation [ref=e80]:
+          - link "Dashboard" [ref=e81] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e82]
+            - text: Dashboard
+          - link "Pacientes" [ref=e87] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e88]
+            - text: Pacientes
+          - link "Turnos" [ref=e93] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e94]
+            - text: Turnos
+          - link "Odontología" [ref=e96] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e97]
+            - text: Odontología
+          - link "Enfermería" [ref=e99] [cursor=pointer]:
+            - /url: /nursing/vital-signs
+            - img [ref=e100]
+            - text: Enfermería
+          - link "Mis Clínicas" [ref=e103] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e104]
+            - text: Mis Clínicas
+          - link "Equipo" [ref=e110] [cursor=pointer]:
+            - /url: /settings/team
+            - img [ref=e111]
+            - text: Equipo
+          - link "Permisos" [ref=e116] [cursor=pointer]:
+            - /url: /settings/permissions
+            - img [ref=e117]
+            - text: Permisos
+          - link "Suscripción" [ref=e119] [cursor=pointer]:
+            - /url: /settings/subscription
+            - img [ref=e120]
+            - text: Suscripción
+          - link "Soporte" [ref=e122] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e123]
+            - text: Soporte
+          - link "Configuración" [ref=e126] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e127]
+            - text: Configuración
+        - generic [ref=e130]:
+          - button "Cerrar sesión" [ref=e132]:
+            - img [ref=e133]
+            - text: Cerrar sesión
+          - generic [ref=e136]: v1.1.75
+  - button "Open Next.js Dev Tools" [ref=e142] [cursor=pointer]:
+    - img [ref=e143]
+  - alert [ref=e146]

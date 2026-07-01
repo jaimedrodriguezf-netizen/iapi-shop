@@ -1,0 +1,82 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: admin@dentiapp.online
+            - paragraph [ref=e18]: admin@dentiapp.online
+          - generic [ref=e20]: A
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - heading "Paciente no encontrado" [level=2] [ref=e24]
+          - link "Volver a pacientes" [ref=e25] [cursor=pointer]:
+            - /url: /admission/patients
+    - generic [ref=e26]:
+      - generic "close sidebar"
+      - complementary [ref=e27]:
+        - link "Detiapp admin" [ref=e29] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e31]
+          - generic [ref=e33]:
+            - heading "Detiapp" [level=2] [ref=e34]
+            - paragraph [ref=e35]: admin
+        - navigation [ref=e36]:
+          - link "Dashboard" [ref=e37] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e38]
+            - text: Dashboard
+          - link "Pacientes" [ref=e43] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e44]
+            - text: Pacientes
+          - link "Turnos" [ref=e49] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e50]
+            - text: Turnos
+          - link "Odontología" [ref=e52] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e53]
+            - text: Odontología
+          - link "Enfermería" [ref=e55] [cursor=pointer]:
+            - /url: /nursing/vital-signs
+            - img [ref=e56]
+            - text: Enfermería
+          - link "Mis Clínicas" [ref=e59] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e60]
+            - text: Mis Clínicas
+          - link "Equipo" [ref=e66] [cursor=pointer]:
+            - /url: /settings/team
+            - img [ref=e67]
+            - text: Equipo
+          - link "Permisos" [ref=e72] [cursor=pointer]:
+            - /url: /settings/permissions
+            - img [ref=e73]
+            - text: Permisos
+          - link "Suscripción" [ref=e75] [cursor=pointer]:
+            - /url: /settings/subscription
+            - img [ref=e76]
+            - text: Suscripción
+          - link "Soporte" [ref=e78] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e79]
+            - text: Soporte
+          - link "Configuración" [ref=e82] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e83]
+            - text: Configuración
+        - generic [ref=e86]:
+          - button "Cerrar sesión" [ref=e88]:
+            - img [ref=e89]
+            - text: Cerrar sesión
+          - generic [ref=e92]: v1.1.75
+  - button "Open Next.js Dev Tools" [ref=e98] [cursor=pointer]:
+    - img [ref=e99]
+  - alert [ref=e102]

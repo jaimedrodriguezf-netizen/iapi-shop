@@ -1,0 +1,196 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: admin@dentiapp.online
+            - paragraph [ref=e18]: admin@dentiapp.online
+          - generic [ref=e20]: A
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - link [ref=e26] [cursor=pointer]:
+                - /url: /dentiapp/odontology/form-033/3b20caeb-95d3-4d26-a266-742c54e62b57
+                - img [ref=e27]
+              - generic [ref=e29]:
+                - heading "Odontograma" [level=2] [ref=e30]
+                - paragraph [ref=e31]: Juan Pérez
+            - button "GUARDAR" [ref=e32]:
+              - img [ref=e33]
+              - text: GUARDAR
+          - generic [ref=e37]:
+            - generic [ref=e39]:
+              - button "Marcar Boca Sana" [ref=e41]
+              - img [ref=e44]:
+                - generic [ref=e45]: Derecha (D)
+                - generic [ref=e46]: Izquierda (I)
+                - generic [ref=e47]:
+                  - generic [ref=e48]: RECESIÓN
+                  - generic [ref=e49]: MOVILIDAD
+                  - generic [ref=e50]: MOVILIDAD
+                  - generic [ref=e51]: RECESIÓN
+                - generic [ref=e56] [cursor=pointer]: "18"
+                - generic [ref=e67] [cursor=pointer]: "17"
+                - generic [ref=e78] [cursor=pointer]: "16"
+                - generic [ref=e89] [cursor=pointer]: "15"
+                - generic [ref=e100] [cursor=pointer]: "14"
+                - generic [ref=e111] [cursor=pointer]: "13"
+                - generic [ref=e122] [cursor=pointer]: "12"
+                - generic [ref=e133] [cursor=pointer]: "11"
+                - generic [ref=e144] [cursor=pointer]: "21"
+                - generic [ref=e155] [cursor=pointer]: "22"
+                - generic [ref=e166] [cursor=pointer]: "23"
+                - generic [ref=e177] [cursor=pointer]: "24"
+                - generic [ref=e188] [cursor=pointer]: "25"
+                - generic [ref=e199] [cursor=pointer]: "26"
+                - generic [ref=e210] [cursor=pointer]: "27"
+                - generic [ref=e221] [cursor=pointer]: "28"
+                - generic [ref=e230] [cursor=pointer]: "48"
+                - generic [ref=e241] [cursor=pointer]: "47"
+                - generic [ref=e252] [cursor=pointer]: "46"
+                - generic [ref=e263] [cursor=pointer]: "45"
+                - generic [ref=e274] [cursor=pointer]: "44"
+                - generic [ref=e285] [cursor=pointer]: "43"
+                - generic [ref=e296] [cursor=pointer]: "42"
+                - generic [ref=e307] [cursor=pointer]: "41"
+                - generic [ref=e318] [cursor=pointer]: "31"
+                - generic [ref=e329] [cursor=pointer]: "32"
+                - generic [ref=e340] [cursor=pointer]: "33"
+                - generic [ref=e351] [cursor=pointer]: "34"
+                - generic [ref=e362] [cursor=pointer]: "35"
+                - generic [ref=e373] [cursor=pointer]: "36"
+                - generic [ref=e384] [cursor=pointer]: "37"
+                - generic [ref=e395] [cursor=pointer]: "38"
+                - generic [ref=e406] [cursor=pointer]: "55"
+                - generic [ref=e415] [cursor=pointer]: "54"
+                - generic [ref=e424] [cursor=pointer]: "53"
+                - generic [ref=e433] [cursor=pointer]: "52"
+                - generic [ref=e442] [cursor=pointer]: "51"
+                - generic [ref=e451] [cursor=pointer]: "61"
+                - generic [ref=e460] [cursor=pointer]: "62"
+                - generic [ref=e469] [cursor=pointer]: "63"
+                - generic [ref=e478] [cursor=pointer]: "64"
+                - generic [ref=e487] [cursor=pointer]: "65"
+                - generic [ref=e496] [cursor=pointer]: "85"
+                - generic [ref=e505] [cursor=pointer]: "84"
+                - generic [ref=e514] [cursor=pointer]: "83"
+                - generic [ref=e523] [cursor=pointer]: "82"
+                - generic [ref=e532] [cursor=pointer]: "81"
+                - generic [ref=e541] [cursor=pointer]: "71"
+                - generic [ref=e550] [cursor=pointer]: "72"
+                - generic [ref=e559] [cursor=pointer]: "73"
+                - generic [ref=e568] [cursor=pointer]: "74"
+                - generic [ref=e577] [cursor=pointer]: "75"
+            - generic [ref=e584]:
+              - generic [ref=e585]:
+                - img [ref=e587]
+                - generic [ref=e589]:
+                  - heading "Instrucciones de Uso del Odontograma" [level=4] [ref=e590]
+                  - paragraph [ref=e591]: Sencillo, rápido y completo
+              - generic [ref=e592]:
+                - generic [ref=e593]:
+                  - generic [ref=e594]:
+                    - generic [ref=e595]: Modo Rápido (Edición Directa)
+                    - paragraph [ref=e596]: "Hacé clic directamente sobre las caras de cualquier pieza dental en el odontograma para ciclar su estado rápidamente:"
+                    - generic [ref=e597]:
+                      - generic [ref=e600]: Sano (Blanco)
+                      - generic [ref=e603]: Caries (Rojo)
+                      - generic [ref=e606]: Obturado (Azul)
+                  - generic [ref=e607]:
+                    - generic [ref=e608]: Modo Detallado (Edición Avanzada)
+                    - paragraph [ref=e609]: Hacé clic sobre el número de cualquier diente (el botón con el número arriba) para abrir el panel detallado de la pieza. Allí podrás aplicar el resto de estados clínicos avanzados como Extracción, Extraído, Endodoncia, Corona, Sellantes, etc.
+                - generic [ref=e610]:
+                  - paragraph [ref=e611]: Leyenda de Estados Clínicos
+                  - generic [ref=e612]:
+                    - generic [ref=e615]: Sano
+                    - generic [ref=e618]: Caries
+                    - generic [ref=e621]: Obturado
+                    - generic [ref=e624]: Extracción indicada
+                    - generic [ref=e627]: Extraído (Pérdida por caries)
+                    - generic [ref=e630]: Pérdida (Otra causa)
+                    - generic [ref=e633]: Endodoncia por realizar
+                    - generic [ref=e636]: Endodoncia realizada
+                    - generic [ref=e639]: Corona indicada
+                    - generic [ref=e642]: Corona realizada
+                    - generic [ref=e645]: Prótesis fija indicada
+                    - generic [ref=e648]: Prótesis fija realizada
+                    - generic [ref=e651]: Prótesis removible indicada
+                    - generic [ref=e654]: Prótesis removible realizada
+                    - generic [ref=e657]: Prótesis total indicada
+                    - generic [ref=e660]: Prótesis total realizada
+                    - generic [ref=e663]: Sellante necesario
+                    - generic [ref=e666]: Sellante realizado
+                    - generic [ref=e669]: Ausente
+          - button "GUARDAR" [ref=e671]:
+            - img [ref=e672]
+            - text: GUARDAR
+    - generic [ref=e676]:
+      - generic "close sidebar"
+      - complementary [ref=e677]:
+        - link "Detiapp admin" [ref=e679] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e681]
+          - generic [ref=e683]:
+            - heading "Detiapp" [level=2] [ref=e684]
+            - paragraph [ref=e685]: admin
+        - navigation [ref=e686]:
+          - link "Dashboard" [ref=e687] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e688]
+            - text: Dashboard
+          - link "Pacientes" [ref=e693] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e694]
+            - text: Pacientes
+          - link "Turnos" [ref=e699] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e700]
+            - text: Turnos
+          - link "Odontología" [ref=e702] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e703]
+            - text: Odontología
+          - link "Enfermería" [ref=e705] [cursor=pointer]:
+            - /url: /nursing/vital-signs
+            - img [ref=e706]
+            - text: Enfermería
+          - link "Mis Clínicas" [ref=e709] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e710]
+            - text: Mis Clínicas
+          - link "Equipo" [ref=e716] [cursor=pointer]:
+            - /url: /settings/team
+            - img [ref=e717]
+            - text: Equipo
+          - link "Permisos" [ref=e722] [cursor=pointer]:
+            - /url: /settings/permissions
+            - img [ref=e723]
+            - text: Permisos
+          - link "Suscripción" [ref=e725] [cursor=pointer]:
+            - /url: /settings/subscription
+            - img [ref=e726]
+            - text: Suscripción
+          - link "Soporte" [ref=e728] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e729]
+            - text: Soporte
+          - link "Configuración" [ref=e732] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e733]
+            - text: Configuración
+        - generic [ref=e736]:
+          - button "Cerrar sesión" [ref=e738]:
+            - img [ref=e739]
+            - text: Cerrar sesión
+          - generic [ref=e742]: v1.1.75
+  - button "Open Next.js Dev Tools" [ref=e748] [cursor=pointer]:
+    - img [ref=e749]
+  - alert [ref=e752]

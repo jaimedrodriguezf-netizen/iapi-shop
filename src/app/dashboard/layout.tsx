@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Logo } from "@/components/logo"
 
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardLayout({
   children,
 }: {

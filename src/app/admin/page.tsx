@@ -17,7 +17,7 @@ export default async function AdminPage() {
       <section className="mx-auto max-w-5xl rounded-3xl border bg-background p-6 shadow-sm">
         <p className="text-sm font-bold text-orange-500">Admin global</p>
         <h1 className="mt-2 text-3xl font-black tracking-tight">
-          Panel administrativo <span className="text-orange-500">IAPI</span>
+          Panel administrativo <span className="text-orange-500">Tenddy</span>
           <span className="text-orange-400 text-sm font-black tracking-[0.2em] uppercase ml-1">shop</span>
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">

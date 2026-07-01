@@ -652,7 +652,7 @@ export async function getTenantSubscription(tenantId: string): Promise<ActionRes
           data: {
             id: 'default-free',
             tenant_id: tenantId,
-            plans: { name: 'Free', product_limit: 10 }
+            plans: { name: 'Free', product_limit: 15 }
           }
         };
       }
@@ -663,7 +663,7 @@ export async function getTenantSubscription(tenantId: string): Promise<ActionRes
     // Transformación segura del resultado de Supabase
     const rawPlans = data.plans as unknown as { name: string; product_limit: number } | null;
     const planName = rawPlans ? String(rawPlans.name) : "N/A";
-    const productLimit = rawPlans ? Number(rawPlans.product_limit) : 10;
+    const productLimit = rawPlans ? Number(rawPlans.product_limit) : 15;
 
     const subscription: TenantSubscription = {
       id: data.id,

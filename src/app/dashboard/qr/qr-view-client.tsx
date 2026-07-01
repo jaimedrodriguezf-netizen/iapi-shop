@@ -49,11 +49,11 @@ export function QRViewClient({ qrDataUrl, publicUrl, tenantName }: QRViewClientP
 
         // 1. (Logo image removed, using text below)
 
-        // 2. IAPI Shop Text
+        // 2. Tenddy Shop Text
         doc.setFont("helvetica", "bold")
         doc.setFontSize(10)
         doc.setTextColor(148, 163, 184) // slate-400
-        doc.text("IAPI SHOP", xOffset + halfWidth / 2, 42, { align: "center" })
+        doc.text("TENDDY SHOP", xOffset + halfWidth / 2, 42, { align: "center" })
 
         // 3. Store Name (Title)
         doc.setFont("helvetica", "bold")

@@ -163,7 +163,16 @@ export function AppSidebar({
               if (item.title === "Mis Sucursales") {
                 return planName.toLowerCase() === "plus" || platformRole === "admin"
               }
-                if (item.url === "/dashboard/admin/users" || item.url === "/dashboard/admin/banners" || item.url === "/dashboard/admin/sections" || item.url === "/dashboard/admin/subscriptions" || item.url === "/dashboard/admin/review") {
+              if (
+                item.url === "/dashboard/admin/users" ||
+                item.url === "/dashboard/admin/banners" ||
+                item.url === "/dashboard/admin/sections" ||
+                item.url === "/dashboard/admin/subscriptions" ||
+                item.url === "/dashboard/admin/review" ||
+                item.url === "/dashboard/sections" ||
+                item.url === "/dashboard/cotizador" ||
+                item.url === "/dashboard/recibos"
+              ) {
                 return platformRole === "admin"
               }
               return true

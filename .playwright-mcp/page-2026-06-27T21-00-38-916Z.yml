@@ -1,0 +1,133 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: admin@dentiapp.online
+            - paragraph [ref=e18]: admin@dentiapp.online
+          - generic [ref=e20]: A
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - link [ref=e26] [cursor=pointer]:
+                - /url: /admission/patients
+                - img [ref=e27]
+              - generic [ref=e29]:
+                - heading "Jaime Rodriguez" [level=2] [ref=e30]
+                - paragraph [ref=e31]: Ficha del paciente
+            - generic [ref=e32]:
+              - link "Editar" [ref=e33] [cursor=pointer]:
+                - /url: /admission/patients/8fb14058-c845-46db-b7a6-31bd69dad68e/edit
+                - img [ref=e34]
+                - text: Editar
+              - link "Periodontograma" [ref=e37] [cursor=pointer]:
+                - /url: /odontology/periodontogram?patientId=8fb14058-c845-46db-b7a6-31bd69dad68e
+                - img [ref=e38]
+                - text: Periodontograma
+              - link "Ver Planes" [ref=e41] [cursor=pointer]:
+                - /url: /odontology/treatment-plans?patient=8fb14058-c845-46db-b7a6-31bd69dad68e
+                - img [ref=e42]
+                - text: Ver Planes
+              - link "Nueva Historia" [ref=e45] [cursor=pointer]:
+                - /url: /odontology/form-033/new?patient=8fb14058-c845-46db-b7a6-31bd69dad68e
+                - img [ref=e46]
+                - text: Nueva Historia
+          - generic [ref=e48]:
+            - generic [ref=e50]:
+              - generic [ref=e52]: JR
+              - generic [ref=e53]:
+                - generic [ref=e54]:
+                  - heading "Jaime Rodriguez" [level=2] [ref=e55]
+                  - generic [ref=e56]: Activo
+                - paragraph [ref=e57]: C.I. sdfg
+            - generic [ref=e59]:
+              - generic [ref=e60]:
+                - img [ref=e61]
+                - text: "0983144424"
+              - generic [ref=e63]:
+                - img [ref=e64]
+                - text: admin@dentiapp.online
+              - generic [ref=e67]:
+                - img [ref=e68]
+                - text: dfgsdfg
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - heading "Historias Clínicas" [level=3] [ref=e73]
+              - link "Nueva" [ref=e74] [cursor=pointer]:
+                - /url: /odontology/form-033/new?patient=8fb14058-c845-46db-b7a6-31bd69dad68e
+                - img [ref=e75]
+                - text: Nueva
+            - generic [ref=e77]:
+              - img [ref=e78]
+              - heading "Sin historias clínicas" [level=4] [ref=e81]
+              - paragraph [ref=e82]: Creá la primera historia clínica para este paciente
+    - generic [ref=e83]:
+      - generic "close sidebar"
+      - complementary [ref=e84]:
+        - link "Detiapp admin" [ref=e86] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e88]
+          - generic [ref=e90]:
+            - heading "Detiapp" [level=2] [ref=e91]
+            - paragraph [ref=e92]: admin
+        - navigation [ref=e93]:
+          - link "Dashboard" [ref=e94] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e95]
+            - text: Dashboard
+          - link "Pacientes" [ref=e100] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e101]
+            - text: Pacientes
+          - link "Turnos" [ref=e106] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e107]
+            - text: Turnos
+          - link "Odontología" [ref=e109] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e110]
+            - text: Odontología
+          - link "Enfermería" [ref=e112] [cursor=pointer]:
+            - /url: /nursing/vital-signs
+            - img [ref=e113]
+            - text: Enfermería
+          - link "Mis Clínicas" [ref=e116] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e117]
+            - text: Mis Clínicas
+          - link "Equipo" [ref=e123] [cursor=pointer]:
+            - /url: /settings/team
+            - img [ref=e124]
+            - text: Equipo
+          - link "Permisos" [ref=e129] [cursor=pointer]:
+            - /url: /settings/permissions
+            - img [ref=e130]
+            - text: Permisos
+          - link "Suscripción" [ref=e132] [cursor=pointer]:
+            - /url: /settings/subscription
+            - img [ref=e133]
+            - text: Suscripción
+          - link "Soporte" [ref=e135] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e136]
+            - text: Soporte
+          - link "Configuración" [ref=e139] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e140]
+            - text: Configuración
+        - generic [ref=e143]:
+          - button "Cerrar sesión" [ref=e145]:
+            - img [ref=e146]
+            - text: Cerrar sesión
+          - generic [ref=e149]: v1.1.75
+  - button "Open Next.js Dev Tools" [ref=e155] [cursor=pointer]:
+    - img [ref=e156]
+  - alert [ref=e159]

@@ -1,0 +1,161 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: admin@dentiapp.online
+            - paragraph [ref=e18]: admin@dentiapp.online
+          - generic [ref=e20]: A
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - heading "Pacientes" [level=2] [ref=e26]
+              - paragraph [ref=e27]: 9 pacientes registrados
+            - link "NUEVO PACIENTE" [ref=e28] [cursor=pointer]:
+              - /url: /admission/patients/new
+              - img [ref=e29]
+              - text: NUEVO PACIENTE
+          - generic [ref=e31]:
+            - generic:
+              - img
+            - textbox "Buscar por nombre, apellido o cédula..." [ref=e32]
+            - button "Buscar" [ref=e33]
+          - generic [ref=e34]:
+            - table [ref=e36]:
+              - rowgroup [ref=e37]:
+                - row "Paciente Cédula Contacto Acciones" [ref=e38]:
+                  - columnheader "Paciente" [ref=e39]
+                  - columnheader "Cédula" [ref=e40]
+                  - columnheader "Contacto" [ref=e41]
+                  - columnheader "Acciones" [ref=e42]
+              - rowgroup [ref=e43]:
+                - row "T Test Uno 999 — VER FICHA" [ref=e44]:
+                  - cell "T Test Uno" [ref=e45]:
+                    - generic [ref=e46]:
+                      - generic [ref=e47]: T
+                      - generic [ref=e48]: Test Uno
+                  - cell "999" [ref=e49]
+                  - cell "—" [ref=e50]:
+                    - generic [ref=e52]: —
+                  - cell "VER FICHA" [ref=e53]:
+                    - link "VER FICHA" [ref=e54] [cursor=pointer]:
+                      - /url: /admission/patients/7bf4d257-769d-4cc6-9b45-30f8701233a1
+                - row "J jore sore 1719154826 0983144424 admin@dentiapp.online VER FICHA" [ref=e55]:
+                  - cell "J jore sore" [ref=e56]:
+                    - generic [ref=e57]:
+                      - generic [ref=e58]: J
+                      - generic [ref=e59]: jore sore
+                  - cell "1719154826" [ref=e60]
+                  - cell "0983144424 admin@dentiapp.online" [ref=e61]:
+                    - generic [ref=e62]:
+                      - generic [ref=e63]: "0983144424"
+                      - generic [ref=e64]: admin@dentiapp.online
+                  - cell "VER FICHA" [ref=e65]:
+                    - link "VER FICHA" [ref=e66] [cursor=pointer]:
+                      - /url: /admission/patients/0a5149e0-a3c3-45f9-9b47-a11a614ffd24
+                - row "J jaime jaime — 0983444 admin@dentiapp.online VER FICHA" [ref=e67]:
+                  - cell "J jaime jaime" [ref=e68]:
+                    - generic [ref=e69]:
+                      - generic [ref=e70]: J
+                      - generic [ref=e71]: jaime jaime
+                  - cell "—" [ref=e72]
+                  - cell "0983444 admin@dentiapp.online" [ref=e73]:
+                    - generic [ref=e74]:
+                      - generic [ref=e75]: "0983444"
+                      - generic [ref=e76]: admin@dentiapp.online
+                  - cell "VER FICHA" [ref=e77]:
+                    - link "VER FICHA" [ref=e78] [cursor=pointer]:
+                      - /url: /admission/patients/79f8a8b3-5bb7-4415-8a3f-6cd532a6b96e
+                - row "J Jaime Rodriguez sdfg 0983144424 admin@dentiapp.online VER FICHA" [ref=e79]:
+                  - cell "J Jaime Rodriguez" [ref=e80]:
+                    - generic [ref=e81]:
+                      - generic [ref=e82]: J
+                      - generic [ref=e83]: Jaime Rodriguez
+                  - cell "sdfg" [ref=e84]
+                  - cell "0983144424 admin@dentiapp.online" [ref=e85]:
+                    - generic [ref=e86]:
+                      - generic [ref=e87]: "0983144424"
+                      - generic [ref=e88]: admin@dentiapp.online
+                  - cell "VER FICHA" [ref=e89]:
+                    - link "VER FICHA" [ref=e90] [cursor=pointer]:
+                      - /url: /admission/patients/8fb14058-c845-46db-b7a6-31bd69dad68e
+            - navigation "Paginación" [ref=e91]:
+              - link "Anterior" [ref=e92] [cursor=pointer]:
+                - /url: /admission/patients?page=1
+                - img [ref=e93]
+                - text: Anterior
+              - generic [ref=e95]: Página 2 de 2
+              - link "Siguiente" [disabled]:
+                - /url: /admission/patients?page=2
+                - text: Siguiente
+                - img
+    - generic [ref=e96]:
+      - generic "close sidebar"
+      - complementary [ref=e97]:
+        - link "Detiapp admin" [ref=e99] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e101]
+          - generic [ref=e103]:
+            - heading "Detiapp" [level=2] [ref=e104]
+            - paragraph [ref=e105]: admin
+        - navigation [ref=e106]:
+          - link "Dashboard" [ref=e107] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e108]
+            - text: Dashboard
+          - link "Pacientes" [ref=e113] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e114]
+            - text: Pacientes
+          - link "Turnos" [ref=e119] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e120]
+            - text: Turnos
+          - link "Odontología" [ref=e122] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e123]
+            - text: Odontología
+          - link "Enfermería" [ref=e125] [cursor=pointer]:
+            - /url: /nursing/vital-signs
+            - img [ref=e126]
+            - text: Enfermería
+          - link "Mis Clínicas" [ref=e129] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e130]
+            - text: Mis Clínicas
+          - link "Equipo" [ref=e136] [cursor=pointer]:
+            - /url: /settings/team
+            - img [ref=e137]
+            - text: Equipo
+          - link "Permisos" [ref=e142] [cursor=pointer]:
+            - /url: /settings/permissions
+            - img [ref=e143]
+            - text: Permisos
+          - link "Suscripción" [ref=e145] [cursor=pointer]:
+            - /url: /settings/subscription
+            - img [ref=e146]
+            - text: Suscripción
+          - link "Soporte" [ref=e148] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e149]
+            - text: Soporte
+          - link "Configuración" [ref=e152] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e153]
+            - text: Configuración
+        - generic [ref=e156]:
+          - button "Cerrar sesión" [ref=e158]:
+            - img [ref=e159]
+            - text: Cerrar sesión
+          - generic [ref=e162]: v1.1.75
+  - button "Open Next.js Dev Tools" [ref=e168] [cursor=pointer]:
+    - img [ref=e169]
+  - alert [ref=e172]

@@ -2,13 +2,19 @@ import { ensureUserTenant } from "@/lib/tenants/actions";
 import { getProducts } from "@/lib/products/actions";
 import { CotizadorClient } from "@/components/cotizador/cotizador-client";
 import { redirect } from "next/navigation";
+import { getUserRoleInfo } from "@/lib/auth/actions";
 
 export const metadata = {
-  title: "Cotizador Rápido - IAPI Shop",
+  title: "Cotizador Rápido - Tenddy Shop",
   description: "Crea y envía cotizaciones rápidas a tus clientes",
 };
 
 export default async function CotizadorPage() {
+  const roleResult = await getUserRoleInfo();
+  if (!roleResult.success || roleResult.data?.platformRole !== "admin") {
+    redirect("/dashboard");
+  }
+
   const result = await ensureUserTenant();
   if (!result.success || !result.data) {
     redirect("/onboarding");

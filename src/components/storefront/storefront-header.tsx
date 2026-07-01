@@ -72,13 +72,19 @@ interface StorefrontHeaderProps {
   categories?: CategoryData[]
   selectedCategoryId?: string | null
   onCategorySelect?: (categoryId: string | null) => void
+  isAuthenticated?: boolean
 }
 
-export function StorefrontHeader({ tenantName, tenantId, brandColor = "#f97316", categories = [], selectedCategoryId = null, onCategorySelect }: StorefrontHeaderProps) {
+export function StorefrontHeader({ tenantName, tenantId, brandColor = "#f97316", categories = [], selectedCategoryId = null, onCategorySelect, isAuthenticated = false }: StorefrontHeaderProps) {
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [menuOpen, setMenuOpen] = React.useState(false)
   const getTenantItems = useCart((state) => state.getTenantItems)
   const itemCount = getTenantItems(tenantId).length
+  const [isMounted, setIsMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const { roots } = React.useMemo(() => buildCategoryTree(categories), [categories])
 
@@ -131,14 +137,14 @@ export function StorefrontHeader({ tenantName, tenantId, brandColor = "#f97316",
           </div>
 
           {/* User icon */}
-          <Link href="/login" className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex-shrink-0">
+          <Link href={isAuthenticated ? "/perfil" : "/login"} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex-shrink-0">
             <User className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
           </Link>
 
           {/* Cart icon with badge */}
           <div className="relative flex-shrink-0">
             <ShoppingBag className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
-            {itemCount > 0 && (
+            {isMounted && itemCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center">
                 {itemCount}
               </span>

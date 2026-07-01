@@ -65,7 +65,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
           </div>
           <div className="pt-2">
             <div className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase font-black tracking-widest">
-              Potenciado por IAPI Shop
+              Potenciado por Tenddy Shop
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
   const isFreePlan = tenant.plan_name ? tenant.plan_name.toLowerCase().includes("free") : false;
   const brandColor = tenant.brand_color || "#f97316";
   const secondaryColor = tenant.secondary_color || "#bae6fd";
-  const displayedProducts = isFreePlan ? products.slice(0, 10) : products;
+  const displayedProducts = isFreePlan ? products.slice(0, 15) : products;
 
   // Fetch favorites for authenticated users
   const supabaseForFavs = await createClient();
@@ -180,7 +180,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
                 ¿Quieres vender por WhatsApp como esta tienda?
               </h3>
               <p className="text-orange-100 text-sm md:text-base font-medium">
-                Crea tu propio catálogo digital gratis con IAPI Shop en minutos.
+                Crea tu propio catálogo digital gratis con Tenddy Shop en minutos.
               </p>
             </div>
             <a
@@ -216,7 +216,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
               </>
             )}
             <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-70">
-              Potenciado por IAPI Shop
+              Potenciado por Tenddy Shop
             </div>
           </div>
         </div>

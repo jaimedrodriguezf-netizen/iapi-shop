@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Legal | IAPI Shop",
-  description: "Términos, condiciones y políticas de privacidad de IAPI Shop.",
+  title: "Legal | Tenddy Shop",
+  description: "Términos, condiciones y políticas de privacidad de Tenddy Shop.",
 };
 
 export default function LegalLayout({

@@ -56,10 +56,10 @@ vi.mock("@/lib/admin/banner-actions", () => ({
 import Home from "./page";
 
 describe("marketplace landing page", () => {
-  it("renders the marketplace page with IAPI Shop name and login links", async () => {
+  it("renders the marketplace page with Tenddy Shop name and login links", async () => {
     render(await Home());
 
-    expect(screen.getByText("IAPI Shop")).toBeInTheDocument();
+    expect(screen.getByText("Tenddy Shop")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /iniciar sesión/i })).toHaveAttribute("href", "/login");
     expect(screen.getByRole("link", { name: /registrarse/i })).toHaveAttribute("href", "/register");
   });

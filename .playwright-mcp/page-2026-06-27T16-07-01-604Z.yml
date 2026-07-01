@@ -1,0 +1,174 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: admin@dentiapp.online
+            - paragraph [ref=e18]: admin@dentiapp.online
+          - generic [ref=e20]: A
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - heading "Pacientes" [level=2] [ref=e26]
+              - paragraph [ref=e27]: 9 pacientes registrados
+            - link "NUEVO PACIENTE" [ref=e28] [cursor=pointer]:
+              - /url: /admission/patients/new
+              - img [ref=e29]
+              - text: NUEVO PACIENTE
+          - generic [ref=e31]:
+            - generic:
+              - img
+            - textbox "Buscar por nombre, apellido o cédula..." [ref=e32]
+            - button "Buscar" [ref=e33]
+          - generic [ref=e34]:
+            - table [ref=e36]:
+              - rowgroup [ref=e37]:
+                - row "Paciente Cédula Contacto Acciones" [ref=e38]:
+                  - columnheader "Paciente" [ref=e39]
+                  - columnheader "Cédula" [ref=e40]
+                  - columnheader "Contacto" [ref=e41]
+                  - columnheader "Acciones" [ref=e42]
+              - rowgroup [ref=e43]:
+                - row "J Juan Pérez 1723456789 0998765432 juan.perez@gmail.com VER FICHA" [ref=e44]:
+                  - cell "J Juan Pérez" [ref=e45]:
+                    - generic [ref=e46]:
+                      - generic [ref=e47]: J
+                      - generic [ref=e48]: Juan Pérez
+                  - cell "1723456789" [ref=e49]
+                  - cell "0998765432 juan.perez@gmail.com" [ref=e50]:
+                    - generic [ref=e51]:
+                      - generic [ref=e52]: "0998765432"
+                      - generic [ref=e53]: juan.perez@gmail.com
+                  - cell "VER FICHA" [ref=e54]:
+                    - link "VER FICHA" [ref=e55] [cursor=pointer]:
+                      - /url: /admission/patients/ac4f5bf8-c641-49f5-a52e-72ab060a8d60
+                - row "T Tanya Díaz 1718392920 0994704169 demo@dentiapp.online VER FICHA" [ref=e56]:
+                  - cell "T Tanya Díaz" [ref=e57]:
+                    - generic [ref=e58]:
+                      - generic [ref=e59]: T
+                      - generic [ref=e60]: Tanya Díaz
+                  - cell "1718392920" [ref=e61]
+                  - cell "0994704169 demo@dentiapp.online" [ref=e62]:
+                    - generic [ref=e63]:
+                      - generic [ref=e64]: "0994704169"
+                      - generic [ref=e65]: demo@dentiapp.online
+                  - cell "VER FICHA" [ref=e66]:
+                    - link "VER FICHA" [ref=e67] [cursor=pointer]:
+                      - /url: /admission/patients/0caafd2e-3fbb-43be-8c4a-4e8d06d0f772
+                - row "A Ana Booking — +593998887777 anabooking@test.com VER FICHA" [ref=e68]:
+                  - cell "A Ana Booking" [ref=e69]:
+                    - generic [ref=e70]:
+                      - generic [ref=e71]: A
+                      - generic [ref=e72]: Ana Booking
+                  - cell "—" [ref=e73]
+                  - cell "+593998887777 anabooking@test.com" [ref=e74]:
+                    - generic [ref=e75]:
+                      - generic [ref=e76]: "+593998887777"
+                      - generic [ref=e77]: anabooking@test.com
+                  - cell "VER FICHA" [ref=e78]:
+                    - link "VER FICHA" [ref=e79] [cursor=pointer]:
+                      - /url: /admission/patients/8b9d1321-e8ee-4665-b4fa-b8f4be73b1c5
+                - row "J Juanoto Perez 12345678900 0999999999 test1@gmail.com VER FICHA" [ref=e80]:
+                  - cell "J Juanoto Perez" [ref=e81]:
+                    - generic [ref=e82]:
+                      - generic [ref=e83]: J
+                      - generic [ref=e84]: Juanoto Perez
+                  - cell "12345678900" [ref=e85]
+                  - cell "0999999999 test1@gmail.com" [ref=e86]:
+                    - generic [ref=e87]:
+                      - generic [ref=e88]: "0999999999"
+                      - generic [ref=e89]: test1@gmail.com
+                  - cell "VER FICHA" [ref=e90]:
+                    - link "VER FICHA" [ref=e91] [cursor=pointer]:
+                      - /url: /admission/patients/eae80c95-a543-4695-9453-5d421de2ac43
+                - row "P Public Test — 0998887776 VER FICHA" [ref=e92]:
+                  - cell "P Public Test" [ref=e93]:
+                    - generic [ref=e94]:
+                      - generic [ref=e95]: P
+                      - generic [ref=e96]: Public Test
+                  - cell "—" [ref=e97]
+                  - cell "0998887776" [ref=e98]:
+                    - generic [ref=e100]: "0998887776"
+                  - cell "VER FICHA" [ref=e101]:
+                    - link "VER FICHA" [ref=e102] [cursor=pointer]:
+                      - /url: /admission/patients/669de44f-9b42-475c-8ff0-305f4462a4aa
+            - navigation "Paginación" [ref=e103]:
+              - link "Anterior" [disabled]:
+                - /url: /admission/patients?page=1
+                - img
+                - text: Anterior
+              - generic [ref=e104]: Página 1 de 2
+              - link "Siguiente" [ref=e105] [cursor=pointer]:
+                - /url: /admission/patients?page=2
+                - text: Siguiente
+                - img [ref=e106]
+    - generic [ref=e108]:
+      - generic "close sidebar"
+      - complementary [ref=e109]:
+        - link "Detiapp admin" [ref=e111] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e113]
+          - generic [ref=e115]:
+            - heading "Detiapp" [level=2] [ref=e116]
+            - paragraph [ref=e117]: admin
+        - navigation [ref=e118]:
+          - link "Dashboard" [ref=e119] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e120]
+            - text: Dashboard
+          - link "Pacientes" [ref=e125] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e126]
+            - text: Pacientes
+          - link "Turnos" [ref=e131] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e132]
+            - text: Turnos
+          - link "Odontología" [ref=e134] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e135]
+            - text: Odontología
+          - link "Enfermería" [ref=e137] [cursor=pointer]:
+            - /url: /nursing/vital-signs
+            - img [ref=e138]
+            - text: Enfermería
+          - link "Mis Clínicas" [ref=e141] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e142]
+            - text: Mis Clínicas
+          - link "Equipo" [ref=e148] [cursor=pointer]:
+            - /url: /settings/team
+            - img [ref=e149]
+            - text: Equipo
+          - link "Permisos" [ref=e154] [cursor=pointer]:
+            - /url: /settings/permissions
+            - img [ref=e155]
+            - text: Permisos
+          - link "Suscripción" [ref=e157] [cursor=pointer]:
+            - /url: /settings/subscription
+            - img [ref=e158]
+            - text: Suscripción
+          - link "Soporte" [ref=e160] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e161]
+            - text: Soporte
+          - link "Configuración" [ref=e164] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e165]
+            - text: Configuración
+        - generic [ref=e168]:
+          - button "Cerrar sesión" [ref=e170]:
+            - img [ref=e171]
+            - text: Cerrar sesión
+          - generic [ref=e174]: v1.1.75
+  - button "Open Next.js Dev Tools" [ref=e180] [cursor=pointer]:
+    - img [ref=e181]
+  - alert [ref=e184]

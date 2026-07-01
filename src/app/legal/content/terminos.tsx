@@ -8,9 +8,9 @@ export function TerminosContent() {
 
       <h2>1. Objeto del Servicio</h2>
       <p>
-        IAPI Shop es una plataforma de tecnología (SaaS) que permite a comerciantes
+        Tenddy Shop es una plataforma de tecnología (SaaS) que permite a comerciantes
         ecuatorianos crear catálogos digitales de productos y compartirlos con sus
-        clientes a través de enlaces y códigos QR. IAPI Shop no es un almacén, un
+        clientes a través de enlaces y códigos QR. Tenddy Shop no es un almacén, un
         distribuidor ni un intermediario comercial. La plataforma proporciona
         exclusivamente herramientas tecnológicas para la gestión y presentación de
         catálogos.
@@ -19,9 +19,9 @@ export function TerminosContent() {
       <h2>2. Declaración de Intermediación</h2>
       <p>
         Conforme a los artículos 54 y 55 de la Ley de Comercio Electrónico, Firmas
-        Electrónicas y Mensajes de Datos del Ecuador (LCE), IAPI Shop actúa como
+        Electrónicas y Mensajes de Datos del Ecuador (LCE), Tenddy Shop actúa como
         intermediario neutral en la presentación de información de terceros
-        comerciantes. IAPI Shop:
+        comerciantes. Tenddy Shop:
       </p>
       <ul>
         <li>No interviene en la transacción entre comprador y comerciante.</li>
@@ -36,21 +36,21 @@ export function TerminosContent() {
         </li>
       </ul>
       <p>
-        Los catálogos publicados a través de IAPI Shop corresponden exclusivamente a
-        cada comerciante. IAPI Shop no garantiza la exactitud, integridad o
+        Los catálogos publicados a través de Tenddy Shop corresponden exclusivamente a
+        cada comerciante. Tenddy Shop no garantiza la exactitud, integridad o
         actualidad de la información contenida en dichos catálogos.
       </p>
 
       <h2>3. Canal de Venta (WhatsApp)</h2>
       <p>
-        IAPI Shop facilita un enlace de comunicación entre el comprador y el
+        Tenddy Shop facilita un enlace de comunicación entre el comprador y el
         comerciante mediante WhatsApp. Las transacciones se realizan directamente
         entre las partes (persona a persona), fuera del control y la
-        responsabilidad de IAPI Shop. Especificamente:
+        responsabilidad de Tenddy Shop. Especificamente:
       </p>
       <ul>
         <li>
-          IAPI Shop no participa en la negociación, el acuerdo ni la ejecución de la
+          Tenddy Shop no participa en la negociación, el acuerdo ni la ejecución de la
           venta.
         </li>
         <li>
@@ -62,13 +62,13 @@ export function TerminosContent() {
           comprador y el comerciante.
         </li>
         <li>
-          IAPI Shop no tiene acceso al contenido de esas comunicaciones ni
+          Tenddy Shop no tiene acceso al contenido de esas comunicaciones ni
           interviene en ellas.
         </li>
       </ul>
 
       <h2>4. Exclusiones de Responsabilidad</h2>
-      <p>IAPI Shop no es responsable por:</p>
+      <p>Tenddy Shop no es responsable por:</p>
       <ul>
         <li>
           <strong>Pagos:</strong> No gestiona, procesa ni garantiza transacciones
@@ -94,7 +94,7 @@ export function TerminosContent() {
 
       <h2>5. Obligaciones del Comerciante</h2>
       <p>
-        Al utilizar IAPI Shop, cada comerciante se obliga a cumplir con la Ley
+        Al utilizar Tenddy Shop, cada comerciante se obliga a cumplir con la Ley
         Orgánica de Defensa del Consumidor (LODC), incluyendo:
       </p>
       <ul>
@@ -120,7 +120,7 @@ export function TerminosContent() {
 
       <h2>6. Uso Aceptable y Suspensión</h2>
       <p>
-        Queda terminantemente prohibido utilizar IAPI Shop para la venta o
+        Queda terminantemente prohibido utilizar Tenddy Shop para la venta o
         promoción de:
       </p>
       <ul>
@@ -134,14 +134,14 @@ export function TerminosContent() {
         <li>Cualquier producto o servicio que viole la legislación ecuatoriana.</li>
       </ul>
       <p>
-        IAPI Shop se reserva el derecho de suspender o cancelar cuentas que
+        Tenddy Shop se reserva el derecho de suspender o cancelar cuentas que
         infrinjan estas condiciones, sin perjuicio de las acciones legales que
         correspondan.
       </p>
 
       <h2>7. Propiedad Intelectual</h2>
       <p>
-        El nombre comercial &quot;IAPI Shop&quot;, su logotipo, el diseño de la
+        El nombre comercial &quot;Tenddy Shop&quot;, su logotipo, el diseño de la
         plataforma, el código fuente y la documentación técnica son propiedad
         intelectual de Januscore. Queda prohibida su reproducción, distribución,
         modificación o uso sin autorización expresa.

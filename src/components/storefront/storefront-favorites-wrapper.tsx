@@ -189,6 +189,7 @@ export function StorefrontFavoritesWrapper({
         categories={activeCategories}
         selectedCategoryId={selectedCategory}
         onCategorySelect={handleCategorySelect}
+        isAuthenticated={isAuthenticated}
       />
 
       {/* Seller Hero Section */}

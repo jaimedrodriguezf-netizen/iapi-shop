@@ -1,0 +1,262 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Ocultar menú" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - generic [ref=e12]:
+            - heading "Detiapp" [level=1] [ref=e13]
+            - paragraph [ref=e14]: DentiApp Online
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - paragraph [ref=e17]: admin@dentiapp.online
+            - paragraph [ref=e18]: admin@dentiapp.online
+          - generic [ref=e20]: A
+      - main [ref=e21]:
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - link [ref=e25] [cursor=pointer]:
+              - /url: /settings/profile
+              - img [ref=e26]
+            - generic [ref=e28]:
+              - heading "Suscripción" [level=2] [ref=e29]
+              - paragraph [ref=e30]: Administrá el plan y facturación de la clínica Detiapp
+          - generic [ref=e31]:
+            - generic [ref=e32]:
+              - generic [ref=e33]: Plan Activo
+              - generic [ref=e34]:
+                - generic [ref=e35]:
+                  - img [ref=e37]
+                  - generic [ref=e40]:
+                    - heading "Gratis" [level=3] [ref=e41]
+                    - paragraph [ref=e42]: Comienzo Simple
+                - generic [ref=e43]:
+                  - generic [ref=e44]: $0
+                  - generic [ref=e45]: /año
+                - paragraph [ref=e46]: Ideal para profesionales independientes o consultorios pequeños que recién empiezan en la digitalización.
+                - list [ref=e48]:
+                  - listitem [ref=e49]:
+                    - img [ref=e51]
+                    - generic [ref=e53]: Odontología básica
+                  - listitem [ref=e54]:
+                    - img [ref=e56]
+                    - generic [ref=e58]: Hasta 50 pacientes
+                  - listitem [ref=e59]:
+                    - img [ref=e61]
+                    - generic [ref=e63]: Soporte estándar
+              - button "Plan Actual" [disabled] [ref=e65]
+            - generic [ref=e66]:
+              - generic [ref=e67]: Próximamente
+              - generic [ref=e68]:
+                - generic [ref=e69]:
+                  - img [ref=e71]
+                  - generic [ref=e74]:
+                    - heading "Standard" [level=3] [ref=e75]
+                    - paragraph [ref=e76]: Uso Personal
+                - generic [ref=e77]:
+                  - generic [ref=e78]: $49.99
+                  - generic [ref=e79]: /año
+                - paragraph [ref=e80]: Para consultorios en crecimiento que manejan su propia agenda y requieren pacientes ilimitados y Formulario 033.
+                - list [ref=e82]:
+                  - listitem [ref=e83]:
+                    - img [ref=e85]
+                    - generic [ref=e87]: Todo lo del Plan Gratis
+                  - listitem [ref=e88]:
+                    - img [ref=e90]
+                    - generic [ref=e92]: Odontología completa
+                  - listitem [ref=e93]:
+                    - img [ref=e95]
+                    - generic [ref=e97]: Pacientes ilimitados
+                  - listitem [ref=e98]:
+                    - img [ref=e100]
+                    - generic [ref=e102]: Citas y dashboard
+                  - listitem [ref=e103]:
+                    - img [ref=e105]
+                    - generic [ref=e107]: Soporte estándar
+                  - listitem [ref=e108]:
+                    - img [ref=e110]
+                    - generic [ref=e113]: Módulo de admisión
+                  - listitem [ref=e114]:
+                    - img [ref=e116]
+                    - generic [ref=e119]: Módulo de enfermería
+              - generic [ref=e121]:
+                - link "Contactar por WhatsApp" [ref=e122] [cursor=pointer]:
+                  - /url: https://wa.me/593982724147?text=Hola%2C%20me%20interesa%20el%20plan%20standard
+                  - img [ref=e123]
+                  - text: Contactar por WhatsApp
+                - button "Activar Standard (admin)" [ref=e125]
+            - generic [ref=e126]:
+              - generic [ref=e127]: Próximamente
+              - generic [ref=e128]: Nuevo
+              - generic [ref=e129]:
+                - generic [ref=e130]:
+                  - img [ref=e132]
+                  - generic [ref=e134]:
+                    - heading "Pro" [level=3] [ref=e136]
+                    - paragraph [ref=e137]: Clínicas en Crecimiento
+                - generic [ref=e138]:
+                  - generic [ref=e139]: $99.90
+                  - generic [ref=e140]: /año
+                - paragraph [ref=e141]: Desbloqueá admisión, enfermería y reportes avanzados con soporte prioritario para clínicas que escalan.
+                - list [ref=e143]:
+                  - listitem [ref=e144]:
+                    - img [ref=e146]
+                    - generic [ref=e148]: Todo lo de Standard
+                  - listitem [ref=e149]:
+                    - img [ref=e151]
+                    - generic [ref=e153]: Módulo de admisión
+                  - listitem [ref=e154]:
+                    - img [ref=e156]
+                    - generic [ref=e158]: Módulo de enfermería
+                  - listitem [ref=e159]:
+                    - img [ref=e161]
+                    - generic [ref=e163]: Reportes avanzados
+                  - listitem [ref=e164]:
+                    - img [ref=e166]
+                    - generic [ref=e168]: Soporte prioritario
+                  - listitem [ref=e169]:
+                    - img [ref=e171]
+                    - generic [ref=e174]: Multi-sucursal
+              - generic [ref=e176]:
+                - link "Contactar por WhatsApp" [ref=e177] [cursor=pointer]:
+                  - /url: https://wa.me/593982724147?text=Hola%2C%20me%20interesa%20el%20plan%20pro
+                  - img [ref=e178]
+                  - text: Contactar por WhatsApp
+                - button "Activar Pro (admin)" [ref=e180]
+            - generic [ref=e181]:
+              - generic [ref=e182]: Próximamente
+              - generic [ref=e183]:
+                - generic [ref=e184]:
+                  - img [ref=e186]
+                  - generic [ref=e188]:
+                    - generic [ref=e189]:
+                      - heading "Business" [level=3] [ref=e190]
+                      - generic [ref=e191]: Popular
+                    - paragraph [ref=e192]: Centros Médicos
+                - generic [ref=e193]:
+                  - generic [ref=e194]: Contactar
+                  - generic [ref=e195]: admin
+                - paragraph [ref=e196]: La solución definitiva para redes de clínicas con múltiples sucursales y SLA dedicado.
+                - list [ref=e198]:
+                  - listitem [ref=e199]:
+                    - img [ref=e201]
+                    - generic [ref=e203]: Todo lo de Pro
+                  - listitem [ref=e204]:
+                    - img [ref=e206]
+                    - generic [ref=e208]: Multi-sucursal
+                  - listitem [ref=e209]:
+                    - img [ref=e211]
+                    - generic [ref=e213]: SLA dedicado
+                  - listitem [ref=e214]:
+                    - img [ref=e216]
+                    - generic [ref=e218]: Contacto directo
+              - link "Contactar Admin" [ref=e220] [cursor=pointer]:
+                - /url: mailto:admin@dentiapp.online?subject=Business%20plan%20inquiry
+                - img [ref=e221]
+                - text: Contactar Admin
+          - generic [ref=e224]:
+            - generic [ref=e225]:
+              - heading "Tu uso del plan Free" [level=3] [ref=e226]
+              - paragraph [ref=e227]: Llegaste a los límites? Contactanos por WhatsApp para actualizar.
+            - generic [ref=e228]:
+              - generic [ref=e229]:
+                - generic [ref=e230]:
+                  - generic [ref=e231]: Pacientes
+                  - generic [ref=e232]: 9 / 50
+                - 'progressbar "Pacientes: 9 de 50" [ref=e233]'
+              - generic [ref=e234]:
+                - generic [ref=e235]:
+                  - generic [ref=e236]: Admisiones este mes
+                  - generic [ref=e237]: 1 / 20
+                - 'progressbar "Admisiones este mes: 1 de 20" [ref=e238]'
+              - generic [ref=e239]:
+                - generic [ref=e240]:
+                  - generic [ref=e241]: Usuarios
+                  - generic [ref=e242]: 1 / 2
+                - 'progressbar "Usuarios: 1 de 2" [ref=e243]'
+              - generic [ref=e244]:
+                - generic [ref=e245]:
+                  - generic [ref=e246]: Storage
+                  - generic [ref=e247]:
+                    - text: 0 / 500
+                    - generic [ref=e248]: MB
+                - 'progressbar "Storage: 0 de 500 MB" [ref=e249]'
+          - generic [ref=e250]:
+            - generic [ref=e251]:
+              - heading "Preguntas Frecuentes sobre los Planes" [level=3] [ref=e252]
+              - paragraph [ref=e253]: Todo lo que necesitás saber sobre la actualización y características de DentiApp Online
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - heading "¿Cómo funciona el módulo de enfermería en los planes Pro y Business?" [level=4] [ref=e256]
+                - paragraph [ref=e257]: Los planes Pro y Business habilitan el módulo de enfermería donde tu personal asistente puede tomar signos vitales y realizar el examen estomatognático del paciente antes de la consulta odontológica.
+              - generic [ref=e258]:
+                - heading "¿Puedo cambiar de plan en cualquier momento?" [level=4] [ref=e259]
+                - paragraph [ref=e260]: Sí, podés subir o bajar de plan en cualquier momento al instante. Al subir a Pro o Business tendrás acceso inmediato a tus módulos avanzados. Al bajar a Standard o Gratis, se limitará el acceso a esos módulos.
+    - generic [ref=e261]:
+      - generic "close sidebar"
+      - complementary [ref=e262]:
+        - generic [ref=e263]:
+          - link "Detiapp admin" [ref=e264] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e266]
+            - generic [ref=e268]:
+              - heading "Detiapp" [level=2] [ref=e269]
+              - paragraph [ref=e270]: admin
+          - generic [ref=e271]:
+            - generic [ref=e272]: Plan Free
+            - link "Actualizar" [ref=e273] [cursor=pointer]:
+              - /url: /settings/subscription
+        - navigation [ref=e274]:
+          - link "Dashboard" [ref=e275] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e276]
+            - text: Dashboard
+          - link "Pacientes" [ref=e281] [cursor=pointer]:
+            - /url: /admission/patients
+            - img [ref=e282]
+            - text: Pacientes
+          - link "Turnos" [ref=e287] [cursor=pointer]:
+            - /url: /dentiapp/admission/appointments
+            - img [ref=e288]
+            - text: Turnos
+          - link "Odontología" [ref=e290] [cursor=pointer]:
+            - /url: /odontology
+            - img [ref=e291]
+            - text: Odontología
+          - link "Enfermería" [ref=e293] [cursor=pointer]:
+            - /url: /nursing/vital-signs
+            - img [ref=e294]
+            - text: Enfermería
+          - link "Mis Clínicas" [ref=e297] [cursor=pointer]:
+            - /url: /settings/landing-page
+            - img [ref=e298]
+            - text: Mis Clínicas
+          - link "Equipo" [ref=e304] [cursor=pointer]:
+            - /url: /settings/team
+            - img [ref=e305]
+            - text: Equipo
+          - link "Permisos" [ref=e310] [cursor=pointer]:
+            - /url: /settings/permissions
+            - img [ref=e311]
+            - text: Permisos
+          - link "Suscripción" [ref=e313] [cursor=pointer]:
+            - /url: /settings/subscription
+            - img [ref=e314]
+            - text: Suscripción
+          - link "Soporte" [ref=e316] [cursor=pointer]:
+            - /url: /settings/support
+            - img [ref=e317]
+            - text: Soporte
+          - link "Configuración" [ref=e320] [cursor=pointer]:
+            - /url: /settings/profile
+            - img [ref=e321]
+            - text: Configuración
+        - generic [ref=e324]:
+          - button "Cerrar sesión" [ref=e326]:
+            - img [ref=e327]
+            - text: Cerrar sesión
+          - generic [ref=e330]: v1.1.79
+  - button "Open Next.js Dev Tools" [ref=e336] [cursor=pointer]:
+    - img [ref=e337]
+  - alert [ref=e340]

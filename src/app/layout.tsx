@@ -9,7 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "IAPI Shop | Ecommerce multitenant seguro",
+  title: "Tenddy Shop | Ecommerce multitenant seguro",
   description: "Plataforma para tiendas ecuatorianas con QR, WhatsApp, pagos locales e IA para productos.",
 };
 

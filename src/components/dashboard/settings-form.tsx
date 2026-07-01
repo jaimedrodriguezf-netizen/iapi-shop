@@ -9,7 +9,7 @@ import { Check, MapPin, Palette, Share2, AlertTriangle, Building, Globe, Shoppin
 
 import { Button } from "@/components/ui/button"
 import { StorefrontHeader } from "@/components/storefront/storefront-header"
-import { StorefrontProductGrid } from "@/components/storefront/storefront-product-grid"
+import { StorefrontCatalog } from "@/components/storefront/storefront-catalog"
 import {
   Card,
   CardContent,
@@ -137,40 +137,7 @@ interface SettingsFormProps {
   countries?: Country[]
 }
 
-const DEFAULT_MOCK_PRODUCTS = [
-  {
-    id: "mock-prod-1",
-    name: "Hamburguesa Premium Doble",
-    description: "Doble carne de res premium, queso cheddar fundido, tocino crujiente y salsa especial.",
-    price: 9.99,
-    image_urls: [],
-    category_id: "mock-cat-1"
-  },
-  {
-    id: "mock-prod-2",
-    name: "Papas Fritas Rústicas",
-    description: "Papas cortadas a mano sazonadas con finas hierbas y un toque de sal marina.",
-    price: 3.50,
-    image_urls: [],
-    category_id: "mock-cat-1"
-  },
-  {
-    id: "mock-prod-3",
-    name: "Gaseosa Cola Helada",
-    description: "Vaso de 500ml con abundante hielo y limón.",
-    price: 1.50,
-    image_urls: [],
-    category_id: "mock-cat-2"
-  },
-  {
-    id: "mock-prod-4",
-    name: "Copa Helada de Oreo",
-    description: "Cremoso helado de vainilla batido con trozos de galletas Oreo.",
-    price: 4.20,
-    image_urls: [],
-    category_id: "mock-cat-3"
-  }
-]
+
 
 export function SettingsForm({ tenant, initialProducts = [], planName = "Free", palettes, countries = [] }: SettingsFormProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
@@ -212,9 +179,8 @@ export function SettingsForm({ tenant, initialProducts = [], planName = "Free", 
   const watchSlug = form.watch("slug")
   const watchCountry = form.watch("country")
   const watchState = form.watch("state")
-  const cannotPublish = watchName === "Mi Tienda" || (watchSlug ? watchSlug.startsWith("tienda-") : false)
-
   const isFreePlan = planName.toLowerCase() === "free"
+  const cannotPublish = watchName === "Mi Tienda" || (watchSlug ? watchSlug.startsWith("tienda-") : false)
 
   const [isGeneratingSlug, setIsGeneratingSlug] = React.useState(false)
 
@@ -449,7 +415,7 @@ export function SettingsForm({ tenant, initialProducts = [], planName = "Free", 
                         <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400 text-sm font-medium bg-amber-50 dark:bg-amber-950/30 px-4 py-3 rounded-xl mt-2">
                           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                           <span>
-                            En el <strong>Plan Free</strong> puedes publicar tu tienda, pero con las siguientes limitaciones: máximo 10 productos visibles, colores de marca predeterminados y marca de agua de IAPI Shop en tu tienda.
+                            En el <strong>Plan Free</strong> puedes publicar tu tienda, pero con un límite máximo de <strong>15 productos visibles</strong>.
                           </span>
                         </div>
                       )}
@@ -1026,11 +992,13 @@ export function SettingsForm({ tenant, initialProducts = [], planName = "Free", 
                 brandColor={currentBrandColor || "#f97316"}
               />
               
-{/* 2. Product grid with live preview */}
-              <StorefrontProductGrid
-                products={initialProducts.length > 0 ? initialProducts : DEFAULT_MOCK_PRODUCTS}
+              <StorefrontCatalog
+                categories={[]}
+                products={initialProducts}
                 tenantId={tenant.id}
                 brandColor={currentBrandColor || "#f97316"}
+                secondaryColor={currentSecondaryColor || "#bae6fd"}
+                whatsappPhone={tenant.whatsapp_phone || ""}
                 favoriteIds={[]}
                 onToggleFavorite={() => {}}
                 isAuthenticated={false}
@@ -1042,7 +1010,7 @@ export function SettingsForm({ tenant, initialProducts = [], planName = "Free", 
                   © {new Date().getFullYear()} {watchName || tenant.name || "Mi Tienda"}.
                 </p>
                 <div className="text-[8px] text-muted-foreground uppercase font-black tracking-widest mt-1 opacity-70">
-                  Potenciado por IAPI Shop
+                  Potenciado por Tenddy Shop
                 </div>
               </footer>
             </div>

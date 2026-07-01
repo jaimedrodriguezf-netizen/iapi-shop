@@ -47,7 +47,7 @@ describe("Admin Users Module - Complete User Listing", () => {
       {
         id: "admin-user-id",
         email: "admin@iapi.shop",
-        full_name: "Administrador IAPI",
+        full_name: "Administrador Tenddy",
         created_at: "2026-05-15T00:00:00Z",
       },
       {
@@ -181,7 +181,7 @@ describe("Admin Users Module - Complete User Listing", () => {
       {
         id: "admin-user-id",
         email: "admin@iapi.shop",
-        full_name: "Administrador IAPI",
+        full_name: "Administrador Tenddy",
         created_at: "2026-05-15T00:00:00Z",
       },
     ];

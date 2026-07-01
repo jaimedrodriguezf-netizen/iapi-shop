@@ -15,7 +15,7 @@ export default async function ProductsPage() {
 
   const subResult = await getTenantSubscription(result.data.id)
   let planName = (subResult.success && subResult.data) ? subResult.data.plans?.name || "Free" : "Free"
-  let productLimit = (subResult.success && subResult.data) ? subResult.data.plans?.product_limit || 5 : 5
+  let productLimit = (subResult.success && subResult.data) ? subResult.data.plans?.product_limit || 15 : 15
 
   if (platformRole === "admin") {
     planName = "Plus"

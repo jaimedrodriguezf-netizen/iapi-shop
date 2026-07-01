@@ -30,7 +30,7 @@ export default async function LandingPage() {
     .maybeSingle()
 
   const siteLogo = settings?.logo_url || null
-  const siteName = settings?.site_name || "IAPI Shop"
+  const siteName = settings?.site_name || "Tenddy Shop"
 
   // Fetch active promo banners
   const bannersResult = await getPromoBanners()

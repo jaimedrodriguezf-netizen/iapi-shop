@@ -8,7 +8,7 @@ export function PrivacidadContent() {
 
       <h2>1. Responsable del Tratamiento</h2>
       <p>
-        El responsable del tratamiento de datos personales en IAPI Shop es:
+        El responsable del tratamiento de datos personales en Tenddy Shop es:
       </p>
       <ul>
         <li>
@@ -31,10 +31,10 @@ export function PrivacidadContent() {
 
       <h2>2. Datos Recopilados</h2>
       <p>
-        IAPI Shop recopila datos personales de dos categorías de usuarios:
+        Tenddy Shop recopila datos personales de dos categorías de usuarios:
       </p>
       <h3>2.1. Datos de comerciantes</h3>
-      <p>Al registrarse y operar una tienda en IAPI Shop, recopilamos:</p>
+      <p>Al registrarse y operar una tienda en Tenddy Shop, recopilamos:</p>
       <ul>
         <li>Nombre completo</li>
         <li>Correo electrónico</li>
@@ -78,11 +78,11 @@ export function PrivacidadContent() {
 
       <h2>4. Límite en la Recopilación</h2>
       <p>
-        <strong>IAPI Shop NO almacena datos de compradores.</strong>{" "}
+        <strong>Tenddy Shop NO almacena datos de compradores.</strong>{" "}
         Los mensajes intercambiados a través de WhatsApp entre el comprador y el
         comerciante —incluyendo nombres, direcciones de entrega, datos de pago y
         cualquier otra información de la transacción— se procesan exclusivamente
-        entre las partes, fuera del alcance de IAPI Shop. No tenemos acceso,
+        entre las partes, fuera del alcance de Tenddy Shop. No tenemos acceso,
         control ni responsabilidad sobre dichos datos.
       </p>
 
