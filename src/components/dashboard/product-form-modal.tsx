@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { createProduct, updateProduct, getCategories, createCategory, uploadProductImage } from "@/lib/products/actions"
+import { createProduct, updateProduct, getCategories, uploadProductImage } from "@/lib/products/actions"
 import { generateProductDescription } from "@/lib/ai/actions"
 import Image from "next/image"
 
@@ -76,8 +76,6 @@ interface ProductFormModalProps {
 
 export function ProductFormModal({ tenantId, planName = "starter", platformRole = "merchant", product, open, onOpenChange, onSuccess }: ProductFormModalProps) {
   const [categories, setCategories] = React.useState<Category[]>([])
-  const [newCategoryName, setNewCategoryName] = React.useState("")
-  const [newCategoryParentId, setNewCategoryParentId] = React.useState<string>("none")
   const [selectedLevel1Id, setSelectedLevel1Id] = React.useState<string>("")
   const [selectedLevel2Id, setSelectedLevel2Id] = React.useState<string>("")
   const [selectedLevel3Id, setSelectedLevel3Id] = React.useState<string>("")
@@ -136,7 +134,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
   })
 
   const loadCategories = React.useCallback(async () => {
-    const res = await getCategories(tenantId)
+    const res = await getCategories()
     if (res.success && res.categories) {
       setCategories(res.categories as Category[])
     }
@@ -203,26 +201,6 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
     }
   }, [open, loadCategories, product, form])
 
-  async function handleCreateCategory() {
-    if (!newCategoryName) return
-    const isFree = planName.toLowerCase() === "free"
-    if (isFree) {
-      toast.error("El plan gratis no permite crear categorías")
-      return
-    }
-
-    const parentId = newCategoryParentId === "none" ? null : newCategoryParentId
-
-    const res = await createCategory(tenantId, newCategoryName, parentId)
-    if (res.success) {
-      toast.success("Categoría creada")
-      setNewCategoryName("")
-      setNewCategoryParentId("none")
-      loadCategories()
-    } else {
-      toast.error(res.error || "No se pudo crear la categoría")
-    }
-  }
 
   async function handleGenerateDescription() {
     if (planName.toLowerCase() === "free") {
@@ -578,68 +556,7 @@ export function ProductFormModal({ tenantId, planName = "starter", platformRole 
                       </div>
                     )}
                   </div>
-                  
-                  {planName.toLowerCase() !== "free" && (
-                    <div className="rounded-xl border bg-muted/20 p-4 space-y-4">
-                      <label htmlFor="new-category-input" className="text-xs font-black uppercase text-muted-foreground block" id="parent-category-label">
-                        ¿Depende de otra categoría? (Opcional)
-                      </label>
-                      <div className="space-y-3">
-                        <div className="space-y-1">
-                          <span className="text-[10px] text-muted-foreground font-bold uppercase block">
-                            Categoría Padre (Opcional)
-                          </span>
-                          <Select 
-                            onValueChange={(val) => setNewCategoryParentId(val || "none")} 
-                            value={newCategoryParentId}
-                          >
-                            <SelectTrigger className="rounded-xl h-9" aria-labelledby="parent-category-label">
-                              <SelectValue placeholder="Ninguna (Categoría Principal)">
-                                {(() => {
-                                  if (newCategoryParentId === "none") return "Ninguna (Categoría Principal)";
-                                  const c = categories.find(cat => cat.id === newCategoryParentId);
-                                  if (!c) return undefined;
-                                  const parent = c.parent_id ? categories.find(p => p.id === c.parent_id) : null;
-                                  return parent ? `Subcategoría > ${parent.name} > ${c.name}` : `Principal > ${c.name}`;
-                                })()}
-                              </SelectValue>
-                            </SelectTrigger>
-                        <SelectContent className="rounded-xl max-h-72 min-w-[300px]" side="bottom" align="start">
-                              <SelectItem value="none">Ninguna (Categoría Principal)</SelectItem>
-                              {eligibleParentsForRole.map((c) => {
-                                const parent = c.parent_id ? categories.find(p => p.id === c.parent_id) : null;
-                                const prefix = parent ? `Subcategoría > ${parent.name} > ` : "Principal > ";
-                                return (
-                                  <SelectItem key={c.id} value={c.id}>
-                                    {prefix}{c.name}
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
-                        </div>
 
-                        <div className="flex gap-2">
-                          <Input 
-                            id="new-category-input"
-                            aria-label="Nombre de la nueva categoría"
-                            placeholder="Nombre de la nueva categoría…" 
-                            className="rounded-xl flex-1" 
-                            value={newCategoryName}
-                            onChange={(e) => setNewCategoryName(e.target.value)}
-                          />
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            className="rounded-xl font-bold" 
-                            onClick={handleCreateCategory}
-                          >
-                            Crear
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </TabsContent>
               </div>
             </Tabs>

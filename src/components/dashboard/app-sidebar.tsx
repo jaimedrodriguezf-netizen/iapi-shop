@@ -18,6 +18,7 @@ import {
   ShoppingBag,
   Store,
   Users,
+  Tags,
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 
@@ -103,6 +104,11 @@ const navItems = [
     icon: CreditCard,
   },
   {
+    title: "Categorías",
+    url: "/dashboard/admin/categories",
+    icon: Tags,
+  },
+  {
     title: "Revisión",
     url: "/dashboard/admin/review",
     icon: ShieldCheck,
@@ -171,7 +177,8 @@ export function AppSidebar({
                 item.url === "/dashboard/admin/review" ||
                 item.url === "/dashboard/sections" ||
                 item.url === "/dashboard/cotizador" ||
-                item.url === "/dashboard/recibos"
+                item.url === "/dashboard/recibos" ||
+                item.url === "/dashboard/admin/categories"
               ) {
                 return platformRole === "admin"
               }

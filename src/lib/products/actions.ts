@@ -25,10 +25,11 @@ export interface Product {
 
 export interface Category {
   id: string;
-  tenant_id: string;
+  tenant_id?: string | null;
   name: string;
   slug: string;
   parent_id?: string | null;
+  description?: string | null;
   created_at?: string;
 }
 
@@ -67,9 +68,9 @@ const createProductSchema = z.object({
 const updateProductSchema = createProductSchema.partial();
 
 const createCategorySchema = z.object({
-  tenant_id: z.string().uuid("ID de sucursal inválido"),
   name: z.string().min(1, "El nombre es requerido").max(100, "El nombre no puede exceder 100 caracteres"),
   parent_id: z.string().uuid().nullable().optional(),
+  description: z.string().max(500, "La descripción no puede exceder 500 caracteres").nullable().optional(),
 });
 
 export async function checkProductLimit(tenant_id: string): Promise<{
@@ -392,7 +393,7 @@ export async function deleteProduct(id: string, tenant_id: string): Promise<{ su
   }
 }
 
-export async function getCategories(tenant_id: string): Promise<{ success: boolean; categories?: Category[]; error?: string }> {
+export async function getCategories(): Promise<{ success: boolean; categories?: Category[]; error?: string }> {
   try {
     const supabase = await createClient();
 
@@ -401,15 +402,10 @@ export async function getCategories(tenant_id: string): Promise<{ success: boole
       return { success: false, error: "No autorizado" };
     }
 
-    const membership = await assertTenantMember(supabase, tenant_id);
-    if (!membership.ok) {
-      return { success: false, error: membership.error };
-    }
-
     const { data, error } = await supabase
       .from("categories")
       .select("*")
-      .or(`tenant_id.eq.${tenant_id},tenant_id.is.null`)
+      .is("tenant_id", null)
       .order("name");
     
     if (error) {
@@ -423,10 +419,10 @@ export async function getCategories(tenant_id: string): Promise<{ success: boole
   }
 }
 
-export async function createCategory(tenant_id: string, name: string, parent_id?: string | null): Promise<{ success: boolean; category?: Category; error?: string }> {
+export async function createCategory(name: string, parent_id?: string | null, description?: string | null): Promise<{ success: boolean; category?: Category; error?: string }> {
   try {
     // Zod validation
-    const parsed = createCategorySchema.safeParse({ tenant_id, name, parent_id });
+    const parsed = createCategorySchema.safeParse({ name, parent_id, description });
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
     }
@@ -438,52 +434,30 @@ export async function createCategory(tenant_id: string, name: string, parent_id?
       return { success: false, error: "No autorizado" };
     }
 
-    // Rate limiting
-    const catIp = await getClientIdentifier();
-    const { success: rateLimitOk } = await categoryRateLimit.limit(catIp);
-    if (!rateLimitOk) {
-      return { success: false, error: "Demasiadas solicitudes. Intenta de nuevo en un minuto." };
-    }
-
     const isAdmin = await isPlatformAdmin(user.id, user.email);
-    const platformRole = isAdmin ? "admin" : "merchant";
-
-    // 1. Subscription plan check (only for merchants)
-    if (platformRole !== "admin") {
-      const { data: sub } = await supabase
-        .from("tenant_subscriptions")
-        .select("plans(name)")
-        .eq("tenant_id", parsed.data.tenant_id)
-        .maybeSingle();
-
-      const subTyped = sub as { plans: { name: string } | null } | null;
-      const planName = subTyped?.plans?.name || "Free";
-      if (planName.toLowerCase() === "free") {
-        return { success: false, error: "Tu plan no permite crear categorías." };
-      }
+    if (!isAdmin) {
+      return { success: false, error: "Solo los administradores de la plataforma pueden crear categorías globales." };
     }
 
-    // 2. Hierarchy and tenant isolation validation
+    // 2. Hierarchy validation
     if (parsed.data.parent_id) {
       const { data: parentCategory, error: parentError } = await supabase
         .from("categories")
         .select("id, parent_id")
         .eq("id", parsed.data.parent_id)
-        .eq("tenant_id", parsed.data.tenant_id)
+        .is("tenant_id", null)
         .maybeSingle();
 
       if (parentError || !parentCategory) {
-        return { success: false, error: "La categoría padre especificada no existe." };
+        return { success: false, error: "La categoría padre especificada no existe o no es global." };
       }
 
-      // If parent has a parent_id, it is a Level 2 category.
-      // We must fetch its parent (grandparent) to ensure we do not exceed 3 levels (grandparent must be Level 1, having parent_id = null).
       if (parentCategory.parent_id) {
         const { data: grandParentCategory, error: gpError } = await supabase
           .from("categories")
           .select("id, parent_id")
           .eq("id", parentCategory.parent_id)
-          .eq("tenant_id", tenant_id)
+          .is("tenant_id", null)
           .maybeSingle();
 
         if (gpError || !grandParentCategory) {
@@ -499,7 +473,7 @@ export async function createCategory(tenant_id: string, name: string, parent_id?
     const slug = parsed.data.name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
     const { data, error } = await supabase
       .from("categories")
-      .insert({ tenant_id: parsed.data.tenant_id, name: parsed.data.name, slug, parent_id: parsed.data.parent_id || null })
+      .insert({ name: parsed.data.name, slug, parent_id: parsed.data.parent_id || null, description: parsed.data.description || null, tenant_id: null })
       .select()
       .single();
     
@@ -510,6 +484,149 @@ export async function createCategory(tenant_id: string, name: string, parent_id?
     return { success: true, category: data };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Error al crear categoría";
+    return { success: false, error: msg };
+  }
+}
+
+const updateCategorySchema = z.object({
+  id: z.string().uuid("ID de categoría inválido"),
+  name: z.string().min(1, "El nombre es requerido").max(100, "El nombre no puede exceder 100 caracteres"),
+  parent_id: z.string().uuid().nullable().optional(),
+  description: z.string().max(500, "La descripción no puede exceder 500 caracteres").nullable().optional(),
+});
+
+export async function updateCategory(id: string, name: string, parent_id?: string | null, description?: string | null): Promise<{ success: boolean; category?: Category; error?: string }> {
+  try {
+    const parsed = updateCategorySchema.safeParse({ id, name, parent_id, description });
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+    }
+
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { success: false, error: "No autorizado" };
+    }
+
+    const isAdmin = await isPlatformAdmin(user.id, user.email);
+    if (!isAdmin) {
+      return { success: false, error: "Solo los administradores de la plataforma pueden editar categorías." };
+    }
+
+    // 1. Hierarchy and isolation validation
+    if (parsed.data.parent_id) {
+      if (parsed.data.parent_id === parsed.data.id) {
+        return { success: false, error: "Una categoría no puede ser padre de sí misma." };
+      }
+
+      const { data: parentCategory, error: parentError } = await supabase
+        .from("categories")
+        .select("id, parent_id")
+        .eq("id", parsed.data.parent_id)
+        .is("tenant_id", null)
+        .maybeSingle();
+
+      if (parentError || !parentCategory) {
+        return { success: false, error: "La categoría padre especificada no existe." };
+      }
+
+      if (parentCategory.parent_id) {
+        const { data: grandParentCategory, error: gpError } = await supabase
+          .from("categories")
+          .select("id, parent_id")
+          .eq("id", parentCategory.parent_id)
+          .is("tenant_id", null)
+          .maybeSingle();
+
+        if (gpError || !grandParentCategory) {
+          return { success: false, error: "La categoría padre de segundo nivel no existe." };
+        }
+
+        if (grandParentCategory.parent_id) {
+          return { success: false, error: "No se puede agregar una categoría en este nivel (límite de 3 niveles jerárquicos)." };
+        }
+      }
+    }
+
+    const slug = parsed.data.name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
+    const { data, error } = await supabase
+      .from("categories")
+      .update({ name: parsed.data.name, slug, parent_id: parsed.data.parent_id || null, description: parsed.data.description || null })
+      .eq("id", parsed.data.id)
+      .is("tenant_id", null)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error("updateCategory:", error);
+      return { success: false, error: "Error al actualizar la categoría" };
+    }
+    return { success: true, category: data };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Error al actualizar categoría";
+    return { success: false, error: msg };
+  }
+}
+
+export async function deleteCategory(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!id) return { success: false, error: "Faltan parámetros" };
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "No autorizado" };
+
+    const isAdmin = await isPlatformAdmin(user.id, user.email);
+    if (!isAdmin) {
+      return { success: false, error: "Solo los administradores de la plataforma pueden eliminar categorías." };
+    }
+
+    // Check if category has products
+    const { data: products, error: prodError } = await supabase
+      .from("products")
+      .select("id")
+      .eq("category_id", id)
+      .limit(1);
+
+    if (prodError) {
+      console.error("deleteCategory product check:", prodError);
+      return { success: false, error: "Error verificando dependencias" };
+    }
+
+    if (products && products.length > 0) {
+      return { success: false, error: "No se puede eliminar la categoría porque hay productos asignados a ella." };
+    }
+
+    // Check if category has subcategories
+    const { data: subs, error: subsError } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("parent_id", id)
+      .limit(1);
+
+    if (subsError) {
+      console.error("deleteCategory subs check:", subsError);
+      return { success: false, error: "Error verificando subcategorías" };
+    }
+
+    if (subs && subs.length > 0) {
+      return { success: false, error: "No se puede eliminar la categoría porque tiene subcategorías asociadas." };
+    }
+
+    const { error } = await supabase
+      .from("categories")
+      .delete()
+      .eq("id", id)
+      .is("tenant_id", null);
+    
+    if (error) {
+      console.error("deleteCategory:", error);
+      return { success: false, error: "Error al eliminar la categoría" };
+    }
+    return { success: true };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Error al eliminar categoría";
     return { success: false, error: msg };
   }
 }

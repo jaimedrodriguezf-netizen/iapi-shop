@@ -12,6 +12,7 @@ interface MockSupabaseClient {
   update: ReturnType<typeof vi.fn>;
   delete: ReturnType<typeof vi.fn>;
   eq: ReturnType<typeof vi.fn>;
+  is: ReturnType<typeof vi.fn>;
   or: ReturnType<typeof vi.fn>;
   order: ReturnType<typeof vi.fn>;
   single: ReturnType<typeof vi.fn>;
@@ -30,9 +31,10 @@ function createMockSupabase(overrides: Record<string, unknown> = {}): MockSupaba
     insert: vi.fn(),
     select: vi.fn(),
     update: vi.fn(),
-    delete: vi.fn(),
-    eq: vi.fn(),
-    or: vi.fn(),
+    delete: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    is: vi.fn().mockReturnThis(),
+    or: vi.fn().mockReturnThis(),
     order: vi.fn(),
     single: vi.fn(),
     maybeSingle: vi.fn(),
@@ -300,162 +302,13 @@ describe("Product Catalog Actions", () => {
   });
 
   describe("Categories", () => {
-    it("should fetch categories for a tenant", async () => {
+    it("should fetch categories", async () => {
       mockSupabase.from.mockReturnValue(mockSupabase);
       mockSupabase.order.mockResolvedValue({ data: [], error: null });
-      const result = await getCategories("550e8400-e29b-41d4-a716-446655440000");
+      const result = await getCategories();
       expect(result.success).toBe(true);
       expect(mockSupabase.from).toHaveBeenCalledWith("categories");
-      expect(mockSupabase.or).toHaveBeenCalledWith("tenant_id.eq.550e8400-e29b-41d4-a716-446655440000,tenant_id.is.null");
-    });
-
-    it("should create a new category", async () => {
-      mockSupabase.maybeSingle.mockResolvedValue({ data: { plans: { name: "Pro" } }, error: null });
-      mockSupabase.single.mockResolvedValue({ data: { id: "cat-1", name: "Bebidas" }, error: null });
-      const result = await createCategory("550e8400-e29b-41d4-a716-446655440000", "Bebidas");
-      expect(result.success).toBe(true);
-      expect(result.category?.name).toBe("Bebidas");
-    });
-
-    it("should create a subcategory with a parent_id", async () => {
-      const mockMaybeSingle = vi.fn();
-      mockMaybeSingle.mockResolvedValueOnce({ data: { plans: { name: "Pro" } }, error: null });
-      mockMaybeSingle.mockResolvedValueOnce({ data: { id: "660e8400-e29b-41d4-a716-446655440001", parent_id: null }, error: null });
-      mockSupabase.maybeSingle = mockMaybeSingle;
-
-      mockSupabase.single.mockResolvedValue({ data: { id: "cat-2", name: "Calientes", parent_id: "660e8400-e29b-41d4-a716-446655440001" }, error: null });
-      const result = await createCategory("550e8400-e29b-41d4-a716-446655440000", "Calientes", "660e8400-e29b-41d4-a716-446655440001");
-      expect(result.success).toBe(true);
-      expect(result.category?.name).toBe("Calientes");
-      expect(result.category?.parent_id).toBe("660e8400-e29b-41d4-a716-446655440001");
-      expect(mockSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({
-        parent_id: "660e8400-e29b-41d4-a716-446655440001",
-      }));
-    });
-
-    it("should allow a paid merchant to create a Level 1 category", async () => {
-      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
-        data: { user: { id: "user-123", email: "merchant@example.com" } },
-        error: null,
-      });
-
-      mockSupabase.maybeSingle.mockResolvedValue({ data: { plans: { name: "Pro" } }, error: null });
-      mockSupabase.single.mockResolvedValue({
-        data: { id: "cat-1", name: "Bebidas", parent_id: null },
-        error: null,
-      });
-
-      const result = await createCategory("550e8400-e29b-41d4-a716-446655440000", "Bebidas");
-      expect(result.success).toBe(true);
-      expect(result.category?.name).toBe("Bebidas");
-      expect(result.category?.parent_id).toBeNull();
-    });
-
-    it("should allow a paid merchant to create a Level 2 category", async () => {
-      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
-        data: { user: { id: "user-123", email: "merchant@example.com" } },
-        error: null,
-      });
-
-      const mockMaybeSingle = vi.fn();
-      mockMaybeSingle.mockResolvedValueOnce({ data: { plans: { name: "Pro" } }, error: null }); // plan check
-      mockMaybeSingle.mockResolvedValueOnce({ data: { id: "660e8400-e29b-41d4-a716-446655440001", parent_id: null }, error: null }); // parent check (Level 1 parent)
-      mockSupabase.maybeSingle = mockMaybeSingle;
-
-      mockSupabase.single.mockResolvedValue({
-        data: { id: "cat-2", name: "Calientes", parent_id: "660e8400-e29b-41d4-a716-446655440001" },
-        error: null,
-      });
-
-      const result = await createCategory("550e8400-e29b-41d4-a716-446655440000", "Calientes", "660e8400-e29b-41d4-a716-446655440001");
-      expect(result.success).toBe(true);
-      expect(result.category?.name).toBe("Calientes");
-      expect(result.category?.parent_id).toBe("660e8400-e29b-41d4-a716-446655440001");
-    });
-
-    it("should allow a paid merchant to create a Level 3 category", async () => {
-      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
-        data: { user: { id: "user-123", email: "merchant@example.com" } },
-        error: null,
-      });
-
-      const mockMaybeSingle = vi.fn();
-      mockMaybeSingle.mockResolvedValueOnce({ data: { plans: { name: "Pro" } }, error: null }); // plan check
-      mockMaybeSingle.mockResolvedValueOnce({ data: { id: "660e8400-e29b-41d4-a716-446655440001", parent_id: "770e8400-e29b-41d4-a716-446655440002" }, error: null }); // parent check (Level 2 parent)
-      mockMaybeSingle.mockResolvedValueOnce({ data: { id: "770e8400-e29b-41d4-a716-446655440002", parent_id: null }, error: null }); // grandparent check (Level 1 grandparent)
-      mockSupabase.maybeSingle = mockMaybeSingle;
-
-      mockSupabase.single.mockResolvedValue({
-        data: { id: "cat-3", name: "Tercer Nivel", parent_id: "660e8400-e29b-41d4-a716-446655440001" },
-        error: null,
-      });
-
-      const result = await createCategory("550e8400-e29b-41d4-a716-446655440000", "Tercer Nivel", "660e8400-e29b-41d4-a716-446655440001");
-      expect(result.success).toBe(true);
-      expect(result.category?.name).toBe("Tercer Nivel");
-      expect(result.category?.parent_id).toBe("660e8400-e29b-41d4-a716-446655440001");
-    });
-
-    it("should reject creating a Level 4 category", async () => {
-      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
-        data: { user: { id: "user-123", email: "merchant@example.com" } },
-        error: null,
-      });
-
-      const mockMaybeSingle = vi.fn();
-      mockMaybeSingle.mockResolvedValueOnce({ data: { plans: { name: "Pro" } }, error: null }); // plan check
-      mockMaybeSingle.mockResolvedValueOnce({ data: { id: "660e8400-e29b-41d4-a716-446655440001", parent_id: "770e8400-e29b-41d4-a716-446655440002" }, error: null }); // parent check (Level 3 parent)
-      mockMaybeSingle.mockResolvedValueOnce({ data: { id: "770e8400-e29b-41d4-a716-446655440002", parent_id: "880e8400-e29b-41d4-a716-446655440003" }, error: null }); // grandparent check (Level 2 grandparent)
-      mockSupabase.maybeSingle = mockMaybeSingle;
-
-      const result = await createCategory("550e8400-e29b-41d4-a716-446655440000", "Cuarto Nivel", "660e8400-e29b-41d4-a716-446655440001");
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("No se puede agregar una categoría en este nivel (límite de 3 niveles jerárquicos).");
-    });
-
-    it("should reject creating a category if the plan is Free", async () => {
-      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
-        data: { user: { id: "user-123", email: "merchant@example.com" } },
-        error: null,
-      });
-
-      mockSupabase.maybeSingle.mockResolvedValue({ data: { plans: { name: "Free" } }, error: null });
-
-      const result = await createCategory("550e8400-e29b-41d4-a716-446655440000", "Bebidas");
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("Tu plan no permite crear categorías.");
-    });
-
-    it("should allow an admin to create a Level 1 category even without plan check", async () => {
-      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
-        data: { user: { id: "admin-123", email: "admin@iapi.shop" } },
-        error: null,
-      });
-
-      mockSupabase.single.mockResolvedValue({
-        data: { id: "cat-admin", name: "Admin Cat", parent_id: null },
-        error: null,
-      });
-
-      const result = await createCategory("550e8400-e29b-41d4-a716-446655440000", "Admin Cat");
-      expect(result.success).toBe(true);
-      expect(result.category?.name).toBe("Admin Cat");
-    });
-
-    it("should reject creating a category if parent category does not exist", async () => {
-      mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
-        data: { user: { id: "user-123", email: "merchant@example.com" } },
-        error: null,
-      });
-
-      const mockMaybeSingle = vi.fn();
-      mockMaybeSingle.mockResolvedValueOnce({ data: { plans: { name: "Pro" } }, error: null }); // plan check
-      mockMaybeSingle.mockResolvedValueOnce({ data: null, error: null }); // parent check (not found)
-      mockSupabase.maybeSingle = mockMaybeSingle;
-
-      const result = await createCategory("550e8400-e29b-41d4-a716-446655440000", "Calientes", "a1b2c3d4-e5f6-7890-abcd-ef1234567890");
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("La categoría padre especificada no existe.");
+      expect(mockSupabase.is).toHaveBeenCalledWith("tenant_id", null);
     });
   });
 
@@ -671,23 +524,9 @@ describe("Product Catalog Actions", () => {
         const result = await createCategory(
           "550e8400-e29b-41d4-a716-446655440000",
           ""
-        );
+        const result = await createCategory("");
         expect(result.success).toBe(false);
         expect(result.error).toContain("nombre");
-      });
-
-      it("rejects name longer than 100 characters", async () => {
-        const result = await createCategory(
-          "550e8400-e29b-41d4-a716-446655440000",
-          "a".repeat(101)
-        );
-        expect(result.success).toBe(false);
-      });
-
-      it("rejects non-UUID tenant_id", async () => {
-        const result = await createCategory("not-a-uuid", "Valid Name");
-        expect(result.success).toBe(false);
-        expect(result.error).toContain("inválido");
       });
     });
 

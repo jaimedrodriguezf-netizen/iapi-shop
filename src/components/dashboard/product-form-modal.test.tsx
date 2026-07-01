@@ -203,7 +203,7 @@ describe("ProductFormModal Accessibility and Typography", () => {
     await screen.findByRole("tab", { name: /categoría/i });
     
     // We check that getCategories was called
-    expect(getCategories).toHaveBeenCalledWith("tenant-123");
+    expect(getCategories).toHaveBeenCalled();
   });
 
   it("supports parent category selection up to level 2 for merchants and admins", async () => {
